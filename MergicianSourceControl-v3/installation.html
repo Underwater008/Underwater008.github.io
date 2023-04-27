@@ -1,0 +1,366 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="./images/x-icon.png" type="image/x-icon">
+  <title>Perforce Unreal Setup Guide</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300&display=swap');
+
+    h2 {
+      text-align: center;
+      padding: 2%;
+    }
+
+    p {
+      padding: 2%;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand rainbow" href="./index.html">Perforce Installation Guide</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="./index.html">About</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="./installation.html">Installation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./cppdev.html">C++ Development</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main class="installation-container">
+
+    <div class="installation-column">
+      <section id="installation">
+        <h2>Dowbload and Install</h2>
+        <ol>
+          <li>
+            <p>Follow the video from 3:50 to 5:30 <br> <a href="https://youtu.be/keqWj5RSYAI?t=230"
+                target="_blank">Unreal
+                Source Control: Start Collaborating with Unreal Engine| Perforce</a>
+              <br>
+              <iframe width="70%" height="80%" src="https://www.youtube.com/embed/keqWj5RSYAI?start=230"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+            </p>
+          </li>
+          <li>
+            <p>Download and install Perforce following the video.(Select Windows and EXE)</p>
+          </li>
+          <li>
+            <p>If a sign up form pops up after you click download on the Perforce website just select “Helix core
+              server”
+              and “on premise”</p>
+          </li>
+          <li>
+            <p>Install P4D and P4V.</p>
+          </li>
+        </ol>
+      </section>
+    </div>
+
+    <div class="installation-column">
+      <section id="workspace">
+        <h2>Connect and Create Workspace</h2>
+        <ol>
+          <li>
+            <p>Ask Xiao for a user name.</p>
+          </li>
+          <li>
+            <p>When you see this, put in 71.105.109.226:80 for Server:
+              <br>
+              <img src="./images/ConnectImage.png" alt="ConnectImage" width="50%" height="80%" srcset="./images/ConnectImage-min.png 1x, ./images/ConnectImage.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>If Xiao has registered a user for you, you should be able to Browse and see your username.</p>
+          </li>
+          <li>
+            <p>Click the + button next to Files and open up stream graph.
+              <br>
+              <img src="./images/CreateWorkspaceImage.png" alt="CreateWorkspaceImage" width="80%" height="80%" srcset="./images/CreateWorkspaceImage-min.png 1x, ./images/CreateWorkspaceImage.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>In the Stream Graph, right click on the main stream and create a new workspace.
+              <br>
+              <img src="./images/StreamGraph.png" alt="StreamGraph" width="60%" height="60%" srcset="images/StreamGraph-min.png 1x, images/StreamGraph.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>When creating a workspace, make sure the stream is main and check automatically to get all revisions.
+              <br>
+              <img src="./images/WorkspaceChecks.png" alt="WorkspaceChecks" width="60%" height="60%" srcset="./images/WorkspaceChecks-min.png 1x, ./images/WorkspaceChecks.png 2x">
+            </p>
+          </li>
+      </section>
+      </ol>
+    </div>
+
+    <div class="installation-column">
+      <section id="typemap">
+        <h2>Typemap setup</h2>
+        <ol>
+          <li>
+            <p>Once the workspace is created, open the command line and type p4 set P4IGNORE=.p4ignore
+              <br>
+              <img src="./images/P4Typemap.png" alt="P4Typemap" width="60%" height="60%" srcset="./images/P4Typemap-min.png 1x, ./images/P4Typemap.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>Then type p4 typemap, your notepad should be opened.
+              <br>
+              <img src="./images/notepad.png" alt="notepad" width="60%" height="60%" srcset="./images/notepad-min.png 1x, ./images/notepad.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>Copy from this file and paste it under your empty typemap. Then close the notepad and you should see the
+              following image
+              <br>
+              <img src="images/typemapsaved.png" alt="typemapsaved" width="60%" height="60%" srcset="./images/typemapsaved-min.png 1x, ./images/typemapsaved.png 2x">
+            </p>
+          </li>
+      </section>
+      </ol>
+    </div>
+
+    <div class="installation-column">
+      <section id="project">
+        <h2>Opening the Project</h2>
+        <ol>
+          <li>
+            <p>Click get latest in your P4V. Wait for the download to finish.
+              <br>
+              <img src="./images/Getlatest.png" alt="Getlatest" width="60%" height="60%" srcset="images/Getlatest-min.png 1x, images/Getlatest.png 2x">
+            </p>
+          </li>
+          <li>
+            <p>Under your workspace, locate a file that ends with .uproject in workspace, and click Check Out, now you
+              should see it under your pending panel.</p>
+          </li>
+          <li>
+            <p>Double click to open it, a window will pop up saying Generating project files if you are opening it for
+              the
+              first time.</p>
+          </li>
+          <li>
+            <p>After it finishes, you should see some new folders and a .sln file.</p>
+          </li>
+          <li>
+            <p>If you get a pop up that says something along the lines of “… set association for projects “ means you
+              don’t have permission to edit the project.</p>
+          </li>
+          <ol style="list-style-type: lower-alpha;;">
+            <li>
+              <p>This means you need the check out <br> Example: If you want to change a UI Widget blueprint, go to the
+                UIs folder and manually check it out.</p>
+            </li>
+            <li>
+              <p>Every time you want to do something, Please checkout the .uproject file.</p>
+            </li>
+            <li>
+              <p>Everything you Check Out will be in the Pending tab,under your default change list. Press Submit to
+                push the file, and write your comments</p>
+            </li>
+            <li>
+              <p>If you connect your Unreal Engine to perforce you can check out in Unreal Editor</p>
+            </li>
+            <li>
+              <p>If you hover over a file you can see when it was last checked out. An exclusive checkout means only one
+                person can change it at the moment.</p>
+            </li>
+            <li>
+              <p>Everything under the Content folder is exclusive.</p>
+            </li>
+          </ol>
+      </section>
+      </ol>
+    </div>
+
+    <div class="installation-column" style="margin-bottom: 5vh;">
+      <section id="unreal">
+        <h2>Connect Perforce with UE</h2>
+        <ol>
+          <li>
+            <p>After the project opens, connect Perforce to UE by following the guide here <a
+                href="https://www.perforce.com/products/helix-core/configure-helix-core-game-engine#tab-panel-49241"
+                target="_blank">Connecting Perforce to Unreal Engine</a></p>
+            <p>Please also read <a
+                href="https://www.modelical.com/en/gdocs/perforce-connection-collaborative-project-in-unreal/"
+                target="_blank">Unreal Engine Perforce Best Practices</a></p>
+          </li>
+      </section>
+      </ol>
+    </div>
+
+  </main>
+
+
+
+  <footer>
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="toggleTheme">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <p>©Xiao Zhixuan 2023, <a href="mailto:zhixuan.xiao@nyu.edu"
+        style="color: aliceblue; text-decoration: none;">zhixuan.xiao@nyu.edu</a>, All Rights Reserved.</p>
+  </footer>
+
+
+  <script src="./myscripts.js"></script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installation Steps for Perforce</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300&display=swap');
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1 class="rainbow">Perforce Installation Guide</h1>
+      <ul class="nav-links">
+        <li><a href="index.html">About</a></li>
+        <li><a href="installation.html">Installation</a></li>
+        <li><a href="cppdev.html">C++ Development Only</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="container">
+    <div class="content">
+    <aside>
+      <ul class="doc-nav-links" style="margin: 10%;">
+        <li><a href="#installation">Step 1: Download and Install</a></li>
+        <li><a href="#workspace">Step 2: Connect and Create Workspace</a></li>
+        <li><a href="#typemap">Step 3: Typemap Setup</a></li>
+        <li><a href="#project">Step 4: Open Project</a></li>
+        <li><a href="#unreal">Step 5: Connect Perforce to UE</a></li>
+      </ul>
+    </aside>
+      <main style="margin: 5%;">
+        <ol>
+          <section id="installation">
+            <h2>Dowbload and Install</h2>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/keqWj5RSYAI?start=230" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <li><p>Follow the video from 3:50 to 5:30 <br> <a href="https://youtu.be/keqWj5RSYAI?t=230" target="_blank">Unreal Source Control: Start Collaborating with Unreal Engine| Perforce</a></p>
+              <ol style="list-style-type: lower-alpha;;">
+                <li><p>Download and install Perforce following the video.(Select Windows and EXE)</p></li>
+                <li><p>If a sign up form pops up after you click download on the Perforce website just select “Helix core server” and “on premise”</p></li>
+                <li><p>Install P4D and P4V.</p></li>
+              </ol>
+            </li>
+          </section>
+          <section id="workspace">
+            <h2>Connect and Create Workspace</h2>
+            <li><p>Ask Xiao for a user name.</p></li>
+            <li><p>When you see this, put in 71.105.109.226:80 for Server:</p><img src="images/ConnectImage.png" alt="ConnectImage" width="560" height="315"></li>
+            <li><p>If Xiao has registered a user for you, you should be able to Browse and see your username.</p></li>
+            <li><p>Click the + button next to Files and open up stream graph.</p><img src="images/CreateWorkspaceImage.png" alt="CreateWorkspaceImage" width="80%" height="80%"></li>
+            <li><p>In the Stream Graph, right click on the main stream and create a new workspace.</p><img src="images/StreamGraph.png" alt="StreamGraph" width="60%" height="60%"></li>
+            <li><p>When creating a workspace, make sure the stream is main and check automatically to get all revisions.</p><img src="images/WorkspaceChecks.png" alt="WorkspaceChecks" width="60%" height="60%"></li>
+          </section>
+          <section id="typemap">
+            <h2>Typemap setup</h2>
+            <li><p>Once the workspace is created, open the command line and type p4 set P4IGNORE=.p4ignore</p><img src="images/P4Typemap.png" alt="P4Typemap" width="60%" height="60%"></li>
+            <li><p>Then type p4 typemap, your notepad should be opened.</p><img src="images/notepad.png" alt="notepad" width="60%" height="60%"></li>
+            <li><p>Copy from this file and paste it under your empty typemap. Then close the notepad and you should see the following image</p><img src="images/typemapsaved.png" alt="typemapsaved" width="60%" height="60%"></li>
+            <li><p>Once the workspace is created, open the command line and type p4 set P4IGNORE=.p4ignore</p><img src="images/P4Typemap.png" alt="P4Typemap" width="60%" height="60%"></li>
+          </section>
+          <section id="project">
+            <h2>Opening the Project</h2>
+            <li><p>Click get latest in your P4V. Wait for the download to finish.</p><img src="images/Getlatest.png" alt="Getlatest" width="60%" height="60%"></li>
+            <li><p>Under your workspace, locate a file that ends with .uproject in workspace, and click Check Out, now you should see it under your pending panel.</p></li>
+            <li><p>Double click to open it, a window will pop up saying Generating project files if you are opening it for the first time.</p></li>
+            <li><p>After it finishes, you should see some new folders and a .sln file.</p></li>
+            <li><p>If you get a pop up that says something along the lines of “… set association for projects “ means you don’t have permission to edit the project.</p>
+              <ol style="list-style-type: lower-alpha;;">
+                <li><p>This means you need the check out <br> Example: If you want to change a UI Widget blueprint, go to the UIs folder and manually check it out.</p></li>
+                <li><p>Every time you want to do something, Please checkout the .uproject file.</p></li>
+                <li><p>Everything you Check Out will be in the Pending tab,under your default change list. Press Submit to push the file, and write your comments</p></li>
+                <li><p>If you connect your Unreal Engine to perforce you can check out in Unreal Editor</p></li>
+                <li><p>If you hover over a file you can see when it was last checked out. An exclusive checkout means only one person can change it at the moment.</p></li>
+                <li><p>Everything under the Content folder is exclusive.</p></li>
+              </ol>
+            </li>
+          </section>
+          <section id="unreal">
+            <h2>Connect Perforce with UE</h2>
+            <li><p>After the project opens, connect Perforce to UE by following the guide here <a href="https://www.perforce.com/products/helix-core/configure-helix-core-game-engine#tab-panel-49241" target="_blank">Connecting Perforce to Unreal Engine</a></p></li>
+            <li><p>Please also read <a href="https://www.modelical.com/en/gdocs/perforce-connection-collaborative-project-in-unreal/" target="_blank">Unreal Engine Perforce Best Practices</a></p></li>
+          </section>
+        </ol>
+      </main>
+  </div>
+  </div>
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="toggleTheme">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <footer>
+    <script>
+      const toggleSwitch = document.querySelector('.switch input[type="checkbox"]');
+      const body = document.querySelector('body');
+      const navLinks = document.querySelectorAll('.nav-links a');
+    
+      function switchTheme(e) {
+        if (e.target.checked) {
+          body.classList.add('dark-mode');
+          navLinks.forEach(link => link.classList.add('dark-mode'));
+        } else {
+          body.classList.remove('dark-mode');
+          navLinks.forEach(link => link.classList.remove('dark-mode'));
+        }
+      }
+    
+      toggleSwitch.addEventListener('change', switchTheme, false);
+    </script>
+    <p>©Xiao Zhixuan 2023, <a href="mailto:zhixuan.xiao@nyu.edu" style="color: aliceblue; text-decoration: none;">zhixuan.xiao@nyu.edu</a>, All Rights Reserved.</p>
+  </footer>
+</body>
+</html> -->
