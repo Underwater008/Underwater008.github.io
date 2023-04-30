@@ -9,33 +9,45 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
     
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Xiao Zhixuan</title>
-  <script type="module" crossorigin src="/assets/index-e23aff00.js"></script>
-  <link rel="stylesheet" href="/assets/index-5f88d061.css">
+  <script type="module" crossorigin src="/assets/index-5f81e7cf.js"></script>
+  <link rel="stylesheet" href="/assets/index-ee07d58d.css">
 </head>
 
 <body>
-    
-    <header> <a href="./index.html">XIAO</a> </header>
+
+    <header class="transfadein"> <a id="header-link" href="./index.html">XIAO</a> </header>
 
     <div id="content-container">
-        <!-- <canvas id="bgcanvas"></canvas> -->
         <!-- <p>I'm Xiao.</p>
         <p> <a href="./MergicianSourceControl-v3/index.html">Perforce Source Control</a></p> -->
-            <!-- 3D Model -->
-    
+        <!-- 3D Model -->
+        
     </div>
-    
+
+    <nav class="transfadein">
+        <button id="reset-btn">
+            <svg width="30" height="30" viewBox="0 0 30 30">
+                <circle cx="15" cy="15" r="14" stroke="black" stroke-width="2" fill="none" />
+            </svg>
+        </button>
+        <button id="stellarune-btn">Stellarune</button>
+        <button id="freefall2-btn">Freefall2</button>
+        <button id="blogs-btn">Blogs</button>
+        <button id="About-btn">About</button>
+    </nav>
+
     <!-- Loading Screen -->
     <div id="loading-screen">
-        <h1 id="loading-text">  I am <span id="job-title">a Game Designer</span></h1>
+        <h1 id="loading-text"> I am <span id="job-title">a Game Designer</span></h1>
         <!-- Progress Bar -->
         <div id="progress-container">
             <div id="progress"></div>
         </div>
         <canvas id="drawing-canvas"></canvas>
     </div>
-    
+
 </body>
 
 </html>
