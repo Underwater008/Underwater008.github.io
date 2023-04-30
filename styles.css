@@ -1,22 +1,28 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: 'Roboto', sans-serif;
-}
+.transfadein {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+  
 
 header {
-    position: absolute;
-    font-size: 6vw;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    width: 100%;
+    font-size: 30px;
     font-family: "Hubballi", sans-serif;
-    /* transform: translate(-50%, -50%); */
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 2px solid black;
-    transition: top 1s;
     z-index: 1;
+    background-color: rgba(255, 255, 255, 0.777);
+  }
+  
+
+#header-link {
+    text-decoration: none;
+    color: black;
 }
 
 #module {
@@ -37,6 +43,35 @@ canvas {
     left: 0;
     z-index: 0;
 }
+
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 10;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  nav button {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    font-family: "Roboto", sans-serif;
+    margin: 0 10px;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  nav button:hover {
+    color: #555;
+  }
+  
 
 /* Add styles for the loading screen and progress bar */
 #loading-screen {
@@ -60,7 +95,7 @@ canvas {
     left: 0;
     z-index: -1;
   } */
-  
+
 
 #drawing-canvas {
     position: absolute;
@@ -72,18 +107,19 @@ canvas {
     cursor: crosshair;
 }
 
-#loading-text{
+
+#loading-text {
     font-family: "Hubballi", sans-serif;
 }
 
 #job-title.fade-out {
     opacity: 0;
     transition: opacity 0.5s ease-out;
-  }
+}
 
 #job-title.fade-in {
-  opacity: 1;
-  transition: opacity 0.5s ease-out;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
 }
 
 #progress-container {
@@ -101,14 +137,15 @@ canvas {
     background-color: rgb(255, 0, 0);
     width: 0%;
     transition: width 2s ease-out;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* add box shadow with blur */
-  }
-  
-  /* Mobile layout */
-  @media (max-width: 768px) {
-    header {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    /* add box shadow with blur */
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+    /* header {
         font-size: 8vw;
-    }
+    } */
 
     /* Add more styles for smaller screens if needed */
 }
