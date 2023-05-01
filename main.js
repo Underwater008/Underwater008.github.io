@@ -2,8 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader';
 
+const showLoadingScreen = true;
+const firstVisit = localStorage.getItem("firstVisit") === null;
+
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const myCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 0);
@@ -11,30 +14,41 @@ document.body.appendChild(renderer.domElement);
 
 const loader = new GLTFLoader();
 
-const controls = new OrbitControls(camera, renderer.domElement);
-
+// Rotate control
+const controls = new OrbitControls(myCamera, renderer.domElement);
+controls.enablePan = false;
 
 let targetScale = window.innerWidth / 1000;
 let currentItemLoaded = 0;
 
 let model;
 
-loader.load('./3DModels/dice/scene.gltf', (gltf) => {
+loader.load('./3DModels/cozy_campfire_-_shape_key_animation/scene.gltf', (gltf) => {
   model = gltf.scene;
   scene.add(model);
+  const fireLight = new THREE.PointLight(0xE31937, 2, 50);
+  model.add(fireLight);
+  model.traverse((node) => {
+    if (node.isMesh) {
+      if (node.material.emissiveMap) {
+        node.material.emissiveIntensity = 200;
+      }
+    }
+  });
+  
   itemLoaded();
 }, undefined, (error) => {
   console.error(error);
 });
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+// scene.add(ambientLight);
 
-const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-pointLight.position.set(10, 10, 10);
-scene.add(pointLight);
+// const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+// pointLight.position.set(10, 10, 10);
+// scene.add(pointLight);
 
-camera.position.z = 5;
+myCamera.position.z = 5;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -43,15 +57,15 @@ function animate() {
   controls.update();
 
   // Render the scene
-  renderer.render(scene, camera);
+  renderer.render(scene, myCamera);
 }
 
 // Call the animate function
 animate();
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  myCamera.aspect = window.innerWidth / window.innerHeight;
+  myCamera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   // Set target scale based on viewport width
@@ -79,29 +93,30 @@ const aboutBtn = document.getElementById("About-btn");
 
 resetBtn.addEventListener("click", () => {
   rotateModel(0, 0, 0); // Reset the model's rotation
-  TweenMax.to(camera.position, 1, { x: 0, y: 0, z: 5 });
+  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 stellaruneBtn.addEventListener("click", () => {
   rotateModel(0, Math.PI / 4, 0); // Rotate the model to a certain degree
-  TweenMax.to(camera.position, 1, { x: 0, y: 0, z: 5 });
+  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 freefall2Btn.addEventListener("click", () => {
   rotateModel(0, Math.PI / 2, 0); // Rotate the model to another degree
-    TweenMax.to(camera.position, 1, { x: 0, y: 0, z: 5 });
+    TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 blogsBtn.addEventListener("click", () => {
   rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(camera.position, 1, { x: 0, y: 0, z: 5 });
+  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 aboutBtn.addEventListener("click", () => {
   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(camera.position, 1, { x: 0, y: 0, z: 5 });
+  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
+// Loading screen logic
 // Loading screen logic
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
@@ -110,6 +125,12 @@ const progressBar = document.getElementById('progress');
 const jobTitles = ['Gamer', 'a Programmer', 'a Technical Artist', 'a Homo Ludens', 'XIAO'];
 let totalItemsToLoad = 1;
 let currentJobTitleIndex = 0;
+
+if (firstVisit) {
+  cycleJobTitles();
+} else {
+  jobTitle.innerText = jobTitles[jobTitles.length - 1];
+}
 
 //Loading Screen Finished
 function appear() {
@@ -124,7 +145,7 @@ function itemLoaded() {
   currentItemLoaded++;
   updateProgressBar();
 
-  if (currentItemLoaded >= totalItemsToLoad && currentJobTitleIndex >= jobTitles.length) {
+  if (currentItemLoaded >= totalItemsToLoad && (!firstVisit || currentJobTitleIndex >= jobTitles.length)) {
     setTimeout(() => {
       loadingText.style.opacity = '0';
       progressBar.style.opacity = '0';
@@ -133,6 +154,7 @@ function itemLoaded() {
 
       // Call the appear function after the loading screen is hidden
       appear();
+      localStorage.setItem("firstVisit", "false");
     }, 1000);
   }
 }
@@ -141,17 +163,16 @@ function itemLoaded() {
 function updateProgressBar() {
   const progress = document.querySelector('#progress');
   const currentWidth = parseInt(window.getComputedStyle(progress).getPropertyValue('width'));
-  const newWidth = Math.round(((currentItemLoaded + currentJobTitleIndex) / (totalItemsToLoad + jobTitles.length)) * 100);
+  const newWidth = Math.round(((currentItemLoaded + currentJobTitleIndex) / (totalItemsToLoad + (firstVisit ? jobTitles.length : 0))) * 100);
   progress.style.width = newWidth + '%';
 }
 
-function cycleJobTitles(callback) {
+function cycleJobTitles() {
   let cycleInterval = setInterval(() => {
     currentJobTitleIndex++;
     if (currentJobTitleIndex >= jobTitles.length) {
       clearInterval(cycleInterval);
       itemLoaded();
-      callback();
     } else {
       // Fade out the previous job title
       jobTitle.classList.add('fade-out');
@@ -173,9 +194,6 @@ function cycleJobTitles(callback) {
   }, 1500);
 }
 
-cycleJobTitles(() => {
-  itemLoaded();
-});
 
 // Draw during Loading Screen
 const canvas = document.getElementById("drawing-canvas");
@@ -235,6 +253,13 @@ canvas.addEventListener("touchmove", (e) => {
 window.addEventListener("resize", () => {
   redraw();
 });
+
+if (!showLoadingScreen) {
+  const loadingScreen = document.getElementById('loading-screen');
+  loadingScreen.style.display = 'none';
+  document.getElementById('content-container').style.opacity = '1';
+  appear();
+}
 
 
 

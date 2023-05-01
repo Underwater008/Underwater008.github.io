@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="./public/images/logo_favcon.png" type="image/x-icon" sizes="16x16">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     <link rel="stylesheet" href="./styles.css">
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
@@ -15,36 +16,40 @@
 
 <body>
 
-    <header class="transfadein"> <a id="header-link" href="./index.html">XIAO</a> </header>
+    <header class="transfadein"><button id="reset-btn">XIAO</button></header>
 
     <div id="content-container">
-        <!-- <p>I'm Xiao.</p>
-        <p> <a href="./MergicianSourceControl-v3/index.html">Perforce Source Control</a></p> -->
         <!-- 3D Model -->
         <script type="module" src="./main.js"></script>
     </div>
 
+    <div id="homo-ludens-info" style="display:none;">
+        Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea is that play is a crucial part of human culture and influences how we develop as a society. Play is not just for fun; it affects many areas of our lives like language, art, and religion. This concept has inspired researchers to study the role of play in various fields.
+    </div>
+    
     <nav class="transfadein">
-        <button id="reset-btn">
-            <svg width="30" height="30" viewBox="0 0 30 30">
-                <circle cx="15" cy="15" r="14" stroke="black" stroke-width="2" fill="none" />
-            </svg>
-        </button>
+        <button id="About-btn">About</button>
         <button id="stellarune-btn">Stellarune</button>
         <button id="freefall2-btn">Freefall2</button>
         <button id="blogs-btn">Blogs</button>
-        <button id="About-btn">About</button>
+        <button id="HomoLudens">What is Homo Ludens</button>
     </nav>
 
     <!-- Loading Screen -->
     <div id="loading-screen">
         <h1 id="loading-text"> I am <span id="job-title">a Game Designer</span></h1>
-        <!-- Progress Bar -->
         <div id="progress-container">
             <div id="progress"></div>
         </div>
         <canvas id="drawing-canvas"></canvas>
     </div>
+    
+<script>
+    document.getElementById('HomoLudens').addEventListener('click', function() {
+        const infoDiv = document.getElementById('homo-ludens-info');
+        infoDiv.style.display = infoDiv.style.display === 'none' ? 'block' : 'none';
+    });
+</script>
 
 </body>
 
