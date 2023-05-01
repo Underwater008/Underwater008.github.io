@@ -3,18 +3,29 @@
     transform: translateY(50px);
     transition: opacity 1.5s ease, transform 1.5s ease;
 }
+/* 
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('./images/LineWaves0001.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center bottom;
+    background-attachment: fixed;
+} */
 
 
 header {
-    position: absolute;
-    display: flex;
+    position: fixed;
     align-items: center;
-    justify-content: center;
     top: 0%;
+    left: 0%;
     width: 100%;
     text-align: center;
     padding-top: 20px;
-    z-index: 1;
+    z-index: 2;
+    background: linear-gradient(to bottom, #ffffff 15%, rgba(194, 194, 194, 0));
+
 }
 
 header button {
@@ -46,6 +57,8 @@ header button:hover {
     z-index: 1;
     opacity: 0;
     transition: opacity 1s;
+    padding-bottom: 120px;
+    /* margin-bottom: 80%; */
 }
 
 canvas {
@@ -63,9 +76,9 @@ nav {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 35px;
-    background-image: url('./public/images/navBackground.gif');
-    z-index: 10;
+    height: 120px;
+    background: linear-gradient(to top, #ffffff 60%, rgba(255, 255, 255, 0) 100%);
+    z-index: 2;
 }
 
 nav button {
@@ -73,7 +86,7 @@ nav button {
     border: none;
     font-size: 16px;
     font-family: 'New Tegomin', serif;
-    padding-bottom: 70px;
+    padding-top: 10px;
     margin-left: auto;
     margin-right: auto;
     cursor: pointer;
@@ -85,7 +98,37 @@ nav button:hover {
     color: rgb(146, 0, 0);
 }
 
-/* Add styles for the loading screen and progress bar */
+nav #bgMedia {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    z-index: -1;
+    background-image: url('./images/LineWaves0001.png');
+    /* background-repeat: no-repeat; */
+    background-size: 150px;
+    background-position: center bottom;
+} 
+
+/* #bgMedia {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 40px;
+    z-index: -1;
+    overflow: hidden;
+}
+
+#bgMedia img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+} 
+
+
+Add styles for the loading screen and progress bar */
 #loading-screen {
     position: fixed;
     top: 0;
@@ -145,24 +188,47 @@ nav button:hover {
 }
 
 #homo-ludens-info {
-    font-family: "Roboto", sans-serif;
-    font-size: 16px;
+    display: flex;
+    position: relative;
     max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
+    z-index: 1;
+    transition: 2s;
+    margin-left: 50%;
+    margin-top: 10%;
+}
+
+#homo-ludens-info p {
+    font-family: 'New Tegomin', serif;
+    font-size: 16px;
     text-align: left;
+    padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     background-color: #f9f9f9;
 }
 
-
 /* Mobile layout */
 @media (max-width: 768px) {
-    /* header {
-        font-size: 8vw;
-    } */
 
-    /* Add more styles for smaller screens if needed */
+    #homo-ludens-info {
+        display: flex;
+        position: relative;
+        max-width: 600px;
+        z-index: 1;
+        transition: 2s;
+        margin-left: 40%;
+        margin-top: 80px;
+    }
+
+    #homo-ludens-info p {
+        font-family: 'New Tegomin', serif;
+        font-size: 16px;
+        text-align: left;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
 }

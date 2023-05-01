@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./public/images/logo_favcon.png" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="./images/logo_favcon.png" type="image/x-icon" sizes="16x16">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
@@ -19,21 +19,35 @@
     <header class="transfadein"><button id="reset-btn">XIAO</button></header>
 
     <div id="content-container">
+
+        <div id="homo-ludens-info" style="display:none;">
+
+            <p>Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea
+                is that play is a crucial part of human culture and influences how we develop as a society. Play is not
+                just for fun; it affects many areas of our lives like language, art, and religion. This concept has
+                inspired researchers to study the role of play in various fields.</p>
+
+            <p>Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea
+                is that play is a crucial part of human culture and influences how we develop as a society. Play is not
+                just for fun; it affects many areas of our lives like language, art, and religion. This concept has
+                inspired researchers to study the role of play in various fields.</p>
+
+            <button>Learn More</button>
+        </div>
+
         <!-- 3D Model -->
         <script type="module" src="./main.js"></script>
-    </div>
 
-    <div id="homo-ludens-info" style="display:none;">
-        Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea is that play is a crucial part of human culture and influences how we develop as a society. Play is not just for fun; it affects many areas of our lives like language, art, and religion. This concept has inspired researchers to study the role of play in various fields.
+        <nav class="transfadein">
+            <button id="About-btn">About</button>
+            <button id="stellarune-btn">Stellarune</button>
+            <button id="freefall2-btn">Freefall2</button>
+            <button id="blogs-btn">Blogs</button>
+            <button id="homo-ludens">What is Homo Ludens</button>
+            <span id="bgMedia">
+            </span>
+        </nav>
     </div>
-    
-    <nav class="transfadein">
-        <button id="About-btn">About</button>
-        <button id="stellarune-btn">Stellarune</button>
-        <button id="freefall2-btn">Freefall2</button>
-        <button id="blogs-btn">Blogs</button>
-        <button id="HomoLudens">What is Homo Ludens</button>
-    </nav>
 
     <!-- Loading Screen -->
     <div id="loading-screen">
@@ -43,13 +57,6 @@
         </div>
         <canvas id="drawing-canvas"></canvas>
     </div>
-    
-<script>
-    document.getElementById('HomoLudens').addEventListener('click', function() {
-        const infoDiv = document.getElementById('homo-ludens-info');
-        infoDiv.style.display = infoDiv.style.display === 'none' ? 'block' : 'none';
-    });
-</script>
 
 </body>
 
