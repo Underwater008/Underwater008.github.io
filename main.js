@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader';
 
-const showLoadingScreen = false;
-const firstVisit = localStorage.getItem("firstVisit") === null;
+const showLoadingScreen = true;
+const firstVisitXiao = localStorage.getItem("firstVisitXiao") === null;
 
 const scene = new THREE.Scene();
 
@@ -152,7 +152,7 @@ const jobTitles = ['Gamer', 'a Programmer', 'a Technical Artist', 'a Homo Ludens
 let totalItemsToLoad = 1;
 let currentJobTitleIndex = 0;
 
-if (firstVisit) {
+if (firstVisitXiao) {
   cycleJobTitles();
 } else {
   jobTitle.innerText = jobTitles[jobTitles.length - 1];
@@ -171,7 +171,7 @@ function itemLoaded() {
   currentItemLoaded++;
   updateProgressBar();
 
-  if (currentItemLoaded >= totalItemsToLoad && (!firstVisit || currentJobTitleIndex >= jobTitles.length)) {
+  if (currentItemLoaded >= totalItemsToLoad && (!firstVisitXiao || currentJobTitleIndex >= jobTitles.length)) {
     setTimeout(() => {
       loadingText.style.opacity = '0';
       progressBar.style.opacity = '0';
@@ -180,7 +180,7 @@ function itemLoaded() {
 
       // Call the appear function after the loading screen is hidden
       appear();
-      localStorage.setItem("firstVisit", "false");
+      localStorage.setItem("firstVisitXiao", "false");
     }, 1000);
   }
 }
@@ -189,7 +189,7 @@ function itemLoaded() {
 function updateProgressBar() {
   const progress = document.querySelector('#progress');
   const currentWidth = parseInt(window.getComputedStyle(progress).getPropertyValue('width'));
-  const newWidth = Math.round(((currentItemLoaded + currentJobTitleIndex) / (totalItemsToLoad + (firstVisit ? jobTitles.length : 0))) * 100);
+  const newWidth = Math.round(((currentItemLoaded + currentJobTitleIndex) / (totalItemsToLoad + (firstVisitXiao ? jobTitles.length : 0))) * 100);
   progress.style.width = newWidth + '%';
 }
 
