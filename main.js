@@ -44,13 +44,6 @@ loader.load('./3DModels/cozy_campfire_-_shape_key_animation/scene.gltf', (gltf) 
   console.error(error);
 });
 
-// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-// scene.add(ambientLight);
-
-// const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-// pointLight.position.set(10, 10, 10);
-// scene.add(pointLight);
-
 myCamera.position.x = 30;
 myCamera.position.y = 60;
 myCamera.position.z = 80;
@@ -67,7 +60,6 @@ function animate() {
   renderer.render(scene, myCamera);
 
   console.log(myCamera.position);
-
 }
 
 // Call the animate function
@@ -96,10 +88,10 @@ function rotateModel(x, y, z) {
 
 
 const resetBtn = document.getElementById("reset-btn");
-const stellaruneBtn = document.getElementById("stellarune-btn");
-const freefall2Btn = document.getElementById("freefall2-btn");
+// const stellaruneBtn = document.getElementById("stellarune-btn");
+// const freefall2Btn = document.getElementById("freefall2-btn");
 const blogsBtn = document.getElementById("blogs-btn");
-const aboutBtn = document.getElementById("About-btn");
+// const aboutBtn = document.getElementById("About-btn");
 const HomoLudenBtn = document.getElementById("homo-ludens");
 
 resetBtn.addEventListener("click", () => {
@@ -108,17 +100,17 @@ resetBtn.addEventListener("click", () => {
   TweenMax.to(myCamera.position, 1, { x: 30, y: 60, z: 80 });
 });
 
-stellaruneBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, Math.PI / 4, 0); // Rotate the model to a certain degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-});
+// stellaruneBtn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, Math.PI / 4, 0); // Rotate the model to a certain degree
+//   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+// });
 
-freefall2Btn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, Math.PI / 2, 0); // Rotate the model to another degree
-    TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-});
+// freefall2Btn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, Math.PI / 2, 0); // Rotate the model to another degree
+//     TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+// });
 
 blogsBtn.addEventListener("click", () => {
   resetLandingPage();
@@ -126,26 +118,32 @@ blogsBtn.addEventListener("click", () => {
   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
-aboutBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-});
+// aboutBtn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
+//   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+// });
 
 const infoDiv = document.getElementById('homo-ludens-info');
 HomoLudenBtn.addEventListener("click", () => {
+  if(infoDiv.style.opacity != "0"){
+    TweenMax.to(myCamera.position, 2, { x: -7.6, y: 2.58, z: 2.37, ease: Power2.easeInOut });
+    rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
+    return;
+  }
   resetLandingPage();
+  TweenMax.to(myCamera.position, 2, { x: -7.6, y: 2.58, z: 2.37, ease: Power2.easeInOut });
   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: -10.9, y: 3.7, z: 3.4 });
-  infoDiv.style.display = 'block';
+  setTimeout(() => {
+    infoDiv.style.opacity = "1";
+  }, 1500);
 });
 
 function resetLandingPage(){
-  infoDiv.style.display = 'none';
+  infoDiv.style.opacity = '0';
 }
 
-// Loading screen logic
-// Loading screen logic
+//////////// Loading screen logic ////////////
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 const jobTitle = document.getElementById('job-title');
@@ -288,6 +286,3 @@ if (!showLoadingScreen) {
   document.getElementById('content-container').style.opacity = '1';
   appear();
 }
-
-
-
