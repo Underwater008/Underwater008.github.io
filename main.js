@@ -113,9 +113,11 @@ resetBtn.addEventListener("click", () => {
 // });
 
 blogsBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+  window.open("./xiaoblogs.html", "_self");
+
+  // resetLandingPage();
+  // rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree
+  // TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 // aboutBtn.addEventListener("click", () => {

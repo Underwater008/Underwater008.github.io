@@ -95,11 +95,11 @@ function rotateModel(x, y, z) {
 
 
 const resetBtn = document.getElementById("reset-btn");
-const stellaruneBtn = document.getElementById("stellarune-btn");
-const freefall2Btn = document.getElementById("freefall2-btn");
+// const stellaruneBtn = document.getElementById("stellarune-btn");
+// const freefall2Btn = document.getElementById("freefall2-btn");
 const blogsBtn = document.getElementById("blogs-btn");
 const aboutBtn = document.getElementById("About-btn");
-const HomoLudenBtn = document.getElementById("homo-ludens");
+// const HomoLudenBtn = document.getElementById("homo-ludens");
 
 resetBtn.addEventListener("click", () => {
   resetLandingPage();
@@ -107,22 +107,24 @@ resetBtn.addEventListener("click", () => {
   TweenMax.to(myCamera.position, 1, { x: 30, y: 60, z: 80 });
 });
 
-stellaruneBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, Math.PI / 4, 0); // Rotate the model to a certain degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-});
+// stellaruneBtn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, Math.PI / 4, 0); // Rotate the model to a certain degree
+//   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+// });
 
-freefall2Btn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, Math.PI / 2, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-});
+// freefall2Btn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, Math.PI / 2, 0); // Rotate the model to another degree
+//   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+// });
 
 blogsBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
+  window.open("./xiaoblogs.html", "_self");
+
+  // resetLandingPage();
+  // rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree
+  // TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
 aboutBtn.addEventListener("click", () => {
@@ -131,14 +133,14 @@ aboutBtn.addEventListener("click", () => {
   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
-const infoDiv = document.getElementById('homo-ludens-info');
-HomoLudenBtn.addEventListener("click", () => {
-  resetLandingPage();
-  rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
-  TweenMax.to(myCamera.position, 1, { x: -10.9, y: 3.7, z: 3.4 });
-  infoDiv.style.display = 'block';
-});
+// const infoDiv = document.getElementById('homo-ludens-info');
+// HomoLudenBtn.addEventListener("click", () => {
+//   resetLandingPage();
+//   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
+//   TweenMax.to(myCamera.position, 1, { x: -10.9, y: 3.7, z: 3.4 });
+//   infoDiv.style.display = 'block';
+// });
 
-function resetLandingPage() {
-  infoDiv.style.display = 'none';
-}
+// function resetLandingPage() {
+//   infoDiv.style.display = 'none';
+// }

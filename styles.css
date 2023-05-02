@@ -79,6 +79,10 @@ nav button:hover {
     color: rgb(146, 0, 0);
 }
 
+nav a {
+    margin: auto;
+}
+
 #bgMedia {
     position: absolute;
     bottom: 0;
