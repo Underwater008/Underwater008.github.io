@@ -4,50 +4,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="./images/logo_favcon.png" type="image/x-icon" sizes="16x16">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Xiao Zhixuan</title>
-  <script type="module" crossorigin src="/assets/index-5f81e7cf.js"></script>
-  <link rel="stylesheet" href="/assets/index-ee07d58d.css">
+  <script type="module" crossorigin src="/assets/index-ef0be86f.js"></script>
+  <link rel="stylesheet" href="/assets/index-b5abc262.css">
 </head>
 
 <body>
 
-    <header class="transfadein"> <a id="header-link" href="./index.html">XIAO</a> </header>
+    <header class="transfadein">
+        <button id="reset-btn">XIAO</button>
+    </header>
 
     <div id="content-container">
-        <!-- <p>I'm Xiao.</p>
-        <p> <a href="./MergicianSourceControl-v3/index.html">Perforce Source Control</a></p> -->
-        <!-- 3D Model -->
-        
-    </div>
 
-    <nav class="transfadein">
-        <button id="reset-btn">
-            <svg width="30" height="30" viewBox="0 0 30 30">
-                <circle cx="15" cy="15" r="14" stroke="black" stroke-width="2" fill="none" />
-            </svg>
-        </button>
-        <button id="stellarune-btn">Stellarune</button>
-        <button id="freefall2-btn">Freefall2</button>
-        <button id="blogs-btn">Blogs</button>
-        <button id="About-btn">About</button>
-    </nav>
+        <div id="homo-ludens-info" style="opacity: 0;">
+
+            <p>Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea
+                is that play is a crucial part of human culture and influences how we develop as a society. Play is not
+                just for fun; it affects many areas of our lives like language, art, and religion. This concept has
+                inspired researchers to study the role of play in various fields.</p>
+
+            <ol>
+                <p>Rules of play</p>
+
+                <li>Play is free, is in fact freedom.</li>
+                <li>Play is not "ordinary" or "real" life.</li>
+                <li>Play is distinct from "ordinary" life both as to locality and duration.</li>
+                <li>Play creates order, is order. Play demands order absolute and supreme.</li>
+                <li>Play is connected with no material interest, and no profit can be gained from it</li>
+            </ol>
+
+            <a href="./homoludens.html">
+                <button> Become a Homo Ludens</button>
+            </a>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="transfadein">
+            <button id="About-btn">About</button>
+            <!-- <button id="stellarune-btn">Stellarune</button>
+            <button id="freefall2-btn">Freefall2</button> -->
+            <button id="homo-ludens">What is Homo Ludens</button>
+            <button id="blogs-btn">Blogs</button>
+            <div id="bgMedia"></div>
+        </nav>
+
+    </div>
 
     <!-- Loading Screen -->
     <div id="loading-screen">
         <h1 id="loading-text"> I am <span id="job-title">a Game Designer</span></h1>
-        <!-- Progress Bar -->
         <div id="progress-container">
             <div id="progress"></div>
         </div>
         <canvas id="drawing-canvas"></canvas>
     </div>
 
+    <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
+            Zhixuan Xiao</a>, All Rights Reserved.
+    </footer>
+
+    <!-- 3D Model -->
+    
 </body>
 
 </html>
