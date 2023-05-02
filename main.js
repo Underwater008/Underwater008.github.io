@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader';
 
-const showLoadingScreen = false;
+const showLoadingScreen = true;
 const firstVisit = localStorage.getItem("firstVisit") === null;
 
 const scene = new THREE.Scene();
