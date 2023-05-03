@@ -4,18 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./images/logo_favcon.png" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon" sizes="16x16">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
-    <title>Xiao Zhixuan</title>
-  <script type="module" crossorigin src="/assets/xiaoblogs-97c25d77.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/styles-0e8c9e66.js">
-  <link rel="stylesheet" href="/assets/styles-f5016356.css">
+    <title>Articles</title>
+  <script type="module" crossorigin src="/assets/xiaoblogs-829f9791.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/styles-b5b0e1a8.js">
+  <link rel="stylesheet" href="/assets/styles-fd051d91.css">
 </head>
+
+<style>
+    /* Normal state */
+    a {
+        color: #0066cc;
+        text-decoration: none;
+    }
+
+    /* Hover state */
+    a:hover {
+        color: red;
+    }
+
+    /* Active state */
+    a:active {
+        color: #ff9900;
+        text-decoration: underline;
+    }
+
+    /* Visited state */
+    a:visited {
+        color: #993399;
+        text-decoration: none;
+    }
+</style>
 
 <body>
 
@@ -88,9 +113,12 @@
                             </p>
                         </div>
                         <div class="blog-exLinks">
-                            <a href="https://drive.google.com/file/d/14SU0xXk9otPrHUou__xlz5oHcHUwDZRR/view?usp=sharing">
-                                <p>Download Script</p>
+                            <a
+                                href="https://drive.google.com/file/d/14SU0xXk9otPrHUou__xlz5oHcHUwDZRR/view?usp=sharing">
+                                <p>Download Script
                             </a>
+                            1kb</p>
+
                         </div>
                     </div>
 
@@ -109,8 +137,9 @@
                                 to easily turn it into a multiplayer game. The goal of this project is to create a free,
                                 open sourced, modular, production-ready plugin that can be easily deployed and
                                 customized.</span>
-                                <br>
-                            <img src="./images/MLogo_2x.png" alt="Simple Online Sessions image" width="50%" height="50%" class="blog-image">
+                            <br>
+                            <img src="./images/MLogo_2x.png" alt="Simple Online Sessions image" width="50%" height="50%"
+                                class="blog-image" srcset="./images/MLogo_1x.png 1x, ./images/MLogo_2x.png 2x">
                             <!-- <video src="path/to/video.mp4" controls class="blog-video"></video> -->
                         </div>
                         <div class="blog-keywords">
@@ -120,8 +149,9 @@
                         </div>
                         <div class="blog-exLinks">
                             <a href="https://github.com/Underwater008/SimpleOnlineSessions">
-                                <p>Visit repository</p>
-                            </a>
+                                <p>Visit repository
+                            </a></p>
+
                         </div>
                     </div>
 
@@ -177,15 +207,17 @@
 
         <!-- Navigation Bar -->
         <nav class="transfadein">
-            <button id="About-btn">About</button>
-            <!-- <button id="stellarune-btn">Stellarune</button>
-            <button id="freefall2-btn">Freefall2</button> -->
+            <a href="https://www.x1ao.art/"> <button id="myWorks-btn">My Worksite</button></a>
             <a href="./index.html"><button id="homo-ludens">XIAO</button></a>
+            <a href="https://xiaogame.itch.io/"><button id="myGames-btn">My Gamesite</button></a>
+            <!-- <button id="freefall2-btn">Freefall2</button> -->
             <!-- <button id="blogs-btn">Become a Homo Ludens</button> -->
             <div id="bgMedia"></div>
         </nav>
 
     </div>
+
+    <a href="#" id="back-to-top" title="Back to top">&uarr;</a>
 
     <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
             Zhixuan Xiao</a>, All Rights Reserved.
@@ -193,6 +225,23 @@
 
     <!-- Java Script -->
     
+    <script>
+        const backToTopButton = document.getElementById("back-to-top");
+        const scrollTrigger = 100;
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > scrollTrigger) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        });
+
+        backToTopButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    </script>
 
 </body>
 
