@@ -5,7 +5,8 @@ module.exports = {
       rollupOptions: {
         input: {
           index: 'index.html',
-          homoludens: 'homoludens.html'
+          homoludens: 'homoludens.html',
+          xiaoblogs: 'xiaoblogs.html'
         }
       }
     }
