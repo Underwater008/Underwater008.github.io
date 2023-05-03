@@ -4,6 +4,31 @@
     transition: opacity 1.5s ease, transform 1.5s ease;
 }
 
+/* Normal state */
+a {
+    color: #000000;
+    text-decoration: und;
+}
+
+/* Hover state */
+a:hover {
+    color: #ff3366;
+    text-decoration: underline;
+}
+
+/* Active state */
+a:active {
+    color: #ff9900;
+    text-decoration: underline;
+}
+
+/* Visited state */
+a:visited {
+    color: #000000;
+    text-decoration: none;
+}
+
+
 header {
     position: fixed;
     align-items: center;
@@ -38,7 +63,7 @@ header button:hover {
     z-index: 1;
     opacity: 1;
     transition: opacity 1s;
-    padding-bottom: 260px;
+    padding-bottom: 35vh;
 }
 
 canvas {
@@ -225,6 +250,88 @@ nav a {
     z-index: 1;
 }
 
+/****** About Xiao info ******/
+#about-xiao-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    max-width: 600px;
+    z-index: 1;
+    margin: 5%;
+    margin-top: 100px;
+    transition: 0.8s;
+}
+
+.rpg-bio {
+    font-family: 'New Tegomin', serif;
+    font-size: 16px;
+    text-align: left;
+    padding: 20px;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+
+#about-xiao-info p {
+    font-family: 'New Tegomin', serif;
+    font-size: 16px;
+    text-align: left;
+    padding: 20px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+#about-xiao-info ol {
+    font-family: 'New Tegomin', serif;
+    line-height: 1.5;
+    font-size: 16px;
+    padding-top: 15px;
+    padding-bottom: 25px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#about-xiao-info ol p {
+    font-size: 20px;
+    text-align: center;
+    margin-right: 40px;
+    margin-left: 0px;
+    background-color: #f9f9f9;
+    color: #000000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.142);
+
+}
+
+/* #about-xiao-info button {
+    font-family: 'New Tegomin', serif;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgb(255, 255, 255);
+    background-color: #f9f9f9;
+    cursor: pointer !important;
+    z-index: 1;
+} */
+
 /****** Become Homo Ludens grid ******/
 #bhl-div {
     display: grid;
@@ -278,6 +385,19 @@ nav a {
 }
 
 #bhl-div video {
+    display: block;
+    margin: auto;
+    width: 90%;
+    height: 90%;
+    margin-top: 15px;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #400000;
+}
+
+#about-xiao-info video {
     display: block;
     margin: auto;
     width: 90%;
@@ -444,6 +564,51 @@ footer {
 /****** Mobile layout ******/
 @media (max-width: 768px) {
 
+
+    /* Homo ludens Info modeil  */
+    #homo-ludens-info {
+        display: flex;
+        position: relative;
+        max-width: 600px;
+        z-index: 2;
+        transition: 0.8s;
+        margin-left: 40%;
+        margin-top: 80px;
+    }
+
+    #homo-ludens-info p {
+        font-family: 'New Tegomin', serif;
+        font-size: 14px;
+        text-align: left;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    #homo-ludens-info ol {
+        font-family: 'New Tegomin', serif;
+        line-height: 1.5;
+        font-size: 14px;
+        padding-top: 15px;
+        padding-bottom: 25px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    #homo-ludens-info ol p {
+        font-size: 16px;
+        text-align: center;
+        margin-right: 40px;
+        margin-left: 0px;
+    }
+
     #homo-ludens-info {
         display: flex;
         position: relative;
@@ -573,6 +738,24 @@ footer {
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         background-color: #f9f9f9;
+    }
+
+    .rpg-bio {
+        font-family: 'New Tegomin', serif;
+        font-size: 20px;
+        text-align: left;
+        padding: 20px;
+        padding-top: 0px;
+        width: 150px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+        transition: .5s;
+    }
+
+    .rpg-bio h3 {
+        font-size: 1.8vh;
     }
 
     .blog-block {

@@ -38,7 +38,7 @@ loader.load('./3DModels/cozy_campfire_-_shape_key_animation/scene.gltf', (gltf) 
       }
     }
   });
-  
+
   itemLoaded();
 }, undefined, (error) => {
   console.error(error);
@@ -82,7 +82,7 @@ onWindowResize();
 // Rotate the model based on selection
 function rotateModel(x, y, z) {
   if (model) {
-    TweenMax.to(model.rotation, 1, {x: x, y: y, z: z});
+    TweenMax.to(model.rotation, 1, { x: x, y: y, z: z });
   }
 }
 
@@ -91,7 +91,7 @@ const resetBtn = document.getElementById("reset-btn");
 // const stellaruneBtn = document.getElementById("stellarune-btn");
 // const freefall2Btn = document.getElementById("freefall2-btn");
 const blogsBtn = document.getElementById("blogs-btn");
-// const aboutBtn = document.getElementById("About-btn");
+const aboutBtn = document.getElementById("About-btn");
 const HomoLudenBtn = document.getElementById("homo-ludens");
 
 resetBtn.addEventListener("click", () => {
@@ -120,20 +120,31 @@ blogsBtn.addEventListener("click", () => {
   // TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
 });
 
-// aboutBtn.addEventListener("click", () => {
-//   resetLandingPage();
-//   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
-//   TweenMax.to(myCamera.position, 1, { x: 0, y: 0, z: 5 });
-// });
+////// About Xiao info //////
+const aboutDiv = document.getElementById('about-xiao-info');
+aboutBtn.addEventListener("click", () => {
+  if (aboutDiv.style.opacity != "0") {
+    TweenMax.to(myCamera.position, 1, { x: 18, y: 4.7, z: -34.7 });
+    return;
+  }
+  resetLandingPage();
+  aboutDiv.style.display = "block";
+  TweenMax.to(myCamera.position, 1, { x: 18, y: 4.7, z: -34.7 });
+  setTimeout(() => {
+    aboutDiv.style.opacity = "1";
+  }, 800);
+});
 
+////// Homo Ludens Rule of Play //////
 const infoDiv = document.getElementById('homo-ludens-info');
 HomoLudenBtn.addEventListener("click", () => {
-  if(infoDiv.style.opacity != "0"){
+  if (infoDiv.style.opacity != "0") {
     TweenMax.to(myCamera.position, 2, { x: -7.6, y: 2.58, z: 2.37, ease: Power2.easeInOut });
     rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
     return;
   }
   resetLandingPage();
+  infoDiv.style.display = "block";
   TweenMax.to(myCamera.position, 2, { x: -7.6, y: 2.58, z: 2.37, ease: Power2.easeInOut });
   rotateModel(0, (4 * Math.PI) / 4, 0); // Rotate the model to another degree
   setTimeout(() => {
@@ -141,8 +152,12 @@ HomoLudenBtn.addEventListener("click", () => {
   }, 1500);
 });
 
-function resetLandingPage(){
+function resetLandingPage() {
   infoDiv.style.opacity = '0';
+  aboutDiv.style.opacity = '0';
+  infoDiv.style.display = "none";
+  aboutDiv.style.display = "none";
+
 }
 
 //////////// Loading screen logic ////////////
