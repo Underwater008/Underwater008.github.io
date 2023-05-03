@@ -48,6 +48,7 @@ canvas {
     z-index: 0;
 }
 
+/****** Nav Bar ******/
 nav {
     display: flex;
     justify-content: center;
@@ -97,6 +98,7 @@ nav a {
     pointer-events: none;
 }
 
+/****** Loading Screens ******/
 #loading-screen {
     position: fixed;
     top: 0;
@@ -155,6 +157,7 @@ nav a {
     /* add box shadow with blur */
 }
 
+/****** Homo Ludens info ******/
 #homo-ludens-info {
     display: flex;
     flex-direction: column;
@@ -222,6 +225,7 @@ nav a {
     z-index: 1;
 }
 
+/****** Become Homo Ludens grid ******/
 #bhl-div {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -248,7 +252,7 @@ nav a {
     align-items: center;
 }
 
-#media-container{
+#media-container {
     font-family: 'New Tegomin', serif;
     font-size: 14px;
     text-align: left;
@@ -310,6 +314,99 @@ nav a {
     text-align: left;
 }
 
+/******* Articles Grid *******/
+#xab-div {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-column-gap: 5%;
+    padding-top: 2%;
+    margin: 5%;
+}
+
+#xab-left {
+    display: fixed;
+    /* display: flex; */
+    flex-direction: column;
+    /* justify-content: center;
+    align-items: center; */
+    /* height: 100%; */
+}
+
+#xab-right {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center;
+    align-items: center; */
+    font-family: 'New Tegomin', serif;
+    margin: auto;
+    width: 90%;
+    /* height: 80%; */
+    font-family: 'New Tegomin', serif;
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    opacity: 1;
+    transition: .5s;
+}
+
+#xab-div button {
+    font-family: 'New Tegomin', serif;
+    font-size: 4vh;
+    margin: auto;
+    margin-bottom: 5%;
+    width: 100%;
+    height: 22vh;
+    font-family: 'New Tegomin', serif;
+    text-align: center;
+    padding: 0px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    cursor: pointer !important;
+}
+
+#xab-left button span {
+    font-size: 1.5vh;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.blog-block {
+    border-style: solid;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 10%;
+    text-align: left;
+    box-shadow: 0 9px 18px rgba(0, 0, 0, 0.5);
+    background-color: #f9f9f9;
+    border: 3px solid #ccc;
+    opacity: 0;
+    transition: 1s;
+}
+
+.blog-keyword {
+    font-size: 1.5vh;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.blog-image {
+    display: flex;
+    margin: auto;
+    padding-top: 20px;
+}
+
+/****** Footer ******/
 footer {
     position: fixed;
     bottom: 0;
@@ -320,7 +417,6 @@ footer {
     z-index: 2;
     font-size: xx-small;
 }
-
 
 /****** Mobile layout ******/
 @media (max-width: 768px) {
@@ -408,5 +504,60 @@ footer {
         padding-top: 10%;
     }
 
+    #xab-div {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-top: 80px;
+        /* justify-items: center;
+        align-items: center; */
+    }
+
+    #xab-left {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #xab-div button {
+        position: relative;
+        font-size: 2vh;
+        width: 30%;
+        height: 15vh;
+        padding: 1vh;
+    }
+
+    #xab-left button span {
+        font-size: 1vh;
+        padding: 2px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    #xab-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'New Tegomin', serif;
+        margin: auto;
+        width: 80%;
+        height: 95%;
+        font-family: 'New Tegomin', serif;
+        font-size: 2vh;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .blog-block {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 20px;
+        opacity: 1;
+        transition: 1s;
+    }
 
 }
