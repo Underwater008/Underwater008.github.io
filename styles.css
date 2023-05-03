@@ -418,6 +418,29 @@ footer {
     font-size: xx-small;
 }
 
+/* Back to top button styles */
+#back-to-top {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    display: none;
+    border-radius: 50%;
+    z-index: 1000;
+}
+
+#back-to-top:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+
 /****** Mobile layout ******/
 @media (max-width: 768px) {
 

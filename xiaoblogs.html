@@ -107,7 +107,7 @@
                                 open sourced, modular, production-ready plugin that can be easily deployed and
                                 customized.</span>
                                 <br>
-                            <img src="./images/MLogo_2x.png" alt="Simple Online Sessions image" width="50%" height="50%" class="blog-image">
+                            <img src="./images/MLogo_2x.png" alt="Simple Online Sessions image" width="50%" height="50%" class="blog-image" srcset="./images/MLogo_1x.png 1x, ./images/MLogo_2x.png 2x">
                             <!-- <video src="path/to/video.mp4" controls class="blog-video"></video> -->
                         </div>
                         <div class="blog-keywords">
@@ -183,6 +183,8 @@
         </nav>
 
     </div>
+    
+    <a href="#" id="back-to-top" title="Back to top">&uarr;</a>
 
     <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
             Zhixuan Xiao</a>, All Rights Reserved.
@@ -190,7 +192,24 @@
 
     <!-- Java Script -->
     <script type="module" src="./xiaoblogs.js"></script>
-
+    <script>
+        const backToTopButton = document.getElementById("back-to-top");
+        const scrollTrigger = 100;
+      
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > scrollTrigger) {
+            backToTopButton.style.display = "block";
+          } else {
+            backToTopButton.style.display = "none";
+          }
+        });
+      
+        backToTopButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      </script>
+      
 </body>
 
 </html>
