@@ -38,6 +38,7 @@ header {
     top: 0%;
     left: 0%;
     width: 100%;
+    font-size: 30px;
     text-align: center;
     padding-top: 30px;
     z-index: 3;
@@ -80,9 +81,9 @@ canvas {
 
 /****** Nav Bar ******/
 nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30vw, 1fr));
+    grid-auto-flow: column;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -93,14 +94,19 @@ nav {
 }
 
 nav button {
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-color: rgba(255, 255, 255, 0);
     border-style: none;
     font-size: 16px;
     font-family: 'New Tegomin', serif;
-    /* padding-top: 10px; */
-    /* padding-bottom: 50px; */
-    margin-left: auto;
-    margin-right: auto;
+    /* margin-left: auto;
+    margin-right: auto; */
     margin-bottom: 50px;
     cursor: pointer;
     color: #000000;
@@ -108,10 +114,6 @@ nav button {
 
 nav button:hover {
     color: rgb(146, 0, 0);
-}
-
-nav a {
-    margin: auto;
 }
 
 #bgMedia {
@@ -319,23 +321,6 @@ nav a {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.142);
 
 }
-
-/* #about-xiao-info button {
-    font-family: 'New Tegomin', serif;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 20px;
-    text-align: center;
-    padding: 20px;
-    margin-top: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgb(255, 255, 255);
-    background-color: #f9f9f9;
-    cursor: pointer !important;
-    z-index: 1;
-} */
 
 /****** Become Homo Ludens grid ******/
 #bhl-div {
@@ -602,7 +587,6 @@ footer {
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         background-color: #f9f9f9;
-
         display: flex;
         flex-direction: column;
     }
@@ -781,6 +765,16 @@ footer {
         grid-gap: 20px;
         opacity: 1;
         transition: 1s;
+    }
+
+    nav button {
+        background-color: rgba(255, 255, 255, 0);
+        border-style: none;
+        font-size: 14px;
+        font-family: 'New Tegomin', serif;
+        margin-bottom: 50px;
+        cursor: pointer;
+        color: #000000;
     }
 
 }
