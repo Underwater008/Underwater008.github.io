@@ -28,6 +28,9 @@ a:visited {
     text-decoration: none;
 }
 
+body {
+    font-family: 'New Tegomin', serif;
+}
 
 header {
     position: fixed;
@@ -36,9 +39,9 @@ header {
     left: 0%;
     width: 100%;
     text-align: center;
-    padding-top: 20px;
+    padding-top: 30px;
     z-index: 3;
-    background: linear-gradient(to bottom, #ffffff 15%, rgba(194, 194, 194, 0));
+    background: linear-gradient(to bottom, #ffffff 65%, rgba(194, 194, 194, 0));
 }
 
 header button {
@@ -47,6 +50,8 @@ header button {
     font-size: 30px;
     font-family: 'New Tegomin', serif;
     cursor: pointer;
+    margin-top: -30px;
+    padding-bottom: 30px;
     outline: none;
 }
 

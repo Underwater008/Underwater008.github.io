@@ -106,3 +106,12 @@ gamesBtn.addEventListener('click', () => {
 lifeBtn.addEventListener('click', () => {
     showLifeBlogs();
 });
+
+
+document.getElementById("hkblogBtn").addEventListener("click", function () {
+    window.location.href = "./blog1.html";
+});
+
+document.getElementById("hkblogBtn2").addEventListener("click", function () {
+    window.location.href = "./blog1.html";
+});
