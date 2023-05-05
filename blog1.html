@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     
     <title>Playing with Art: br Hideo Kojima, Homo Ludens, and the Journey</title>
-  <link rel="stylesheet" href="/assets/styles-184a6520.css">
+  <link rel="stylesheet" href="/assets/styles-225a0ece.css">
 </head>
 
 <style>
@@ -22,6 +22,7 @@
         width: 100%;
         text-align: center;
         padding-top: 30px;
+        font-size: 16px;
         z-index: 3;
         background: linear-gradient(to bottom, #ffffff 65%, rgba(194, 194, 194, 0));
     }
@@ -121,6 +122,11 @@
     }
 
     @media (max-width: 768px) {
+
+        header {
+            font-size: 16px;
+
+        }
 
         p {
             font-size: 14px;
@@ -304,11 +310,8 @@
 
         <!-- Navigation Bar -->
         <nav class="transfadein">
-            <!-- <a href="https://www.x1ao.art/"> <button id="myWorks-btn">My Worksite</button></a> -->
-            <a href="./index.html"><button id="homo-ludens">XIAO</button></a>
-            <a href="./xiaoblogs.html"><button>Articles & Works</button></a>
-            <!-- <button id="freefall2-btn">Freefall2</button> -->
-            <!-- <button id="blogs-btn">Become a Homo Ludens</button> -->
+            <button id="homo-ludens">XIAO</button>
+            <button id="blogs-btn" >Articles & Works</button>
             <div id="bgMedia"></div>
         </nav>
 
@@ -348,6 +351,18 @@
             event.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
+
+        const blogsBtn = document.getElementById("blogs-btn");
+        const xiaoBtn = document.getElementById("homo-ludens");
+
+        blogsBtn.addEventListener("click", () => {
+            window.open("./xiaoblogs.html", "_self");
+        });
+
+        xiaoBtn.addEventListener("click", function () {
+            window.location.href = "./index.html";
+        });
+
     </script>
 
 </body>

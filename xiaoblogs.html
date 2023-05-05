@@ -12,9 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Articles</title>
-  <script type="module" crossorigin src="/assets/xiaoblogs-93bf24e5.js"></script>
+  <script type="module" crossorigin src="/assets/xiaoblogs-a58abff9.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-3cfb730f.js">
-  <link rel="stylesheet" href="/assets/styles-184a6520.css">
+  <link rel="stylesheet" href="/assets/styles-225a0ece.css">
 </head>
 
 <style>
@@ -247,8 +247,8 @@
         <!-- Navigation Bar -->
         <nav class="transfadein">
             <!-- <a href="https://www.x1ao.art/"> <button id="myWorks-btn">My Worksite</button></a> -->
-            <a href="./index.html"><button id="homo-ludens">XIAO</button></a>
-            <a href="https://xiaogame.itch.io/"><button id="myGames-btn">My Gamesite</button></a>
+            <button id="homo-ludens">XIAO</button>
+            <button id="myGames-btn">My Gamesite</button>
             <!-- <button id="freefall2-btn">Freefall2</button> -->
             <!-- <button id="blogs-btn">Become a Homo Ludens</button> -->
             <div id="bgMedia"></div>
@@ -265,6 +265,15 @@
     <!-- Java Script -->
     
     <script>
+        document.getElementById("homo-ludens").addEventListener("click", function () {
+            window.location.href = "./index.html";
+        });
+
+        document.getElementById("myGames-btn").addEventListener("click", function () {
+            window.location.href = "https://xiaogame.itch.io/";
+        });
+
+
         const backToTopButton = document.getElementById("back-to-top");
         const scrollTrigger = 100;
 
