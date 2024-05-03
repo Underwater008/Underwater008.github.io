@@ -113,7 +113,7 @@ resetBtn.addEventListener("click", () => {
 // });
 
 blogsBtn.addEventListener("click", () => {
-  window.open("./xiaoblogs.html", "_self");
+  window.open("https://www.x1ao.art/", "_self");
 
   // resetLandingPage();
   // rotateModel(0, (3 * Math.PI) / 4, 0); // Rotate the model to another degree

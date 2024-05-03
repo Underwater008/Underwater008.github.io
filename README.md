@@ -7,6 +7,7 @@ Source code repository for my personal website.
 ## Future Ideas to Implement
 
 - ***Update portfolio**: Update and merge portfolio website into this website.
+- ***Webgl Player**: Add interactive elements.
 
 ## Notes to Self
 
