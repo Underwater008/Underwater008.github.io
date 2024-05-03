@@ -12,15 +12,16 @@
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Homo Ludens</title>
-  <script type="module" crossorigin src="/assets/homoludens-ec15f2ea.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-3cfb730f.js">
-  <link rel="stylesheet" href="/assets/styles-225a0ece.css">
+  <script type="module" crossorigin src="/assets/homoludens-bd2e03bf.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/styles-b5b0e1a8.js">
+  <link rel="modulepreload" crossorigin href="/assets/GLTFLoader-d59c2c18.js">
+  <link rel="stylesheet" href="/assets/styles-fd051d91.css">
 </head>
 
 <body>
 
     <header class="transfadein">
-        Become a Homo Ludens
+        <button id="reset-btn">Become a Homo Ludens</button>
     </header>
 
     <div id="content-container" style="padding-bottom: 100px;">
@@ -31,8 +32,7 @@
                 <p>As Johan Huizinga wrote in his 1938 book, "Homo Ludens", play is a crucial part of human culture and
                     influences how we develop as a society. Play is not just for fun, but affects many areas of our
                     lives like language, art, and religion. This concept has inspired researchers to study the role of
-                    play in various fields, and the idea of becoming a Homo Ludens has become more important than ever
-                    to me.
+                    play in various fields, and the idea of becoming a Homo Ludens has become more important than ever.
                 </p>
 
                 <div id="media-container">
@@ -58,7 +58,7 @@
                         these gameplay elements, "Death Stranding" emphasizes the importance of cooperation,
                         communication,
                         and creativity, which are all key aspects of play as described by Huizinga. Overall, "Death
-                        Stranding" serves as an example of how videogames can not only be a form of entertainment but
+                        Stranding" serves as an example of how video games can not only be a form of entertainment but
                         also
                         a medium for exploring and promoting the concept of Homo Ludens.</span>
                     <br>
@@ -98,9 +98,8 @@
                             Study of the Play Element in
                             Culture" on Amazon
                             <br>
-                            <span style="font-size: 8px;">*Note: This is an Amazon affiliated link, which means I may
-                                earn a commission if you click
-                                through and make a purchase.</span>
+                            <span style="font-size: 8px;">*Note: This is an Amazon affiliated link, which means I may earn a commission if you click
+                            through and make a purchase.</span>
                         </p>
                     </div>
                 </div>
@@ -112,14 +111,15 @@
 
         <!-- Navigation Bar -->
         <nav class="transfadein">
-            <button id="homo-ludens">XIAO</button>
-            <button id="blogs-btn">Articles & Works</button>
+            <!-- <button id="About-btn">About</button> -->
+            <!-- <button id="stellarune-btn">Stellarune</button>
+            <button id="freefall2-btn">Freefall2</button> -->
+            <a href="./index.html"><button id="homo-ludens">XIAO</button></a>
+            <a href="./xiaoblogs.html"><button id="blogs-btn">Articles</button></a>
             <div id="bgMedia"></div>
         </nav>
 
     </div>
-
-    <a href="#" id="back-to-top" title="Back to top">&uarr;</a>
 
     <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
             Zhixuan Xiao</a>, All Rights Reserved.
@@ -127,24 +127,6 @@
 
     <!-- Java Script -->
     
-    <script>
-
-        const backToTopButton = document.getElementById("back-to-top");
-        const scrollTrigger = 100;
-
-        window.addEventListener("scroll", () => {
-            if (window.scrollY > scrollTrigger) {
-                backToTopButton.style.display = "block";
-            } else {
-                backToTopButton.style.display = "none";
-            }
-        });
-
-        backToTopButton.addEventListener("click", (event) => {
-            event.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    </script>
 
 </body>
 
