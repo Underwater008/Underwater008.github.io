@@ -12,6 +12,7 @@ Source code repository for my personal website.
 ## Notes to Self
 
 This section is a reminder of the tools, frameworks, and techniques I used to build and maintain this website:
+- "transfadein" need appear() to be show. 
 
 - ***Build and deploy**: 
 When ready to deploy, tell Vite to run a production build —
