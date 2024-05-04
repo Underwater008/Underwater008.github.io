@@ -6,7 +6,8 @@ module.exports = {
         input: {
           index: 'index.html',
           homoludens: 'homoludens.html',
-          xiaoblogs: 'xiaoblogs.html'
+          xiaoblogs: 'xiaoblogs.html',
+          threeDRose: 'threeDRose.html'
         }
       }
     }
