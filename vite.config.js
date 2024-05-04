@@ -7,7 +7,7 @@ module.exports = {
           index: 'index.html',
           homoludens: 'homoludens.html',
           xiaoblogs: 'xiaoblogs.html',
-          threeDRose: 'threeDRose.html'
+          threeDRose: 'ThreeDRose.html'
         }
       }
     }
