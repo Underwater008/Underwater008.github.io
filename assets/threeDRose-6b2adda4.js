@@ -1,0 +1,1 @@
+import"./styles-5a3fce9e.js";function e(){document.querySelectorAll(".transfadein").forEach(t=>{t.style.opacity="1",t.style.transform="translateY(0)"})}e();const n=document.getElementById("reset-btn");n.addEventListener("click",()=>{window.scrollTo({top:0,behavior:"smooth"})});
