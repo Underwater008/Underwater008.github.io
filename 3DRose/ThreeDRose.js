@@ -27,29 +27,58 @@ document.getElementById('threeDScene').appendChild(renderer.domElement);
 
 // Create cubes
 const particlesCount = 27; // 3*3*3
-const cubeSize = 5;
+const cubeSize = 4;
 const step = Math.cbrt(particlesCount);
 const gridSpacing = cubeSize / step;
-const cubeGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+const cubeGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
 cubeGeometry.center();
 const originalMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 //const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc }); // White gray
+const materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue
+const materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
 
-const cubes = [];
+// Groups for different layers
+const groupTop = new THREE.Group();
+const groupMiddle = new THREE.Group();
+const groupBottom = new THREE.Group();
+
+// Add groups to the scene
+scene.add(groupTop);
+scene.add(groupMiddle);
+scene.add(groupBottom);
+
+// Cube creation and grouping
+const cubes = []; // Array to hold all cubes for potential individual manipulation
+cubeGeometry.center();
 
 const halfStep = (step - 1) / 2;
 for (let x = 0; x < step; x++) {
     for (let y = 0; y < step; y++) {
         for (let z = 0; z < step; z++) {
-            const cube = new THREE.Mesh(cubeGeometry, originalMaterial.clone());
+            let material;
+            let group;
+
+            if (y === 2) { // Top layer
+                material = materialTop;
+                group = groupTop;
+            } else if (y === 1) { // Middle layer
+                material = materialMiddle;
+                group = groupMiddle;
+            } else { // Bottom layer
+                material = materialBottom;
+                group = groupBottom;
+            }
+
+            const cube = new THREE.Mesh(cubeGeometry, material);
             cube.position.set(
                 (x - halfStep) * gridSpacing,
                 (y - halfStep) * gridSpacing,
                 (z - halfStep) * gridSpacing
             );
             cube.targetScale = 1;  // Target scale for smooth transition
-            scene.add(cube);
-            cubes.push(cube);
+            group.add(cube); // Add cube to the appropriate group
+            cubes.push(cube); // Add cube to the array for potential individual manipulation
         }
     }
 }
