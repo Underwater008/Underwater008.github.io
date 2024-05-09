@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/favicon.ico" type="image/x-icon" sizes="16x16">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.min.js"></script>
+    <title>untitled</title>
+    <style>
+        #container-for-threeDScene {
+            position: relative;
+            width: 100%;
+            height: 100%; /* Adjust height as needed, here it takes the full viewport height */
+            z-index: 0; /* Ensure this is behind the nav */
+        }
+
+        #threeDScene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Ensure this is behind the nav but within the container */
+        }
+    </style>
+</head>
+
+<body>
+
+<!--     <header class="transfadein">-->
+<!--        <button id="reset-btn">Flower</button>-->
+<!--    </header>-->
+
+    <div id="content-container">
+
+        <div id="container-for-threeDScene" class="transfadein">
+            <div id="threeDScene"></div> <!-- Container for the Three.js scene -->
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="transfadein">
+            <!-- <button id="About-btn">. . .</button>
+            <button id="stellarune-btn">Stellarune</button>
+            <button id="freefall2-btn">Freefall2</button>
+            <button id="homo-ludens">What is Homo Ludens</button>
+            <button id="blogs-btn">Works</button>-->
+            <div id="bgMedia"></div>
+        </nav>
+
+    </div>
+
+    <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
+            Zhixuan Xiao</a>, All Rights Reserved.
+    </footer>
+
+    <!-- Java Script -->
+    <script type="module" src="ThreeDRose.js"></script>
+</body>
+
+</html>
