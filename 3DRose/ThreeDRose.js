@@ -33,7 +33,7 @@ const gridSpacing = cubeSize / step;
 const cubeGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
 cubeGeometry.center();
 const originalMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+//const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
 const cubes = [];
 
@@ -58,7 +58,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.1;
 
-const raycaster = new THREE.Raycaster();
+const raycaster = new THREE.Raycaster(undefined, undefined, 0, undefined);
 const mouse = new THREE.Vector2();
 let hitPoint = new THREE.Vector3();
 let hasHit = false; // Flag to check if there was a hit
@@ -110,17 +110,18 @@ function animate() {
 
 animate();
 
-document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('.transfadein');
-    elements.forEach(el => {
-        // Optionally set a dynamic start position via JS if needed
-        const startOffset = '100px'; // Example dynamic value
-        el.style.setProperty('--start-translate-y', startOffset);
+window.addEventListener('resize', onWindowResize, false);
 
-        setTimeout(() => {
-            el.classList.add('active'); // This will trigger the CSS transition
-        }, 100);
-    });
-});
+function onWindowResize() {
+    const aspect = window.innerWidth / window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom; // Retain the original frustum height
 
+    // Adjust frustum dimensions to maintain the same scale
+    camera.left = -frustumHeight * aspect / 2;
+    camera.right = frustumHeight * aspect / 2;
+    camera.top = frustumHeight / 2;
+    camera.bottom = -frustumHeight / 2;
 
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
