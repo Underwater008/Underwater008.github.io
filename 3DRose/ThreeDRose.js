@@ -3,132 +3,125 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise.js";
 import { GUI } from 'dat.gui';
 
-// Scene setup
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff);
+let renderer, scene, camera, controls;
+let particlesCount, cubeSize, step, gridSpacing, cubeGeometry;
+let groupTop, groupMiddle, groupBottom;
+let materialTop, materialMiddle, materialBottom;
+let cubes = [];
 
 // Camera setup
-const camScale = 0.5;  // Smaller scale for a closer view
-const aspectRatio = window.innerWidth / window.innerHeight;
-const frustumSize = 10;  // Adjust this value as needed for your scene size
+let camScale = 0.8;  // Smaller scale for a closer view
+let aspectRatio = window.innerWidth / window.innerHeight;
+let frustumSize = 10;  // Adjust this value as needed for your scene size
 
-const left = frustumSize * aspectRatio / -2 * camScale;
-const right = frustumSize * aspectRatio / 2 * camScale;
-const top = frustumSize / 2 * camScale;
-const bottom = frustumSize / -2 * camScale;
-const near = 0.1;  // Closer near clipping plane
-const far = 2000;  // Sufficiently distant far clipping plane
+let left = frustumSize * aspectRatio / -2 * camScale;
+let right = frustumSize * aspectRatio / 2 * camScale;
+let top = frustumSize / 2 * camScale;
+let bottom = frustumSize / -2 * camScale;
+let near = 0.1;  // Closer near clipping plane
+let far = 2000;  // Sufficiently distant far clipping plane
 
-const camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
-camera.position.set(0, 0, 500);
-camera.lookAt(scene.position);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('threeDScene').appendChild(renderer.domElement);
-
-// Create cubes
-const particlesCount = 27; // 3*3*3
-const cubeSize = 4;
-const step = Math.cbrt(particlesCount);
-const gridSpacing = cubeSize / step;
-const cubeGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-cubeGeometry.center();
-// const originalMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-//const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc }); // White gray
-const materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue
-const materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
-
-// Groups for different layers
-const groupTop = new THREE.Group();
-const groupMiddle = new THREE.Group();
-const groupBottom = new THREE.Group();
-
-// Add groups to the scene
-scene.add(groupTop);
-scene.add(groupMiddle);
-scene.add(groupBottom);
-
-// Cube creation and grouping
-const cubes = []; // Array to hold all cubes for potential individual manipulation
-const halfStep = (step - 1) / 2;
-for (let x = 0; x < step; x++) {
-    for (let y = 0; y < step; y++) {
-        for (let z = 0; z < step; z++) {
-            let material;
-            let group;
-
-            if (y === 2) { // Top layer
-                material = materialTop;
-                group = groupTop;
-            } else if (y === 1) { // Middle layer
-                material = materialMiddle;
-                group = groupMiddle;
-            } else { // Bottom layer
-                material = materialBottom;
-                group = groupBottom;
-            }
-
-            const cube = new THREE.Mesh(cubeGeometry, material);
-            cube.position.set(
-                (x - halfStep) * gridSpacing,
-                (y - halfStep) * gridSpacing,
-                (z - halfStep) * gridSpacing
-            );
-            cube.targetScale = 1;  // Target scale for smooth transition
-            group.add(cube); // Add cube to the appropriate group
-            cubes.push(cube); // Add cube to the array for potential individual manipulation
-        }
-    }
-}
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.1;
-
-const raycaster = new THREE.Raycaster(undefined, undefined, 0, undefined);
-const mouse = new THREE.Vector2();
+let raycaster = new THREE.Raycaster(undefined, undefined, 0, undefined);
+let mouse = new THREE.Vector2();
 let hitPoint = new THREE.Vector3();
 let hasHit = false; // Flag to check if there was a hit
 
-window.addEventListener('mousemove', (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(cubes);
-
-    if (intersects.length > 0) {
-        hitPoint.copy(intersects[0].point);
-        hasHit = true;
-    } else {
-        hasHit = false;
-    }
-});
-
-window.addEventListener('resize', onWindowResize, false);
-
-function onWindowResize() {
-    const aspect = window.innerWidth / window.innerHeight;
-    const frustumHeight = camera.top - camera.bottom; // Retain the original frustum height
-
-    // Adjust frustum dimensions to maintain the same scale
-    camera.left = -frustumHeight * aspect / 2;
-    camera.right = frustumHeight * aspect / 2;
-    camera.top = frustumHeight / 2;
-    camera.bottom = -frustumHeight / 2;
-
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
 init();
+initCubes();
+initCloudMat();
+animate();
 
 function init() {
 
-    // Texture
+    // Scene setup
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
+
+    camera.position.set(0, 0, 500);
+    camera.lookAt(scene.position);
+
+    document.getElementById('threeDScene').appendChild(renderer.domElement);
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.1;
+}
+
+function initCubes() {
+    particlesCount = 27; // 3*3*3
+    cubeSize = 4;
+    step = Math.cbrt(particlesCount);
+    gridSpacing = cubeSize / step;
+    cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    cubeGeometry.center();
+    // const originalMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    //const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc }); // White gray
+    materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue
+    materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
+
+    // Groups for different layers
+    groupTop = new THREE.Group();
+    groupMiddle = new THREE.Group();
+    groupBottom = new THREE.Group();
+
+    // Add groups to the scene
+    scene.add(groupTop);
+    scene.add(groupMiddle);
+    scene.add(groupBottom);
+
+    // const cube = new THREE.Mesh(cubeGeometry, materialTop);
+    // cubes.push(cube); // Add cube to the array for potential individual manipulation
+    // groupTop.add(cube); // Add cube to the appropriate group
+
+
+    function createLayer(x, y, z) {
+
+
+    }
+
+    // Cube creation and grouping
+    const halfStep = (step - 1) / 2;
+    for (let x = 0; x < step; x++) {
+        for (let y = 0; y < step; y++) {
+            for (let z = 0; z < step; z++) {
+                let material;
+                let group;
+
+                if (y === 2) { // Top layer
+                    material = materialTop;
+                    group = groupTop;
+                } else if (y === 1) { // Middle layer
+                    material = materialMiddle;
+                    group = groupMiddle;
+                } else { // Bottom layer
+                    material = materialBottom;
+                    group = groupBottom;
+                }
+
+                const cube = new THREE.Mesh(cubeGeometry, material);
+                cube.position.set(
+                    (x - halfStep) * gridSpacing,
+                    (y - halfStep) * gridSpacing,
+                    (z - halfStep) * gridSpacing
+                );
+                cube.targetScale = 1;  // Target scale for smooth transition
+                group.add(cube); // Add cube to the appropriate group
+                cubes.push(cube); // Add cube to the array for potential individual manipulation
+            }
+        }
+    }
+
+
+}
+
+
+function initCloudMat() {
+    // Cloud Texture
     const size = 128;
     const data = new Uint8Array( size * size * size );
 
@@ -160,9 +153,8 @@ function init() {
     texture.unpackAlignment = 1;
     texture.needsUpdate = true;
 
-    // Material
-
-    const vertexShader = /* glsl */`
+    // Cloud Material setup
+    const cloudVertexShader = /* glsl */`
 					in vec3 position;
 
 					uniform mat4 modelMatrix;
@@ -182,8 +174,7 @@ function init() {
 						gl_Position = projectionMatrix * mvPosition;
 					}
 				`;
-
-    const fragmentShader = /* glsl */`
+    const cloudFragmentShader = /* glsl */`
 					precision highp float;
 					precision highp sampler3D;
 
@@ -295,26 +286,25 @@ function init() {
 
 					}
 				`;
-
     const cloudMaterial = new THREE.RawShaderMaterial( {
         glslVersion: THREE.GLSL3,
         uniforms: {
             base: { value: new THREE.Color( 0x798aa0 ) },
             map: { value: texture },
             cameraPos: { value: new THREE.Vector3() },
-            threshold: { value: 0.25 },
-            opacity: { value: 0.25 },
-            range: { value: 0.1 },
-            steps: { value: 100 },
+            threshold: { value: 0 },
+            opacity: { value: 0.05 },
+            range: { value: 1 },
+            steps: { value: 102 },
             frame: { value: 0 }
         },
-        vertexShader,
-        fragmentShader,
+        vertexShader: cloudVertexShader,
+        fragmentShader: cloudFragmentShader,
         side: THREE.BackSide,
         transparent: true
     } );
-    //
 
+    // GUI
     const parameters = {
         threshold: 0.25,
         opacity: 0.25,
@@ -322,6 +312,7 @@ function init() {
         steps: 100
     };
 
+    // Update GUI info to mesh
     function update() {
 
         cloudMaterial.uniforms.threshold.value = parameters.threshold;
@@ -331,16 +322,48 @@ function init() {
 
     }
 
+    // Create GUI
     const gui = new GUI();
     gui.add( parameters, 'threshold', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'opacity', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'range', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'steps', 0, 200, 1 ).onChange( update );
-
+    //Update material for all top group
     for (let i = 0; i < groupTop.children.length; i++) {
         groupTop.children[i].material = cloudMaterial;
     }
+}
 
+window.addEventListener('mousemove', (event) => {
+    let rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(cubes);
+
+    if (intersects.length > 0) {
+        hitPoint.copy(intersects[0].point);
+        hasHit = true;
+    } else {
+        hasHit = false;
+    }
+});
+
+window.addEventListener('resize', onWindowResize, false);
+
+function onWindowResize() {
+    const aspect = window.innerWidth / window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom; // Retain the original frustum height
+
+    // Adjust frustum dimensions to maintain the same scale
+    camera.left = -frustumHeight * aspect / 2;
+    camera.right = frustumHeight * aspect / 2;
+    camera.top = frustumHeight / 2;
+    camera.bottom = -frustumHeight / 2;
+
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate() {
@@ -371,12 +394,10 @@ function animate() {
     // Update each cube in the topGroup
     groupTop.children.forEach(cube => {
         cube.material.uniforms.cameraPos.value.copy(camera.position);
-        cube.rotation.y = -performance.now() / 7500;
+        // cube.rotation.y = -performance.now() / 7500;
         cube.material.uniforms.frame.value++;
     });
 
     renderer.render(scene, camera);
     controls.update();
 }
-
-animate();
