@@ -4,7 +4,7 @@ import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise.js";
 import { GUI } from 'dat.gui';
 
 let renderer, scene, camera, controls;
-let particlesCount, cubeSize, step, gridSpacing, cubeGeometry;
+let cubeSize, step, gridSpacing, cubeGeometry;
 let groupTop, groupMiddle, groupBottom;
 let materialTop, materialMiddle, materialBottom;
 let cubes = [];
@@ -47,19 +47,12 @@ function init() {
 
     document.getElementById('threeDScene').appendChild(renderer.domElement);
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.1;
+    // controls.autoRotate = true;
+    // controls.autoRotateSpeed = 0.1;
 }
 
 function initCubes() {
-    particlesCount = 27; // 3*3*3
-    cubeSize = 4;
-    step = Math.cbrt(particlesCount);
-    gridSpacing = cubeSize / step;
-    cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-    cubeGeometry.center();
-    // const originalMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    //const hoverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    cubeSize = 4; // Big Cube
     materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc }); // White gray
     materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue
     materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
@@ -74,49 +67,42 @@ function initCubes() {
     scene.add(groupMiddle);
     scene.add(groupBottom);
 
-    // const cube = new THREE.Mesh(cubeGeometry, materialTop);
-    // cubes.push(cube); // Add cube to the array for potential individual manipulation
-    // groupTop.add(cube); // Add cube to the appropriate group
+    // Top Layer Create
+    createLayer(3, 1, 1, 0.5, groupTop, materialTop);
+    //  Middle Layer Create
+    createLayer(7, 2, 0.375, 0.23, groupMiddle, materialMiddle);
 
+    //createLayer(7, 2, 0.356, 0.25, groupBottom, materialBottom, 0.);
 
-    function createLayer(x, y, z) {
-
-
-    }
-
-    // Cube creation and grouping
-    const halfStep = (step - 1) / 2;
-    for (let x = 0; x < step; x++) {
-        for (let y = 0; y < step; y++) {
-            for (let z = 0; z < step; z++) {
-                let material;
-                let group;
-
-                if (y === 2) { // Top layer
-                    material = materialTop;
-                    group = groupTop;
-                } else if (y === 1) { // Middle layer
-                    material = materialMiddle;
-                    group = groupMiddle;
-                } else { // Bottom layer
-                    material = materialBottom;
-                    group = groupBottom;
+    function createLayer(X,Y, cubeLength, cubeSpacing, layerGroup, layerMaterial) {
+        //layer creation and grouping
+        step = X;
+        const halfStep = Math.ceil((step - 1) / 2);
+        const totalSpacing = cubeLength + cubeSpacing;  // Total distance between the centers of adjacent cubes
+        const yOffset = ((Y - 1) * cubeLength + cubeSpacing) / 2;
+        for (let i = 0; i < Y; i++) {
+            for (let _x = 0; _x < step; _x++) {
+                for (let _y = 0; _y < step; _y++) {
+                    cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength); // Small Cube
+                    let cube = new THREE.Mesh(cubeGeometry, layerMaterial);
+                    // Change cube scale here
+                    cube.position.set(
+                    (_x - halfStep) * totalSpacing,  // Updated to include the cube size in spacing
+                        i * (totalSpacing + 0.01),
+                        // (i * totalSpacing) - levelSpacing,  // Correct y positioning using the specific offset
+                        // ((y - 1)/2)  * levelSpacing,  // Assuming cubes are spaced in Y direction as well
+                    (_y - halfStep) * totalSpacing   // Updated for Z direction
+                    );
+                    layerGroup.add(cube); // Add cube to the appropriate group
+                    cubes.push(cube); // Add cube to the array for potential individual manipulation
                 }
-
-                const cube = new THREE.Mesh(cubeGeometry, material);
-                cube.position.set(
-                    (x - halfStep) * gridSpacing,
-                    (y - halfStep) * gridSpacing,
-                    (z - halfStep) * gridSpacing
-                );
-                cube.targetScale = 1;  // Target scale for smooth transition
-                group.add(cube); // Add cube to the appropriate group
-                cubes.push(cube); // Add cube to the array for potential individual manipulation
             }
         }
     }
-
-
+    console.log(groupTop.position);
+    groupMiddle.position.set(0, -0.305, 0)
+    console.log(groupMiddle.position);
+    console.log(groupBottom.position);
 }
 
 
@@ -373,23 +359,24 @@ function animate() {
     const influenceRadius = 3; // Radius within which other cubes will be affected
     const falloffRate = 0.5; // Controls the rate at which the scale effect diminishes
 
-    cubes.forEach(cube => {
-        if (hasHit) {
-            const distance = cube.position.distanceTo(hitPoint);
-            if (distance < influenceRadius) {
-                // Calculate scale based on distance using an exponential falloff
-                const scale = maxScale * Math.exp(-falloffRate * distance);
-                cube.targetScale = Math.max(1, scale);
-            } else {
-                cube.targetScale = 1; // Outside of influence radius, revert to original size
-            }
-        } else {
-            cube.targetScale = 1; // No hit, all cubes revert to original size
-        }
-
-        // Smoothly interpolate towards the target scale
-        cube.scale.lerp(new THREE.Vector3(cube.targetScale, cube.targetScale, cube.targetScale), 0.1);
-    });
+    // cubes.forEach(cube => {
+    //     let cubeDefaultSize = cube.scale;
+    //     if (hasHit) {
+    //         const distance = cube.position.distanceTo(hitPoint);
+    //         if (distance < influenceRadius) {
+    //             // Calculate scale based on distance using an exponential falloff
+    //             const scale = maxScale * Math.exp(-falloffRate * distance);
+    //             cube.targetScale = Math.max(1, scale);
+    //         } else {
+    //             cube.targetScale = cubeDefaultSize; // Outside of influence radius, revert to original size
+    //         }
+    //     } else {
+    //         cube.targetScale = cubeDefaultSize; // No hit, all cubes revert to original size
+    //     }
+    //
+    //     // Smoothly interpolate towards the target scale
+    //     cube.scale.lerp(new THREE.Vector3(cube.targetScale, cube.targetScale, cube.targetScale), 0.1);
+    // });
 
     // Update each cube in the topGroup
     groupTop.children.forEach(cube => {
