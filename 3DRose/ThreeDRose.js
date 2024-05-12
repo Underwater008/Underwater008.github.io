@@ -2,9 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise.js";
 import { GUI } from 'dat.gui';
+import { gsap } from 'https://cdn.skypack.dev/gsap';
 
+let isLoaded = false; // Flag to indicate loading completion
 let renderer, scene, camera, controls;
-let cubeSize, step, gridSpacing, cubeGeometry;
+let step, cubeGeometry;
 let groupTop, groupMiddle, groupBottom;
 let materialTop, materialMiddle, materialBottom;
 let cubes = [];
@@ -27,9 +29,10 @@ let hitPoint = new THREE.Vector3();
 let hasHit = false; // Flag to check if there was a hit
 
 init();
-initCubes();
 initCloudMat();
+initCubes();
 animate();
+fadeInCubesByWorldY();
 
 function init() {
 
@@ -42,7 +45,7 @@ function init() {
 
     camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
 
-    camera.position.set(0, 0, 500);
+    camera.position.set(0, -500, 0);
     camera.lookAt(scene.position);
 
     document.getElementById('threeDScene').appendChild(renderer.domElement);
@@ -50,61 +53,6 @@ function init() {
     // controls.autoRotate = true;
     // controls.autoRotateSpeed = 0.1;
 }
-
-function initCubes() {
-    cubeSize = 4; // Big Cube
-    materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc }); // White gray
-    materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Blue
-    materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
-
-    // Groups for different layers
-    groupTop = new THREE.Group();
-    groupMiddle = new THREE.Group();
-    groupBottom = new THREE.Group();
-
-    // Add groups to the scene
-    scene.add(groupTop);
-    scene.add(groupMiddle);
-    scene.add(groupBottom);
-
-    // Top Layer Create
-    createLayer(3, 1, 1, 0.5, groupTop, materialTop);
-    //  Middle Layer Create
-    createLayer(7, 2, 0.375, 0.23, groupMiddle, materialMiddle);
-
-    //createLayer(7, 2, 0.356, 0.25, groupBottom, materialBottom, 0.);
-
-    function createLayer(X,Y, cubeLength, cubeSpacing, layerGroup, layerMaterial) {
-        //layer creation and grouping
-        step = X;
-        const halfStep = Math.ceil((step - 1) / 2);
-        const totalSpacing = cubeLength + cubeSpacing;  // Total distance between the centers of adjacent cubes
-        const yOffset = ((Y - 1) * cubeLength + cubeSpacing) / 2;
-        for (let i = 0; i < Y; i++) {
-            for (let _x = 0; _x < step; _x++) {
-                for (let _y = 0; _y < step; _y++) {
-                    cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength); // Small Cube
-                    let cube = new THREE.Mesh(cubeGeometry, layerMaterial);
-                    // Change cube scale here
-                    cube.position.set(
-                    (_x - halfStep) * totalSpacing,  // Updated to include the cube size in spacing
-                        i * (totalSpacing + 0.01),
-                        // (i * totalSpacing) - levelSpacing,  // Correct y positioning using the specific offset
-                        // ((y - 1)/2)  * levelSpacing,  // Assuming cubes are spaced in Y direction as well
-                    (_y - halfStep) * totalSpacing   // Updated for Z direction
-                    );
-                    layerGroup.add(cube); // Add cube to the appropriate group
-                    cubes.push(cube); // Add cube to the array for potential individual manipulation
-                }
-            }
-        }
-    }
-    console.log(groupTop.position);
-    groupMiddle.position.set(0, -0.305, 0)
-    console.log(groupMiddle.position);
-    console.log(groupBottom.position);
-}
-
 
 function initCloudMat() {
     // Cloud Texture
@@ -272,14 +220,14 @@ function initCloudMat() {
 
 					}
 				`;
-    const cloudMaterial = new THREE.RawShaderMaterial( {
+    materialTop = new THREE.RawShaderMaterial( {
         glslVersion: THREE.GLSL3,
         uniforms: {
             base: { value: new THREE.Color( 0x798aa0 ) },
             map: { value: texture },
             cameraPos: { value: new THREE.Vector3() },
             threshold: { value: 0 },
-            opacity: { value: 0.05 },
+            opacity: { value: 0 },
             range: { value: 1 },
             steps: { value: 102 },
             frame: { value: 0 }
@@ -292,19 +240,19 @@ function initCloudMat() {
 
     // GUI
     const parameters = {
-        threshold: 0.25,
-        opacity: 0.25,
-        range: 0.1,
-        steps: 100
+        threshold: 0,
+        opacity: 0,
+        range: 1,
+        steps: 102
     };
 
     // Update GUI info to mesh
     function update() {
 
-        cloudMaterial.uniforms.threshold.value = parameters.threshold;
-        cloudMaterial.uniforms.opacity.value = parameters.opacity;
-        cloudMaterial.uniforms.range.value = parameters.range;
-        cloudMaterial.uniforms.steps.value = parameters.steps;
+        materialTop.uniforms.threshold.value = parameters.threshold;
+        materialTop.uniforms.opacity.value = parameters.opacity;
+        materialTop.uniforms.range.value = parameters.range;
+        materialTop.uniforms.steps.value = parameters.steps;
 
     }
 
@@ -314,13 +262,67 @@ function initCloudMat() {
     gui.add( parameters, 'opacity', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'range', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'steps', 0, 200, 1 ).onChange( update );
-    //Update material for all top group
-    for (let i = 0; i < groupTop.children.length; i++) {
-        groupTop.children[i].material = cloudMaterial;
+}
+
+function initCubes() {
+    //materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc, transparent: true, opacity: 0 });
+    materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0 });
+    materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+
+    // Groups for different layers
+    groupTop = new THREE.Group();
+    groupMiddle = new THREE.Group();
+    groupBottom = new THREE.Group();
+
+    // Add groups to the scene
+    scene.add(groupTop);
+    scene.add(groupMiddle);
+    scene.add(groupBottom);
+
+    // Top Layer Create
+    createLayer(3, 1, 1, 0.5, groupTop, materialTop);
+    //  Middle Layer Create
+    createLayer(7, 2, 0.375, 0.23, groupMiddle, materialMiddle);
+    // Bottom Layer Create
+    createLayer(7, 2, 0.375, 0.23, groupBottom, materialBottom);
+
+    //createLayer(7, 2, 0.356, 0.25, groupBottom, materialBottom, 0.);
+
+    function createLayer(X,Y, cubeLength, cubeSpacing, layerGroup, layerMaterial) {
+        //layer creation and grouping
+        step = X;
+        const halfStep = Math.ceil((step - 1) / 2);
+        const totalSpacing = cubeLength + cubeSpacing;  // Total distance between the centers of adjacent cubes
+        for (let i = 0; i < Y; i++) {
+            for (let _x = 0; _x < step; _x++) {
+                for (let _y = 0; _y < step; _y++) {
+                    cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength); // Small Cube
+                    let cubeMaterial = layerMaterial.clone(); // Correctly clone the material for each cube
+
+
+                    let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+                    // Change cube scale here
+                    cube.position.set(
+                    (_x - halfStep) * totalSpacing,  // Updated to include the cube size in spacing
+                        i * (totalSpacing + 0.01),
+                        // (i * totalSpacing) - levelSpacing,  // Correct y positioning using the specific offset
+                        // ((y - 1)/2)  * levelSpacing,  // Assuming cubes are spaced in Y direction as well
+                    (_y - halfStep) * totalSpacing   // Updated for Z direction
+                    );
+                    layerGroup.add(cube); // Add cube to the appropriate group
+                    cubes.push(cube); // Add cube to the array for potential individual manipulation
+                }
+            }
+        }
     }
+    groupTop.position.set(0, 1.5, 0)
+    groupMiddle.position.set(0, -0.375, 0)
+    groupBottom.position.set(0, -1.8, 0)
 }
 
 window.addEventListener('mousemove', (event) => {
+
     let rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -331,10 +333,18 @@ window.addEventListener('mousemove', (event) => {
     if (intersects.length > 0) {
         hitPoint.copy(intersects[0].point);
         hasHit = true;
+        // Get the intersected object
+        //const intersectedCube = intersects[0].object;
+
+        // Print cube world position
+        // const worldPosition = new THREE.Vector3();
+        // intersectedCube.getWorldPosition(worldPosition);
+        // console.log(`World Position - X: ${worldPosition.x.toFixed(2)}, Y: ${worldPosition.y.toFixed(2)}, Z: ${worldPosition.z.toFixed(2)}`);
+
     } else {
-        hasHit = false;
-    }
-});
+            hasHit = false;
+        }
+    });
 
 window.addEventListener('resize', onWindowResize, false);
 
@@ -355,28 +365,7 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
 
-    const maxScale = 2; // Maximum scale for the hovered cube
-    const influenceRadius = 3; // Radius within which other cubes will be affected
-    const falloffRate = 0.5; // Controls the rate at which the scale effect diminishes
-
-    // cubes.forEach(cube => {
-    //     let cubeDefaultSize = cube.scale;
-    //     if (hasHit) {
-    //         const distance = cube.position.distanceTo(hitPoint);
-    //         if (distance < influenceRadius) {
-    //             // Calculate scale based on distance using an exponential falloff
-    //             const scale = maxScale * Math.exp(-falloffRate * distance);
-    //             cube.targetScale = Math.max(1, scale);
-    //         } else {
-    //             cube.targetScale = cubeDefaultSize; // Outside of influence radius, revert to original size
-    //         }
-    //     } else {
-    //         cube.targetScale = cubeDefaultSize; // No hit, all cubes revert to original size
-    //     }
-    //
-    //     // Smoothly interpolate towards the target scale
-    //     cube.scale.lerp(new THREE.Vector3(cube.targetScale, cube.targetScale, cube.targetScale), 0.1);
-    // });
+    updateRaycast();
 
     // Update each cube in the topGroup
     groupTop.children.forEach(cube => {
@@ -387,4 +376,136 @@ function animate() {
 
     renderer.render(scene, camera);
     controls.update();
+}
+
+function updateRaycast(){
+
+    if (!isLoaded) {
+        return; // Skip raycasting if content is not yet loaded
+    }
+
+    const maxScale = 2; // Maximum scale for the hovered cube
+    const influenceRadius = 3; // Radius within which other cubes will be affected
+    const falloffRate = 0; // Controls the rate at which the scale effect diminishes
+
+    raycaster.setFromCamera(mouse, camera); // Update raycaster position
+    const intersects = raycaster.intersectObjects(cubes);
+
+    let hoveredCube = null;
+    if (intersects.length > 0) {
+        hoveredCube = intersects[0].object;
+        hitPoint.copy(intersects[0].point);
+        hasHit = true;
+    } else {
+        hasHit = false;
+    }
+
+    cubes.forEach(cube => {
+        // Set a default scale or refer back to some initial value, such as 1
+        const defaultScale = new THREE.Vector3(1, 1, 1); // Assuming default scale is 1
+        if (hasHit && cube === hoveredCube) {
+            const distance = cube.position.distanceTo(hitPoint);
+            if (distance < influenceRadius) {
+                // Calculate scale based on distance using an exponential falloff
+                const scaleValue = maxScale * Math.exp(-falloffRate * distance);
+                cube.targetScale = new THREE.Vector3(scaleValue, scaleValue, scaleValue);
+            } else {
+                cube.targetScale = defaultScale;
+            }
+        } else {
+            cube.targetScale = defaultScale;
+        }
+
+        // Smoothly interpolate towards the target scale
+        cube.scale.lerp(cube.targetScale, 0.1);
+    });
+}
+
+function fadeInCubesByWorldY() {
+    // Calculate and store world Y positions for each cube
+    cubes.forEach(cube => {
+        const worldPosition = new THREE.Vector3();
+        cube.getWorldPosition(worldPosition);
+        cube.userData.worldY = worldPosition.y; // Store in userData for easy access
+    });
+
+    // Sort cubes by their stored world Y position in ascending order
+    cubes.sort((a, b) => a.userData.worldY - b.userData.worldY);
+
+    // Group cubes by rounded world Y position to avoid floating-point precision issues
+    const layerMap = new Map();
+    cubes.forEach(cube => {
+        const yKey = cube.userData.worldY;
+        if (!layerMap.has(yKey)) {
+            layerMap.set(yKey, []);
+        }
+        layerMap.get(yKey).push(cube);
+    });
+
+    // Initialize delay and animate each group
+    let delay = 0;
+    const delayIncrement = 0.5; // Delay increment between groups in seconds
+    let maxDuration = 0;
+
+    layerMap.forEach((cubesAtY) => {
+        cubesAtY.forEach(cube => {
+            const totalDuration = delay + 1; // `1` is the duration of the animation
+            if (totalDuration > maxDuration) {
+                maxDuration = totalDuration;
+            }
+
+            if (cube.material.type === "RawShaderMaterial") {
+                // Special handling for RawShaderMaterial where opacity is controlled by a uniform
+                gsap.to(cube.material.uniforms.opacity, {
+                    value: 1,
+                    duration: 1,
+                    delay: delay,
+                    ease: "power1.inOut"
+                });
+            } else {
+                // Standard material opacity animation
+                gsap.to(cube.material, {
+                    opacity: 1,
+                    duration: 1,
+                    delay: delay,
+                    ease: "power1.inOut"
+                });
+            }
+        });
+        delay += delayIncrement;
+    });
+
+// Set the isLoaded flag after the last animation completes
+    gsap.delayedCall(maxDuration, function() {
+        console.log('All cubes are now opaque, and loading is complete.');
+        // Define a new target position for the camera
+        const newPosition = new THREE.Vector3(0, 0, 500);
+
+// Move the camera to the new position over 5 seconds
+        moveCamera(newPosition, 1);
+
+    });
+}
+
+/**
+ * Moves the camera to a specified position over a given duration.
+ * @param {THREE.Vector3} targetPosition - The target position to move the camera to.
+ * @param {number} duration - The duration in seconds over which to move the camera.
+ */
+function moveCamera(targetPosition, duration) {
+    gsap.to(camera.position, {
+        x: targetPosition.x,
+        y: targetPosition.y,
+        z: targetPosition.z,
+        duration: duration,
+        ease: "power1.inOut",
+        onUpdate: function() {
+            // Update the camera's matrix or controls if necessary
+            if (controls) controls.update();
+        },
+        onComplete: function() {
+            console.log('Camera move complete.');
+            isLoaded = true;
+        }
+    });
 }
