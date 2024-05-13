@@ -44,8 +44,9 @@ function init() {
     scene.background = new THREE.Color(0xffffff);
 
     camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
+    //camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    camera.position.set(0, -500, 0);
+    camera.position.set(0, 500, 0);
     camera.lookAt(scene.position);
 
     document.getElementById('threeDScene').appendChild(renderer.domElement);
@@ -479,7 +480,7 @@ function fadeInCubesByWorldY() {
     gsap.delayedCall(maxDuration, function() {
         console.log('All cubes are now opaque, and loading is complete.');
         // Define a new target position for the camera
-        const newPosition = new THREE.Vector3(0, 0, 500);
+        const newPosition = new THREE.Vector3(0, 0,  500);
 
 // Move the camera to the new position over 5 seconds
         moveCamera(newPosition, 1);
