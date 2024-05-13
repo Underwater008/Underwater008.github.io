@@ -37,9 +37,12 @@ initCubes();
 animate();
 
 // Animate each group one after another, starting with the bottom
-initialDelay = animateGroup(groupBottom, initialDelay);
-initialDelay = animateGroup(groupMiddle, initialDelay);
-animateGroup(groupTop, initialDelay);
+ initialDelay = animateGroup(groupBottom, initialDelay);
+ initialDelay = animateGroup(groupMiddle, initialDelay);
+ animateGroup(groupTop, initialDelay);
+
+moveCameraWithDelay(new THREE.Vector3(0, 0, 50), 1.35, 2.3); // Move camera after 5 seconds
+
 
 function init() {
 
@@ -53,7 +56,7 @@ function init() {
     camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
     //camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    camera.position.set(0, 500, 0);
+    camera.position.set(0, 50, 0);
     camera.lookAt(scene.position);
 
     document.getElementById('threeDScene').appendChild(renderer.domElement);
@@ -429,95 +432,6 @@ function updateRaycast(){
     });
 }
 
-/*function fadeInCubesByWorldY() {
-    // Calculate and store world Y positions for each cube
-    cubes.forEach(cube => {
-        const worldPosition = new THREE.Vector3();
-        cube.getWorldPosition(worldPosition);
-        cube.userData.worldY = worldPosition.y; // Store in userData for easy access
-    });
-
-    // Sort cubes by their stored world Y position in ascending order
-    cubes.sort((a, b) => a.userData.worldY - b.userData.worldY);
-
-    // Group cubes by rounded world Y position to avoid floating-point precision issues
-    const layerMap = new Map();
-    cubes.forEach(cube => {
-        const yKey = cube.userData.worldY;
-        if (!layerMap.has(yKey)) {
-            layerMap.set(yKey, []);
-        }
-        layerMap.get(yKey).push(cube);
-    });
-
-    // Initialize delay and animate each group
-    let delay = 0;
-    const delayIncrement = 0.5; // Delay increment between groups in seconds
-    let maxDuration = 0;
-
-    layerMap.forEach((cubesAtY) => {
-        cubesAtY.forEach(cube => {
-            const totalDuration = delay + 1; // `1` is the duration of the animation
-            if (totalDuration > maxDuration) {
-                maxDuration = totalDuration;
-            }
-
-            if (cube.material.type === "RawShaderMaterial") {
-                // Special handling for RawShaderMaterial where opacity is controlled by a uniform
-                gsap.to(cube.material.uniforms.opacity, {
-                    value: 1,
-                    duration: 1,
-                    delay: delay,
-                    ease: "power1.inOut"
-                });
-            } else {
-                // Standard material opacity animation
-                gsap.to(cube.material, {
-                    opacity: 1,
-                    duration: 1,
-                    delay: delay,
-                    ease: "power1.inOut"
-                });
-            }
-        });
-        delay += delayIncrement;
-    });
-
-// Set the isLoaded flag after the last animation completes
-    gsap.delayedCall(maxDuration, function() {
-        console.log('All cubes are now opaque, and loading is complete.');
-        // Define a new target position for the camera
-        const newPosition = new THREE.Vector3(0, 0,  500);
-
-// Move the camera to the new position over 5 seconds
-        moveCamera(newPosition, 1);
-
-    });
-}*/
-
-/**
- * Moves the camera to a specified position over a given duration.
- * @param {THREE.Vector3} targetPosition - The target position to move the camera to.
- * @param {number} duration - The duration in seconds over which to move the camera.
- */
-function moveCamera(targetPosition, duration) {
-    gsap.to(camera.position, {
-        x: targetPosition.x,
-        y: targetPosition.y,
-        z: targetPosition.z,
-        duration: duration,
-        ease: "power1.inOut",
-        onUpdate: function() {
-            // Update the camera's matrix or controls if necessary
-            if (controls) controls.update();
-        },
-        onComplete: function() {
-            console.log('Camera move complete.');
-            isLoaded = true;
-        }
-    });
-}
-
 function animateGroup(group, delayStart) {
     let delay = delayStart;
     const delayIncrement = 0.02; // Delay increment between non-overlapping groups in seconds
@@ -543,7 +457,7 @@ function animateGroup(group, delayStart) {
         group.forEach(cube => {
             const animationProps = {
                 opacity: 1,
-                duration: 1,
+                duration: 0.2,
                 delay: delay,
                 ease: "power1.inOut"
             };
@@ -552,7 +466,7 @@ function animateGroup(group, delayStart) {
                 // Ensure uniforms are correctly updated and GUI refreshed if necessary
                 gsap.to(cube.material.uniforms.opacity, {
                     value: 1,
-                    duration: 1,
+                    duration: 2,
                     delay: delay,
                     ease: "power1.inOut",
                     onUpdate: () => cube.material.needsUpdate = true // Make sure the shader updates
@@ -567,6 +481,33 @@ function animateGroup(group, delayStart) {
 
     return delay; // Return the last used delay
 }
+
+/**
+ * Moves the camera to a specified position over a given duration after a specified delay.
+ * @param {THREE.Vector3} targetPosition - The target position to move the camera to.
+ * @param {number} duration - The duration in seconds over which to move the camera.
+ * @param {number} delay - The delay in seconds before the camera starts moving.
+ */
+function moveCameraWithDelay(targetPosition, duration, delay) {
+    setTimeout(() => {
+        gsap.to(camera.position, {
+            x: targetPosition.x,
+            y: targetPosition.y,
+            z: targetPosition.z,
+            duration: duration,
+            ease: "power1.inOut",
+            onUpdate: function() {
+                // Update the camera's matrix or controls if necessary
+                if (controls) controls.update();
+            },
+            onComplete: function() {
+                console.log('Camera move complete.');
+                isLoaded = true;
+            }
+        });
+    }, delay * 1000); // Convert delay to milliseconds
+}
+
 
 
 
