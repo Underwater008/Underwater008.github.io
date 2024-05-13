@@ -28,11 +28,18 @@ let mouse = new THREE.Vector2();
 let hitPoint = new THREE.Vector3();
 let hasHit = false; // Flag to check if there was a hit
 
+// Initialize the first delay
+let initialDelay = 0;
+
 init();
 initCloudMat();
 initCubes();
 animate();
-fadeInCubesByWorldY();
+
+// Animate each group one after another, starting with the bottom
+initialDelay = animateGroup(groupBottom, initialDelay);
+initialDelay = animateGroup(groupMiddle, initialDelay);
+animateGroup(groupTop, initialDelay);
 
 function init() {
 
@@ -422,7 +429,7 @@ function updateRaycast(){
     });
 }
 
-function fadeInCubesByWorldY() {
+/*function fadeInCubesByWorldY() {
     // Calculate and store world Y positions for each cube
     cubes.forEach(cube => {
         const worldPosition = new THREE.Vector3();
@@ -486,7 +493,7 @@ function fadeInCubesByWorldY() {
         moveCamera(newPosition, 1);
 
     });
-}
+}*/
 
 /**
  * Moves the camera to a specified position over a given duration.
@@ -510,3 +517,56 @@ function moveCamera(targetPosition, duration) {
         }
     });
 }
+
+function animateGroup(group, delayStart) {
+    let delay = delayStart;
+    const delayIncrement = 0.02; // Delay increment between non-overlapping groups in seconds
+
+    // Extract cubes from the group
+    const cubes = group.children;
+
+    // Group cubes by their X and Z position to handle overlapping
+    const positionMap = new Map();
+    cubes.forEach(cube => {
+        const key = `${cube.position.x}:${cube.position.z}`;
+        if (!positionMap.has(key)) {
+            positionMap.set(key, []);
+        }
+        positionMap.get(key).push(cube);
+    });
+
+    // Sort groups by X position for the wave effect (adjust sorting for different directions)
+    const sortedGroups = Array.from(positionMap.values()).sort((a, b) => a[0].position.x - b[0].position.x);
+
+    // Animate each group
+    sortedGroups.forEach(group => {
+        group.forEach(cube => {
+            const animationProps = {
+                opacity: 1,
+                duration: 1,
+                delay: delay,
+                ease: "power1.inOut"
+            };
+
+            if (cube.material.type === "RawShaderMaterial") {
+                // Ensure uniforms are correctly updated and GUI refreshed if necessary
+                gsap.to(cube.material.uniforms.opacity, {
+                    value: 1,
+                    duration: 1,
+                    delay: delay,
+                    ease: "power1.inOut",
+                    onUpdate: () => cube.material.needsUpdate = true // Make sure the shader updates
+                });
+            } else {
+                gsap.to(cube.material, animationProps);
+            }
+        });
+
+        delay += delayIncrement; // Increase delay for the next non-overlapping group
+    });
+
+    return delay; // Return the last used delay
+}
+
+
+
