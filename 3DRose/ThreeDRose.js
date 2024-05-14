@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise.js";
-import { GUI } from 'dat.gui';
+//import { GUI } from 'dat.gui';
 import { gsap } from 'https://cdn.skypack.dev/gsap';
 
 let isLoaded = false; // Flag to indicate loading completion
-let renderer, scene, camera, controls;
+let renderer, scene, camera, controls, renderTarget, depthMaterial, clock;
 let step, cubeGeometry;
 let groupTop, groupMiddle, groupBottom;
 let materialTop, materialMiddle, materialBottom;
@@ -14,7 +14,7 @@ let cubes = [];
 // Camera setup
 let camScale = 0.8;  // Smaller scale for a closer view
 let aspectRatio = window.innerWidth / window.innerHeight;
-let frustumSize = 10;  // Adjust this value as needed for your scene size
+let frustumSize = 12;  // Adjust this value as needed for your scene size
 
 let left = frustumSize * aspectRatio / -2 * camScale;
 let right = frustumSize * aspectRatio / 2 * camScale;
@@ -25,6 +25,7 @@ let far = 2000;  // Sufficiently distant far clipping plane
 
 let raycaster = new THREE.Raycaster(undefined, undefined, 0, undefined);
 let mouse = new THREE.Vector2();
+let mouseMoved = false;
 let hitPoint = new THREE.Vector3();
 let hasHit = false; // Flag to check if there was a hit
 
@@ -41,15 +42,19 @@ animate();
  initialDelay = animateGroup(groupMiddle, initialDelay);
  animateGroup(groupTop, initialDelay);
 
-moveCameraWithDelay(new THREE.Vector3(0, 0, 50), 1.35, 2.3); // Move camera after 5 seconds
+moveCameraWithDelay(new THREE.Vector3(0, 0, 50), 1.35, 1); // Move camera after 5 seconds
+camera.lookAt(scene.position);
 
 
 function init() {
 
+    clock = new THREE.Clock();
+
     // Scene setup
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.gammaOutput = true;
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
 
@@ -57,12 +62,14 @@ function init() {
     //camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     camera.position.set(0, 50, 0);
-    camera.lookAt(scene.position);
 
     document.getElementById('threeDScene').appendChild(renderer.domElement);
     controls = new OrbitControls(camera, renderer.domElement);
     // controls.autoRotate = true;
     // controls.autoRotateSpeed = 0.1;
+    const   supportsDepthTextureExtension = !!renderer.extensions.get(
+        "WEBGL_depth_texture"
+    );
 }
 
 function initCloudMat() {
@@ -249,7 +256,7 @@ function initCloudMat() {
         transparent: true
     } );
 
-    // GUI
+    /*// GUI
     const parameters = {
         threshold: 0,
         opacity: 0,
@@ -272,7 +279,7 @@ function initCloudMat() {
     gui.add( parameters, 'threshold', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'opacity', 0, 1, 0.01 ).onChange( update );
     gui.add( parameters, 'range', 0, 1, 0.01 ).onChange( update );
-    gui.add( parameters, 'steps', 0, 200, 1 ).onChange( update );
+    gui.add( parameters, 'steps', 0, 200, 1 ).onChange( update );*/
 }
 
 function initCubes() {
@@ -291,11 +298,10 @@ function initCubes() {
     scene.add(groupBottom);
 
     // Top Layer Create
-    createLayer(3, 1, 1, 0.5, groupTop, materialTop);
-    //  Middle Layer Create
-    createLayer(7, 2, 0.375, 0.23, groupMiddle, materialMiddle);
-    // Bottom Layer Create
-    createLayer(7, 2, 0.375, 0.23, groupBottom, materialBottom);
+    //createLayer(3, 1, 1, 0.5, groupTop, materialTop);
+    createLayer(4, 1, 0.8, 0.5, groupTop, materialTop);
+    createLayer(4, 1, 0.8, 0.5, groupMiddle, materialMiddle);
+    createLayer(4, 1, 0.8, 0.5, groupBottom, materialBottom);
 
     //createLayer(7, 2, 0.356, 0.25, groupBottom, materialBottom, 0.);
 
@@ -327,12 +333,14 @@ function initCubes() {
             }
         }
     }
-    groupTop.position.set(0, 1.5, 0)
-    groupMiddle.position.set(0, -0.375, 0)
-    groupBottom.position.set(0, -1.8, 0)
+    groupTop.position.set(0.5, 1.8, 0)
+    groupMiddle.position.set(0.5, 0, 0)
+    groupBottom.position.set(0.5, -1.8, 0)
 }
 
 window.addEventListener('mousemove', (event) => {
+
+    mouseMoved = true;
 
     let rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -391,7 +399,7 @@ function animate() {
 
 function updateRaycast(){
 
-    if (!isLoaded) {
+    if (!mouseMoved) {
         return; // Skip raycasting if content is not yet loaded
     }
 
