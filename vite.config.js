@@ -1,4 +1,6 @@
 // vite.config.js
+import { defineConfig } from 'vite';
+import vitePluginString from 'vite-plugin-string'
 
 module.exports = {
     build: {
@@ -10,6 +12,9 @@ module.exports = {
           threeDRose: 'ThreeDRose.html'
         }
       }
-    }
+    },
+
+    plugins: [
+      vitePluginString()
+    ]
   };
-  

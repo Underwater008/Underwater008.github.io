@@ -3,6 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise.js";
 //import { GUI } from 'dat.gui';
 import { gsap } from 'https://cdn.skypack.dev/gsap';
+import waterVertexShader from './waterVertex.glsl'
+import waterFragmentShader from './waterFragmentShader.glsl'
 
 let isLoaded = false; // Flag to indicate loading completion
 let renderer, scene, camera, controls, renderTarget, depthMaterial, clock;
@@ -32,19 +34,47 @@ let hasHit = false; // Flag to check if there was a hit
 // Initialize the first delay
 let initialDelay = 0;
 
-init();
-initCloudMat();
-initCubes();
-animate();
+let lastTime = performance.now();
+const textureLoader = new THREE.TextureLoader();
+const textures = {};
 
-// Animate each group one after another, starting with the bottom
- initialDelay = animateGroup(groupBottom, initialDelay);
- initialDelay = animateGroup(groupMiddle, initialDelay);
- animateGroup(groupTop, initialDelay);
+function onLoad(callback) {
+    let textureLoadCount = 0;
 
-moveCameraWithDelay(new THREE.Vector3(0, 0, 50), 1.35, 1); // Move camera after 5 seconds
-camera.lookAt(scene.position);
+    function onTextureLoaded(texture, key) {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        textures[key] = texture;
+        textureLoadCount++;
+        if (textureLoadCount === 2) {
+            callback(textures);
+        }
+    }
 
+    textureLoader.load('../images/waterCh1.png', function (texture) {
+        onTextureLoaded(texture, 'iChannel0');
+    });
+
+    textureLoader.load('../images/waterCh2.png', function (texture) {
+        onTextureLoaded(texture, 'iChannel1');
+    });
+}
+
+// Ensure textures are loaded before anything else runs
+onLoad(function (textures) {
+    init();
+    initCloudMat();
+    initWaterMat(textures);
+    initCubes();
+    animate();
+
+    // Animate each group one after another, starting with the bottom
+    initialDelay = animateGroup(groupBottom, initialDelay);
+    initialDelay = animateGroup(groupMiddle, initialDelay);
+    animateGroup(groupTop, initialDelay);
+
+    moveCameraWithDelay(new THREE.Vector3(0, 0, 50), 1.35, 1); // Move camera after 5 seconds
+    camera.lookAt(scene.position);
+});
 
 function init() {
 
@@ -67,9 +97,6 @@ function init() {
     controls = new OrbitControls(camera, renderer.domElement);
     // controls.autoRotate = true;
     // controls.autoRotateSpeed = 0.1;
-    const   supportsDepthTextureExtension = !!renderer.extensions.get(
-        "WEBGL_depth_texture"
-    );
 }
 
 function initCloudMat() {
@@ -255,6 +282,7 @@ function initCloudMat() {
         side: THREE.BackSide,
         transparent: true
     } );
+    materialTop.customTag = 'customShader';
 
     /*// GUI
     const parameters = {
@@ -282,9 +310,27 @@ function initCloudMat() {
     gui.add( parameters, 'steps', 0, 200, 1 ).onChange( update );*/
 }
 
+function initWaterMat() {
+
+    // Create material with the shader
+    materialMiddle = new THREE.ShaderMaterial({
+        uniforms: {
+            iTime: { value: 0.0 },
+            iChannel0: { value: textures.iChannel0 },
+            iChannel1: { value: textures.iChannel1 },
+            maxOpacity: { value: 0.9 },
+            opacity: { value: 0. }
+        },
+        vertexShader: waterVertexShader,
+        fragmentShader: waterFragmentShader,
+        transparent: true // Ensure the material is set to transparent if you need opacity
+    });
+    materialMiddle.customTag = 'customShader';
+}
+
 function initCubes() {
     //materialTop = new THREE.MeshBasicMaterial({ color: 0xdcdcdc, transparent: true, opacity: 0 });
-    materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0 });
+    //materialMiddle = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0 });
     materialBottom = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
 
     // Groups for different layers
@@ -315,7 +361,8 @@ function initCubes() {
                 for (let _y = 0; _y < step; _y++) {
                     cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength); // Small Cube
                     let cubeMaterial = layerMaterial.clone(); // Correctly clone the material for each cube
-
+                    //let cubeMaterial = layerMaterial; // Correctly clone the material for each cube
+                    cubeMaterial.customTag = layerMaterial.customTag;
 
                     let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
@@ -333,9 +380,9 @@ function initCubes() {
             }
         }
     }
-    groupTop.position.set(0.5, 1.8, 0)
-    groupMiddle.position.set(0.5, 0, 0)
-    groupBottom.position.set(0.5, -1.8, 0)
+    groupTop.position.set(0.5, 1.8, 0.5)
+    groupMiddle.position.set(0.5, 0, 0.5)
+    groupBottom.position.set(0.5, -1.8, 0.5)
 }
 
 window.addEventListener('mousemove', (event) => {
@@ -383,6 +430,16 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
+
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastTime) * 0.001; // Convert to seconds
+    lastTime = currentTime;
+
+    // Update time uniform for each cube
+    groupMiddle.children.forEach(cube => {
+        cube.material.uniforms.iTime.value += deltaTime;
+    });
+
 
     updateRaycast();
 
@@ -443,6 +500,7 @@ function updateRaycast(){
 function animateGroup(group, delayStart) {
     let delay = delayStart;
     const delayIncrement = 0.02; // Delay increment between non-overlapping groups in seconds
+    const cubeDelayIncrement = 0.01; // Delay increment between cubes within the same group
 
     // Extract cubes from the group
     const cubes = group.children;
@@ -462,26 +520,29 @@ function animateGroup(group, delayStart) {
 
     // Animate each group
     sortedGroups.forEach(group => {
+        let groupDelay = delay; // Initialize group-specific delay
         group.forEach(cube => {
             const animationProps = {
                 opacity: 1,
                 duration: 0.2,
-                delay: delay,
+                delay: groupDelay,
                 ease: "power1.inOut"
             };
 
-            if (cube.material.type === "RawShaderMaterial") {
+            if (cube.material.customTag === 'customShader') {
                 // Ensure uniforms are correctly updated and GUI refreshed if necessary
                 gsap.to(cube.material.uniforms.opacity, {
                     value: 1,
-                    duration: 2,
-                    delay: delay,
+                    duration: 0.2,
+                    delay: groupDelay,
                     ease: "power1.inOut",
                     onUpdate: () => cube.material.needsUpdate = true // Make sure the shader updates
                 });
             } else {
                 gsap.to(cube.material, animationProps);
             }
+
+            groupDelay += cubeDelayIncrement; // Increase delay for each cube within the group
         });
 
         delay += delayIncrement; // Increase delay for the next non-overlapping group
@@ -515,7 +576,3 @@ function moveCameraWithDelay(targetPosition, duration, delay) {
         });
     }, delay * 1000); // Convert delay to milliseconds
 }
-
-
-
-
