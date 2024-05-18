@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import lottie from 'lottie-web';
+import lottie from 'https://cdn.skypack.dev/lottie-web';
 
 // Import shaders
 import roseVertexShader from './roseVertaxShader.glsl';
