@@ -9,13 +9,25 @@ import roseFragmentShader from './roseFragmentShader.glsl';
 let scene, camera, controls, rotateSpeed, renderer, ambientLight, directionalLight, loader, roseModel;
 let roseMaterial;
 
-let audioContext, analyser, dataArray;
+const grid = [];
+const maxCubes = 1024; // Maximum number of cubes to handle
+// Control variables
+const movementSpeed = 0.01; // Speed at which cubes move
+const generationThreshold = 100; // Threshold for generating a new cube based on audio data
+const directionX = 1; // Direction for x-axis movement (-1 for left, 1 for right)
+const directionY = 0; // Direction for y-axis movement (-1 for down, 1 for up)
+const directionZ = 0; // Direction for z-axis movement (-1 for backward, 1 for forward)
+const spacing = 0.15; // Spacing between cubes
+const yRange = 0.5; // Range for random x position
+const beatInterval = 600; // Interval in milliseconds (e.g., 250ms for a 4/4 beat at 240 BPM)
+
+let audio, source, audioContext, analyser, dataArray, bufferLength;
 
 setup();
 setupAudio();
 createRose();
+createCubeGrid(4, 0.18)
 animate();
-
 
 function setup() {
     // Scene setup
@@ -27,7 +39,7 @@ function setup() {
     document.getElementById('threeDScene').appendChild(renderer.domElement); // Add to page
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.y = 0.6;
+    camera.position.y = 2;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -41,33 +53,33 @@ function setup() {
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
+    document.addEventListener('mousedown', onDocumentMouseDown, false);
+
 }
 
-
 function setupAudio() {
-    const audio = new Audio('../audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
+    audio = new Audio('../audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
     audioContext = new AudioContext();
-    const source = audioContext.createMediaElementSource(audio);
+    source = audioContext.createMediaElementSource(audio);
     analyser = audioContext.createAnalyser();
     source.connect(analyser);
     analyser.connect(audioContext.destination);
     analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
+    bufferLength = analyser.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
     audio.autoplay = true
     audio.loop = true
     audio.play();
 }
 
-
 function createRose() {
     // Load 3D Model with Custom Shader
     loader = new GLTFLoader();
     loader.load('../3DModels/3dRose.glb', function(gltf) {
         roseModel = gltf.scene;
-        const material = roseModel.children[0].material;
+        roseMaterial = roseModel.children[0].material;
 
-        const originalTexture = material.map; // Extract the original texture
+        const originalTexture = roseMaterial.map; // Extract the original texture
 
 
         roseModel.traverse(function(node) {
@@ -79,21 +91,22 @@ function createRose() {
                         iTime: { value: 0 },
                         iSpeed: { value: 0.01 }, // Initial speed value
                         iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                        iGridSize: { value: 1.0 }, // Initial grid size value
+                        iGridSize: { value: 8.0 }, // Initial grid size value
                         iFrequency: { value: 30.0 }, // Initial frequency value
                         iBrightness: { value: 5.0 }, // Initial brightness value
-                        iTextScale: { value: 1.0 }, // Initial text scale value
+                        iTextScale: { value: 8.0 }, // Initial text scale value
                         iChannel0: { value: new THREE.TextureLoader().load('../images/rainCh1.png') },
                         iChannel1: { value: new THREE.TextureLoader().load('../images/rainCh2.png') },
                         iOriginalColor: { value: originalTexture }, // Set the extracted original texture
                         iAudioData: { value: 0.0 }, // New uniform for audio data
-                        iScale: { value: 0.07 } // New uniform for scale
+                        iScale: { value: 0.2 } // New uniform for scale
 
                     }
                 });
             }
         });
 
+        roseModel.scale.set(4, 4, 4)
         scene.add(roseModel);
         console.log('Model loaded successfully');
     }, undefined, function(error) {
@@ -101,6 +114,71 @@ function createRose() {
     });
 
 }
+
+function createCubeGrid(size, cubeSize) {
+    const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+    const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Set color to black
+    let lastCubeTime = performance.now(); // Timestamp of the last cube generation
+
+    function addCube(yPosition, zPosition) {
+        const randomY = (Math.random() - 0.5) * yRange * 2; // Random x position within [-xRange, xRange]
+        const cube = new THREE.Mesh(geometry, cubeMaterial);
+        cube.position.set(0, yPosition + randomY - 0.5, zPosition - 1.2);
+        scene.add(cube);
+        grid.push(cube);
+
+        // Limit the number of cubes in the grid
+        if (grid.length > maxCubes) {
+            const oldCube = grid.shift();
+            scene.remove(oldCube);
+        }
+    }
+
+    function animateCubes() {
+        requestAnimationFrame(animateCubes);
+
+        const currentTime = performance.now(); // Current timestamp
+
+        // Get audio data
+        analyser.getByteFrequencyData(dataArray);
+
+        // Generate cubes at specific time intervals
+        if (currentTime - lastCubeTime >= beatInterval) {
+            lastCubeTime = currentTime; // Update the timestamp of the last cube generation
+            let cubesGenerated = 0;
+            for (let i = 0; i < dataArray.length; i += Math.floor(dataArray.length / (size * size))) {
+                const value = dataArray[i];
+                if (value > generationThreshold) { // Threshold for generating a new cube
+                    const yPosition = (i % size) * cubeSize;
+                    const zPosition = Math.floor(i / size) * spacing;
+                    addCube(yPosition, zPosition);
+                    cubesGenerated++;
+                }
+            }
+        }
+
+        // Move existing cubes based on direction and speed
+        grid.forEach(cube => {
+            cube.position.x += movementSpeed * directionX;
+            cube.position.y += movementSpeed * directionY;
+            cube.position.z += movementSpeed * directionZ;
+        });
+
+        // Remove cubes that move out of view
+        for (let i = grid.length - 1; i >= 0; i--) {
+            if (Math.abs(grid[i].position.x) > 10 || Math.abs(grid[i].position.y) > 10 || Math.abs(grid[i].position.z) > 10) {
+                scene.remove(grid[i]);
+                grid.splice(i, 1);
+            }
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    animateCubes();
+}
+
+
 
 // Animation
 function animate() {
@@ -130,3 +208,33 @@ window.addEventListener('resize', function() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+function onDocumentMouseDown(event) {
+    event.preventDefault();
+
+    // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update the raycaster with the camera and mouse position
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        // Check if the first intersected object is the rose model
+        const clickedObject = intersects[0].object;
+
+        // Pause or resume the audio if the model is clicked
+        if (clickedObject.parent === roseModel) {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+    }
+}

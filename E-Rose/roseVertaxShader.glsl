@@ -1,7 +1,7 @@
 varying vec3 vPosition;
 varying vec2 vUv;
-uniform float iAudioData; // New uniform for audio data
-uniform float iScale; // New uniform for controlling the scale
+uniform float iAudioData; // Uniform for audio data
+uniform float iScale; // Uniform for controlling the scale
 uniform sampler2D iOriginalColor; // Original color texture from the model
 
 void main() {
@@ -16,9 +16,10 @@ void main() {
     // Apply the audio data to make the black areas move
     vec3 modifiedPosition = position;
 
-    // Calculate displacement direction
-    vec3 direction = normalize(vec3(position.xy, 1.0));
-    modifiedPosition += direction * iAudioData * blackness * iScale;
+    // Only move the vertex if it corresponds to a black region
+    if (blackness > 0.8) {
+        modifiedPosition.y += iAudioData * blackness * iScale;
+    }
 
     vPosition = modifiedPosition;
 
