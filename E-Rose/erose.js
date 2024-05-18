@@ -228,6 +228,13 @@ function onDocumentMouseDown(event) {
         // Check if the first intersected object is the rose model
         const clickedObject = intersects[0].object;
 
+        // Ensure AudioContext is resumed on user gesture
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                console.log('AudioContext resumed');
+            });
+        }
+
         // Pause or resume the audio if the model is clicked
         if (clickedObject.parent === roseModel) {
             if (audio.paused) {
