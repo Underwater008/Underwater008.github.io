@@ -58,7 +58,7 @@ function setup() {
 }
 
 function setupAudio() {
-    audio = new Audio('../audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
+    audio = new Audio('./audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
     audioContext = new AudioContext();
     source = audioContext.createMediaElementSource(audio);
     analyser = audioContext.createAnalyser();
@@ -75,7 +75,7 @@ function setupAudio() {
 function createRose() {
     // Load 3D Model with Custom Shader
     loader = new GLTFLoader();
-    loader.load('../3DModels/3dRose.glb', function(gltf) {
+    loader.load('./3DModels/3dRose.glb', function(gltf) {
         roseModel = gltf.scene;
         roseMaterial = roseModel.children[0].material;
 
@@ -95,8 +95,8 @@ function createRose() {
                         iFrequency: { value: 30.0 }, // Initial frequency value
                         iBrightness: { value: 5.0 }, // Initial brightness value
                         iTextScale: { value: 8.0 }, // Initial text scale value
-                        iChannel0: { value: new THREE.TextureLoader().load('../images/rainCh1.png') },
-                        iChannel1: { value: new THREE.TextureLoader().load('../images/rainCh2.png') },
+                        iChannel0: { value: new THREE.TextureLoader().load('./images/rainCh1.png') },
+                        iChannel1: { value: new THREE.TextureLoader().load('./images/rainCh2.png') },
                         iOriginalColor: { value: originalTexture }, // Set the extracted original texture
                         iAudioData: { value: 0.0 }, // New uniform for audio data
                         iScale: { value: 0.2 } // New uniform for scale
