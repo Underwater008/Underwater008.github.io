@@ -9,7 +9,8 @@ module.exports = {
           index: 'index.html',
           homoludens: 'homoludens.html',
           xiaoblogs: 'xiaoblogs.html',
-          threeDRose: 'ThreeDRose.html'
+        threeDRose: 'ThreeDRose.html',
+        erose: 'ThreeDRose.html'
         }
       }
     },
