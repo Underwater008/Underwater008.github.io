@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import lottie from 'lottie-web';
 
 // Import shaders
 import roseVertexShader from './roseVertaxShader.glsl';
@@ -23,18 +24,22 @@ const beatInterval = 600; // Interval in milliseconds (e.g., 250ms for a 4/4 bea
 
 let audio, source, audioContext, analyser, dataArray, bufferLength;
 
+let audioButtonAnimation, audioButtonPlane;
+
+
 setup();
 setupAudio();
 createRose();
 createCubeGrid(4, 0.18)
 animate();
+setupAudioButton()
 
 function setup() {
     // Scene setup
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xFFFFFF); // Black background
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('threeDScene').appendChild(renderer.domElement); // Add to page
 
@@ -70,6 +75,50 @@ function setupAudio() {
     audio.autoplay = true
     audio.loop = true
     audio.play();
+}
+
+function setupAudioButton() {
+    let animationContainer = document.getElementById('lottie-container');
+    audioButtonAnimation = lottie.loadAnimation({
+        container: animationContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        path: './eRose/eroseAudioWave.json' // Path to your Lottie JSON file
+    });
+
+    // Start the audio and animation together
+    audioButtonAnimation.addEventListener('DOMLoaded', function() {
+        audio.play();
+        audioButtonAnimation.play();
+    });
+
+    // Toggle audio and reset animation on click
+    animationContainer.addEventListener('click', function() {
+        if (!audio.paused) {
+            audio.pause();
+            audioButtonAnimation.goToAndStop(0, true); // Reset animation to the first frame
+        } else {
+            audio.play();
+            audioButtonAnimation.play();
+            rotateSpeed = 0.001;
+        }
+    });
+
+    function syncState(){
+        requestAnimationFrame(syncState);
+        // Check the state of the audio and adjust the animation accordingly
+        if (audio.paused) {
+            audioButtonAnimation.pause(); // Ensure the animation is paused if the audio is paused
+            rotateSpeed = 0.0
+        } else {
+            if (audioButtonAnimation.isPaused) {
+                audioButtonAnimation.play(); // Resume animation only if it was paused
+            }
+        }
+    }
+
+    syncState()
 }
 
 function createRose() {
@@ -236,12 +285,35 @@ function onDocumentMouseDown(event) {
         }
 
         // Pause or resume the audio if the model is clicked
-        if (clickedObject.parent === roseModel) {
+        if (clickedObject.parent === roseModel || clickedObject === audioButtonPlane) {
             if (audio.paused) {
                 audio.play();
+                rotateSpeed = 0.001;
             } else {
+                rotateSpeed = 0.0;
                 audio.pause();
+                audioButtonAnimation.goToAndStop(0, true); // Reset animation to the first frame
             }
         }
     }
 }
+
+let textureVid = document.createElement("video");
+textureVid.src = './videos/3D_Rose_Result.mp4'; // Path to the MP4 video file converted from GIF
+textureVid.loop = true;
+textureVid.muted = true; // Important for autoplay in most browsers
+textureVid.autoplay = true; // Attempt to autoplay the video
+textureVid.play(); // Ensure the video plays
+
+// Create a video texture from the video element
+let videoTexture = new THREE.VideoTexture(textureVid);
+videoTexture.format = THREE.RGBFormat;
+videoTexture.minFilter = THREE.LinearFilter; // Using LinearFilter for better quality
+videoTexture.magFilter = THREE.LinearFilter;
+videoTexture.generateMipmaps = false;
+
+// Create a mesh using a sphere geometry and the video texture
+let geometry = new THREE.PlaneGeometry(1, 1); // Use more segments for a smoother sphere
+let material = new THREE.MeshBasicMaterial({ map: videoTexture });
+let mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);

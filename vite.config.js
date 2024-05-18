@@ -7,7 +7,7 @@ module.exports = {
       rollupOptions: {
         input: {
           index: 'index.html',
-          erose: './E-Rose/erose.html'
+          erose: 'erose.html'
           //homoludens: 'homoludens.html',
           //xiaoblogs: 'xiaoblogs.html',
         //threeDRose: 'ThreeDRose.html',
