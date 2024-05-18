@@ -34,6 +34,8 @@ createCubeGrid(4, 0.18)
 animate();
 setupAudioButton()
 
+//createDisplays(1, 1, 'video', './videos/3D_Rose_Result.mp4')
+
 function setup() {
     // Scene setup
     scene = new THREE.Scene();
@@ -227,7 +229,28 @@ function createCubeGrid(size, cubeSize) {
     animateCubes();
 }
 
-
+// function createDisplays(width, height, sourceType, source) {
+//     let textureVid = document.createElement("video");
+//     textureVid.src = './videos/3D_Rose_Result.mp4'; // Path to the MP4 video file converted from GIF
+//     textureVid.loop = true;
+//     textureVid.muted = true; // Important for autoplay in most browsers
+//     textureVid.autoplay = true; // Attempt to autoplay the video
+//     textureVid.play(); // Ensure the video plays
+//
+// // Create a video texture from the video element
+//     let videoTexture = new THREE.VideoTexture(textureVid);
+//     videoTexture.format = THREE.RGBFormat;
+//     videoTexture.minFilter = THREE.LinearFilter; // Using LinearFilter for better quality
+//     videoTexture.magFilter = THREE.LinearFilter;
+//     videoTexture.generateMipmaps = false;
+//
+// // Create a mesh using a sphere geometry and the video texture
+//     let geometry = new THREE.PlaneGeometry(1, 1); // Use more segments for a smoother sphere
+//     let material = new THREE.MeshBasicMaterial({ map: videoTexture });
+//     let mesh = new THREE.Mesh(geometry, material);
+//     scene.add(mesh);
+//     mesh.position.set(-1, 0, 0)
+// }
 
 // Animation
 function animate() {
@@ -298,22 +321,3 @@ function onDocumentMouseDown(event) {
     }
 }
 
-let textureVid = document.createElement("video");
-textureVid.src = './videos/3D_Rose_Result.mp4'; // Path to the MP4 video file converted from GIF
-textureVid.loop = true;
-textureVid.muted = true; // Important for autoplay in most browsers
-textureVid.autoplay = true; // Attempt to autoplay the video
-textureVid.play(); // Ensure the video plays
-
-// Create a video texture from the video element
-let videoTexture = new THREE.VideoTexture(textureVid);
-videoTexture.format = THREE.RGBFormat;
-videoTexture.minFilter = THREE.LinearFilter; // Using LinearFilter for better quality
-videoTexture.magFilter = THREE.LinearFilter;
-videoTexture.generateMipmaps = false;
-
-// Create a mesh using a sphere geometry and the video texture
-let geometry = new THREE.PlaneGeometry(1, 1); // Use more segments for a smoother sphere
-let material = new THREE.MeshBasicMaterial({ map: videoTexture });
-let mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
