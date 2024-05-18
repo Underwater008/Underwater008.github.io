@@ -7,10 +7,10 @@ module.exports = {
       rollupOptions: {
         input: {
           index: 'index.html',
-          homoludens: 'homoludens.html',
-          xiaoblogs: 'xiaoblogs.html',
-        threeDRose: 'ThreeDRose.html',
-        erose: 'ThreeDRose.html'
+          //homoludens: 'homoludens.html',
+          //xiaoblogs: 'xiaoblogs.html',
+        //threeDRose: 'ThreeDRose.html',
+        erose: './E-Rose/erose.html'
         }
       }
     },
