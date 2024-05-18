@@ -10,7 +10,7 @@ module.exports = {
           //homoludens: 'homoludens.html',
           //xiaoblogs: 'xiaoblogs.html',
         //threeDRose: 'ThreeDRose.html',
-        erose: './E-Rose/erose.html'
+        erose: 'erose.html'
         }
       }
     },
