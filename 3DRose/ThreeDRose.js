@@ -88,8 +88,8 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
 
-    camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
-    //camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+    //camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
+    camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     camera.position.set(0, 50, 0);
 
@@ -318,7 +318,7 @@ function initWaterMat() {
             iTime: { value: 0.0 },
             iChannel0: { value: textures.iChannel0 },
             iChannel1: { value: textures.iChannel1 },
-            maxOpacity: { value: 0.9 },
+            maxOpacity: { value: 1 },
             opacity: { value: 0. }
         },
         vertexShader: waterVertexShader,
@@ -359,7 +359,7 @@ function initCubes() {
         for (let i = 0; i < Y; i++) {
             for (let _x = 0; _x < step; _x++) {
                 for (let _y = 0; _y < step; _y++) {
-                    cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength); // Small Cube
+                    cubeGeometry = new THREE.BoxGeometry(cubeLength, cubeLength, cubeLength, 32, 32, 32); // Small Cube
                     let cubeMaterial = layerMaterial.clone(); // Correctly clone the material for each cube
                     //let cubeMaterial = layerMaterial; // Correctly clone the material for each cube
                     cubeMaterial.customTag = layerMaterial.customTag;
