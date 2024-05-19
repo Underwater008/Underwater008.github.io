@@ -86,7 +86,7 @@ function setupAudioButton() {
         renderer: 'svg',
         loop: true,
         autoplay: false,
-        path: './eRose/eroseAudioWave.json' // Path to your Lottie JSON file
+        path: '../images/eroseAudioWave.json' // Path to your Lottie JSON file
     });
 
     // Start the audio and animation together
