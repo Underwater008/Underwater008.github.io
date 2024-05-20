@@ -130,8 +130,6 @@ function createRose() {
                         iOriginalColor: { value: originalTexture }, // Set the extracted original texture
                         iAudioData: { value: 0.0 }, // New uniform for roseAudio data
                         iScale: { value: 0.2 }, // New uniform for scale
-                        iLineDensity: { value: 0.2 } // New uniform for scale
-
                     }
                 });
             }
