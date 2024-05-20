@@ -129,7 +129,8 @@ function createRose() {
                         iChannel1: { value: new THREE.TextureLoader().load('../images/rainCh2.png') },
                         iOriginalColor: { value: originalTexture }, // Set the extracted original texture
                         iAudioData: { value: 0.0 }, // New uniform for roseAudio data
-                        iScale: { value: 0.2 } // New uniform for scale
+                        iScale: { value: 0.2 }, // New uniform for scale
+                        iLineDensity: { value: 0.2 } // New uniform for scale
 
                     }
                 });

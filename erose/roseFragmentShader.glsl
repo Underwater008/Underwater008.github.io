@@ -31,6 +31,31 @@ vec3 rain(vec2 fragCoord) {
     return vec3(0.1, 1.0, 0.35) / (y * iBrightness); // Use iBrightness uniform
 }
 
+// Function to detect edges using a Sobel filter
+float edgeDetection(vec2 uv, sampler2D tex) {
+    vec2 texelSize = 1.0 / iResolution;
+    float threshold = 0.1; // Edge detection threshold, adjust as needed
+
+    float gx =
+    -1.0 * texture(tex, uv + vec2(-texelSize.x, -texelSize.y)).r +
+    -2.0 * texture(tex, uv + vec2(-texelSize.x,  0.0)).r +
+    -1.0 * texture(tex, uv + vec2(-texelSize.x,  texelSize.y)).r +
+    1.0 * texture(tex, uv + vec2(texelSize.x, -texelSize.y)).r +
+    2.0 * texture(tex, uv + vec2(texelSize.x,  0.0)).r +
+    1.0 * texture(tex, uv + vec2(texelSize.x,  texelSize.y)).r;
+
+    float gy =
+    -1.0 * texture(tex, uv + vec2(-texelSize.x, -texelSize.y)).r +
+    -2.0 * texture(tex, uv + vec2(0.0, -texelSize.y)).r +
+    -1.0 * texture(tex, uv + vec2(texelSize.x, -texelSize.y)).r +
+    1.0 * texture(tex, uv + vec2(-texelSize.x,  texelSize.y)).r +
+    2.0 * texture(tex, uv + vec2(0.0,  texelSize.y)).r +
+    1.0 * texture(tex, uv + vec2(texelSize.x,  texelSize.y)).r;
+
+    float edge = length(vec2(gx, gy));
+    return edge > threshold ? 1.0 : 0.0;
+}
+
 void main() {
     vec2 fragCoord = vUv * iResolution;
 
@@ -40,8 +65,14 @@ void main() {
     // Apply the text effect with the rain effect
     vec3 textRainEffect = text(fragCoord) * rain(fragCoord);
 
-    // Combine the effects
-    vec3 finalColor = originalColor + textRainEffect;
+    // Perform edge detection on the original color texture
+    float edge = edgeDetection(vUv, iOriginalColor);
+
+    // Red color for edges
+    vec3 edgeColor = vec3(1.0, 0.0, 0.0);
+
+    // Combine the effects: if an edge is detected, use the edge color; otherwise, use the combined text and rain effect
+    vec3 finalColor = mix(textRainEffect, edgeColor, edge);
 
     gl_FragColor = vec4(finalColor, 1.0);
 }
