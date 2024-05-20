@@ -8,9 +8,6 @@ module.exports = {
         input: {
           index: 'index.html',
           erose: 'erose/erose.html'
-          //homoludens: 'homoludens.html',
-          //xiaoblogs: 'xiaoblogs.html',
-        //threeDRose: 'ThreeDRose.html',
         }
       }
     },

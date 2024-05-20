@@ -1,9 +1,7 @@
-// notesFragmentShader.glsl
-
-// Varying to receive UV coordinates from the vertex shader
+uniform sampler2D iOriginalColor;
 varying vec2 vUv;
 
 void main() {
-    // Set the fragment color to black
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 originalColor = texture2D(iOriginalColor, vUv).rgb;
+    gl_FragColor = vec4(originalColor, 1.0);
 }

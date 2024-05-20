@@ -13,16 +13,16 @@ let scene, camera, controls, rotateSpeed, renderer, ambientLight, directionalLig
 let roseMaterial;
 
 const grid = [];
-const maxCubes = 5036; // Maximum number of cubes to handle
+const maxCubes = 2048; // Maximum number of cubes to handle
 // Control variables
-const movementSpeed = 0.01; // Speed at which cubes move
-const generationThreshold = 135; // Threshold for generating a new cube based on roseAudio data
+const movementSpeed = 1.5; // Speed at which cubes move
+const generationThreshold = 138; // Threshold for generating a new cube based on roseAudio data
 const directionX = -1; // Direction for x-axis movement (-1 for left, 1 for right)
 const directionY = 0; // Direction for y-axis movement (-1 for down, 1 for up)
 const directionZ = 0; // Direction for z-axis movement (-1 for backward, 1 for forward)
-const spacing = 0.1; // Spacing between cubes
-const yRange = 0.1; // Range for random x position
-const beatInterval = 20; // Interval in milliseconds (e.g., 250ms for a 4/4 beat at 240 BPM)
+const spacing = 0.15; // Spacing between cubes
+const yRange = 0; // Range for random x position
+const beatInterval = 100; // Interval in milliseconds (e.g., 250ms for a 4/4 beat at 240 BPM)
 
 const roseAudio = new Audio('../audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
 const roseAudioContext = new AudioContext();
@@ -123,7 +123,7 @@ function createRose() {
                         iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
                         iGridSize: { value: 8.0 }, // Initial grid size value
                         iFrequency: { value: 30.0 }, // Initial frequency value
-                        iBrightness: { value: 5.0 }, // Initial brightness value
+                        iBrightness: { value: 10.0 }, // Initial brightness value
                         iTextScale: { value: 8.0 }, // Initial text scale value
                         iChannel0: { value: new THREE.TextureLoader().load('../images/rainCh1.png') },
                         iChannel1: { value: new THREE.TextureLoader().load('../images/rainCh2.png') },
@@ -163,34 +163,65 @@ function createRose() {
 }
 
 function createCubeGrid(size, cubeSize) {
-    const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-    const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
-
     let lastCubeTime = performance.now(); // Timestamp of the last cube generation
+    let previousTime = performance.now(); // Previous frame timestamp
+
+    const loader = new GLTFLoader();
+    let extractedGeometry;
+    let extractedTexture;
+    let sRoseModel;
+
+    loader.load(
+        '../3DModels/pride-rose/source/PrideRose.glb', function(gltf) {
+            sRoseModel = gltf.scene;
+            gltf.scene.traverse((node) => {
+                if (node.isMesh) {
+                    extractedGeometry = node.geometry;
+                    if (node.material.map) {
+                        extractedTexture = node.material.map;
+                    }
+                }
+            });
+        },
+        undefined,
+        function(error) {
+            console.error('An error happened while loading the GLB model:', error);
+        }
+    );
 
     function addCube(yPosition, zPosition) {
-        const randomY = (Math.random() - 0.5) * yRange * 2; // Random x position within [-xRange, xRange]
-        const cubeMaterial = new THREE.ShaderMaterial({
-            vertexShader: notesVertexShader,
-            fragmentShader: notesFragmentShader,
-        })
-        let cloneMaterial = cubeMaterial.clone()
-        const cube = new THREE.Mesh(geometry, cloneMaterial);
-        cube.position.set(0, yPosition + randomY - 1.5, -(zPosition - 1.5));
-        scene.add(cube);
-        grid.push(cube);
+        const randomY = (Math.random() - 0.5) * yRange * 2; // Random y position within [-yRange, yRange]
 
-        // Limit the number of cubes in the grid
-        if (grid.length > maxCubes) {
-            const oldCube = grid.shift();
-            scene.remove(oldCube);
+        if (extractedGeometry && extractedTexture) {
+            const newCube = sRoseModel.clone();
+            newCube.position.set(0, yPosition - 1.5, -(zPosition - 1.5));
+            newCube.rotation.set(
+                (Math.random() - 0.5) * Math.PI / 4, // X-axis rotation limited to -π/4 to π/4
+                Math.random() * Math.PI,             // Y-axis rotation limited to 0 to π
+                (Math.random() - 0.5) * Math.PI / 4  // Z-axis rotation limited to -π/4 to π/4
+            );
+            newCube.fallStartTime = performance.now() + 5000; // Set fall start time to 5 seconds from now
+            newCube.velocity = new THREE.Vector3(0, 0, 0); // Initial velocity for gravity
+            scene.add(newCube);
+            grid.push(newCube);
+
+            // Limit the number of cubes in the grid
+            if (grid.length > maxCubes) {
+                const oldCube = grid.shift();
+                scene.remove(oldCube);
+            }
+        } else {
+            console.warn('Geometry or texture is not loaded yet.');
         }
     }
+
 
     function animateCubes() {
         requestAnimationFrame(animateCubes);
 
         const currentTime = performance.now(); // Current timestamp
+        const deltaTime = (currentTime - previousTime) / 1000; // Calculate delta time in seconds
+        previousTime = currentTime; // Update the previous frame timestamp
 
         // Get roseAudio data
         roseAudioAnalyser.getByteFrequencyData(roseAudioDataArray);
@@ -204,7 +235,7 @@ function createCubeGrid(size, cubeSize) {
                 if (value > generationThreshold) { // Threshold for generating a new cube
                     const yPosition = (i % size) * cubeSize;
                     const zPosition = Math.floor(i / size) * spacing;
-                    addCube(yPosition, zPosition);
+                    addCube(0, zPosition);
                     cubesGenerated++;
                 }
             }
@@ -212,9 +243,17 @@ function createCubeGrid(size, cubeSize) {
 
         // Move existing cubes based on direction and speed
         grid.forEach(cube => {
-            cube.position.x += movementSpeed * directionX;
-            cube.position.y += movementSpeed * directionY;
-            cube.position.z += movementSpeed * directionZ;
+            // Check if the cube should start falling
+            if (currentTime > cube.fallStartTime) {
+                // Apply gravity
+                cube.velocity.y -= 9.8 * deltaTime; // Gravity acceleration
+                cube.position.y += cube.velocity.y * deltaTime;
+            } else {
+                // Move based on direction and speed if not falling
+                cube.position.x += movementSpeed * directionX * deltaTime;
+                cube.position.y += movementSpeed * directionY * deltaTime;
+                cube.position.z += movementSpeed * directionZ * deltaTime;
+            }
         });
 
         // Remove cubes that move out of view
@@ -229,7 +268,10 @@ function createCubeGrid(size, cubeSize) {
     }
 
     animateCubes();
+
 }
+
+
 
 // Animation
 function animate() {
