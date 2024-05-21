@@ -9,6 +9,7 @@ uniform sampler2D iChannel0; // Text texture
 uniform sampler2D iChannel1; // Noise texture
 uniform sampler2D iOriginalColor; // Original color texture from the model
 varying vec2 vUv;
+varying float vMoveDistance;
 
 float text(vec2 fragCoord) {
     vec2 uv = mod(fragCoord.xy, iGridSize) / iGridSize;
@@ -42,6 +43,15 @@ void main() {
 
     // Combine the effects
     vec3 finalColor = originalColor + textRainEffect;
+
+    // Determine the blackness of the original color
+    float blackness = 1.0 - dot(originalColor, vec3(0.333)); // Average RGB components
+
+    // Apply red color based on blackness
+    float threshold = 0.5; // Adjust this threshold to control how close to black it needs to be
+    if (blackness > threshold) {
+        //finalColor = vec3(1.0, 0.0, 0.0); // Set to red
+    }
 
     gl_FragColor = vec4(finalColor, 1.0);
 }

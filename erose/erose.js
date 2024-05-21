@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import lottie from 'https://cdn.skypack.dev/lottie-web';
 
 // Import shaders
@@ -13,16 +13,16 @@ let scene, camera, controls, rotateSpeed, renderer, ambientLight, directionalLig
 let roseMaterial;
 
 const grid = [];
-const maxCubes = 2048; // Maximum number of cubes to handle
+const maxCubes = 2048*2; // Maximum number of cubes to handle
 // Control variables
 const movementSpeed = 1.5; // Speed at which cubes move
-const generationThreshold = 138; // Threshold for generating a new cube based on roseAudio data
+const generationThreshold = 148; // Threshold for generating a new cube based on roseAudio data
 const directionX = -1; // Direction for x-axis movement (-1 for left, 1 for right)
 const directionY = 0; // Direction for y-axis movement (-1 for down, 1 for up)
 const directionZ = 0; // Direction for z-axis movement (-1 for backward, 1 for forward)
-const spacing = 0.15; // Spacing between cubes
+const spacing = 0.2; // Spacing between cubes
 const yRange = 0; // Range for random x position
-const beatInterval = 100; // Interval in milliseconds (e.g., 250ms for a 4/4 beat at 240 BPM)
+const beatInterval = 20; // Interval in milliseconds (e.g., 250ms for a 4/4 beat at 240 BPM)
 
 const roseAudio = new Audio('../audios/The Chainsmokers - Roses (Audio) ft. ROZES (320).mp3');
 const roseAudioContext = new AudioContext();
@@ -41,7 +41,7 @@ let animationContainer, audioButtonAnimation;
 
 setup();
 createRose();
-createCubeGrid(3, 0.18)
+createCubeGrid(3, 0.01)
 setupAudioButton()
 animate();
 
@@ -58,22 +58,23 @@ function setup() {
     document.getElementById('threeDScene').appendChild(renderer.domElement); // Add to page
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.y = 2;
+    camera.position.y = 4;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     controls = new OrbitControls(camera, renderer.domElement);
-    rotateSpeed = 0.001
+    rotateSpeed = 0.0015
     controls.update();
 
     // Add Lighting
-    ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    ambientLight = new THREE.AmbientLight(0xffffff, 6);
     scene.add(ambientLight);
 
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
-    document.addEventListener('mousedown', onDocumentMouseDown, false);
 
+    // Event listener for mouse down
+    window.addEventListener('mousedown', onDocumentMouseDown);
 }
 
 function setupAudioButton() {
@@ -103,7 +104,50 @@ function setupAudioButton() {
     syncState()
 }
 
+const wireframeVertexShader = `
+    varying vec3 vColor;
+
+    void main() {
+        vColor = color;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+`;
+
+const wireframeFragmentShader = `
+    varying vec3 vColor;
+    uniform vec3 wireColor;
+
+    void main() {
+        gl_FragColor = vec4(wireColor, 1.0);
+    }
+`;
+
+function simplifyBufferGeometry(bufferGeometry, density) {
+    const indices = bufferGeometry.index.array;
+    const vertices = bufferGeometry.attributes.position.array;
+    const faces = [];
+
+    for (let i = 0; i < indices.length; i += 3) {
+        faces.push([indices[i], indices[i + 1], indices[i + 2]]);
+    }
+
+    const newFaces = [];
+    for (let i = 0; i < faces.length; i += Math.ceil(1 / density)) {
+        newFaces.push(faces[i]);
+    }
+
+    const newIndices = newFaces.flat();
+
+    const newGeometry = new THREE.BufferGeometry();
+    newGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    newGeometry.setIndex(newIndices);
+    newGeometry.computeVertexNormals();
+
+    return newGeometry;
+}
+
 function createRose() {
+    let line
     // Load 3D Model with Custom Shader
     loader = new GLTFLoader();
     loader.load('../3DModels/3dRose.glb', function(gltf) {
@@ -136,17 +180,51 @@ function createRose() {
         });
 
         roseModel.scale.set(4, 4, 4)
+        roseModel.customTag = 'eRose'
         scene.add(roseModel);
         console.log('Model loaded successfully');
+
+        // Create the wireframe geometry and add it to the scene
+        roseModel.traverse(function(node) {
+            if (node.isMesh) {
+                // Simplify geometry by merging vertices and applying density
+                const density = 0.3; // Adjust the density parameter as needed
+                const simplifiedGeometry = simplifyBufferGeometry(node.geometry, density);
+
+                const wireframeGeometry = new THREE.WireframeGeometry(simplifiedGeometry);
+                const wireframeMaterial = new THREE.ShaderMaterial({
+                    vertexShader: wireframeVertexShader,
+                    fragmentShader: wireframeFragmentShader,
+                    uniforms: {
+                        wireColor: { value: new THREE.Color(0xff0000) }, // Set the wireframe color here
+                    },
+                    vertexColors: true,
+                    side: THREE.DoubleSide
+                });
+
+                line = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+                line.position.copy(roseModel.position);
+                line.rotation.copy(roseModel.rotation);
+                line.scale.set(2.5, 2.5, 2.5);
+                line.userData.ignoreRaycast = true;
+                scene.add(line);
+            }
+        });
+
     }, undefined, function(error) {
         console.error('Error loading model:', error);
     });
+
 
     function updateRose(){
         requestAnimationFrame(updateRose)
 
         if (roseModel) {
             roseModel.rotation.y += rotateSpeed; // Rotate model
+
+            line.position.copy(roseModel.position);
+            line.rotation.copy(roseModel.rotation);
+
             roseModel.traverse(function(node) {
                 if (node.isMesh && node.material.uniforms) {
                     node.material.uniforms.iTime.value += 0.05; // Update time uniform
@@ -174,12 +252,17 @@ function createCubeGrid(size, cubeSize) {
     loader.load(
         '../3DModels/pride-rose/source/PrideRose.glb', function(gltf) {
             sRoseModel = gltf.scene;
+
             gltf.scene.traverse((node) => {
                 if (node.isMesh) {
                     extractedGeometry = node.geometry;
                     if (node.material.map) {
                         extractedTexture = node.material.map;
                     }
+                    sRoseModel.material = new THREE.ShaderMaterial({
+                        vertexShader: notesVertexShader,
+                        fragmentShader: notesFragmentShader
+                    })
                 }
             });
         },
@@ -190,17 +273,16 @@ function createCubeGrid(size, cubeSize) {
     );
 
     function addCube(yPosition, zPosition) {
-        const randomY = (Math.random() - 0.5) * yRange * 2; // Random y position within [-yRange, yRange]
 
         if (extractedGeometry && extractedTexture) {
             const newCube = sRoseModel.clone();
-            newCube.position.set(0, yPosition - 1.5, -(zPosition - 1.5));
+            newCube.position.set(0, yPosition - 1.5, -(zPosition - 2.3));
             newCube.rotation.set(
                 (Math.random() - 0.5) * Math.PI / 4, // X-axis rotation limited to -π/4 to π/4
                 Math.random() * Math.PI,             // Y-axis rotation limited to 0 to π
                 (Math.random() - 0.5) * Math.PI / 4  // Z-axis rotation limited to -π/4 to π/4
             );
-            newCube.fallStartTime = performance.now() + 5000; // Set fall start time to 5 seconds from now
+            //newCube.fallStartTime = performance.now() + 5000; // Set fall start time to 5 seconds from now
             newCube.velocity = new THREE.Vector3(0, 0, 0); // Initial velocity for gravity
             scene.add(newCube);
             grid.push(newCube);
@@ -214,7 +296,6 @@ function createCubeGrid(size, cubeSize) {
             console.warn('Geometry or texture is not loaded yet.');
         }
     }
-
 
     function animateCubes() {
         requestAnimationFrame(animateCubes);
@@ -271,8 +352,6 @@ function createCubeGrid(size, cubeSize) {
 
 }
 
-
-
 // Animation
 function animate() {
     requestAnimationFrame(animate);
@@ -289,24 +368,37 @@ window.addEventListener('resize', function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+
+const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+
+// Sphere geometry and material for visualizing click position
+const clickSphereGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+const clickSphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const clickSphere = new THREE.Mesh(clickSphereGeometry, clickSphereMaterial);
+clickSphereMaterial.transparent = true;
+clickSphereMaterial.opacity = 0;
+
 function onDocumentMouseDown(event) {
     event.preventDefault();
 
     // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
-    const mouse = new THREE.Vector2();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     // Update the raycaster with the camera and mouse position
-    const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
 
     // Calculate objects intersecting the picking ray
     const intersects = raycaster.intersectObjects(scene.children, true);
 
-    if (intersects.length > 0) {
+    // Filter out objects that should be ignored
+    const filteredIntersects = intersects.filter(intersect => !intersect.object.userData.ignoreRaycast);
+
+    if (filteredIntersects.length > 0) {
         // Check if the first intersected object is the rose model
-        const clickedObject = intersects[0].object;
+        const clickedObject = filteredIntersects[0].object;
+        console.log(clickedObject);
 
         // Ensure AudioContext is resumed on user gesture
         if (roseAudioContext.state === 'suspended') {
@@ -316,7 +408,7 @@ function onDocumentMouseDown(event) {
         }
 
         // Pause or resume the roseAudio if the model is clicked
-        if (clickedObject.parent === roseModel) {
+        if (clickedObject.parent.customTag === 'eRose') {
             if (roseAudio.paused) {
                 roseAudio.play();
                 rotateSpeed = 0.001;
@@ -324,11 +416,15 @@ function onDocumentMouseDown(event) {
                 rotateSpeed = 0.0;
                 roseAudio.pause();
                 audioButtonAnimation.goToAndStop(0, true); // Reset animation to the first frame
+                console.log('1')
+
             }
         }
+
+        // Position the click sphere at the intersection point and add it to the scene
+        clickSphere.position.copy(filteredIntersects[0].point);
+        scene.add(clickSphere);
     }
-
-
 }
 
 // Toggle roseAudio and reset animation on click
@@ -372,6 +468,7 @@ function createWaveformWithCubes(scene, roseAudioAnalyser) {
     //const waveformMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF }); // Black color
     const waveformMaterial = new THREE.LineBasicMaterial({ color: 0xFF0000 }); // Black color
     const centralWaveformLine = new THREE.Line(centralWaveformGeometry, waveformMaterial);
+    centralWaveformLine.userData.ignoreRaycast = true;
     scene.add(centralWaveformLine);
 
     // Function to apply a simple moving average filter
@@ -454,6 +551,99 @@ function createWaveformWithCubes(scene, roseAudioAnalyser) {
     };
 }
 
-
 // Example usage
 const waveform = createWaveformWithCubes(scene, roseAudioAnalyser);
+
+let grassModel;
+let grassModels = [];
+let lastSpawnPositionX = 0;
+const spawnDistance = 0.01; // Distance in units to trigger a new spawn
+let lastFrameTime = performance.now(); // Initialize with the current time
+const speed = 1.5; // Speed control, adjust this value to change the movement speed
+
+function createGrassBelt(callback) {
+    const loader = new GLTFLoader();
+    loader.load('../3DModels/grassMix.glb', function(gltf) {
+        grassModel = gltf.scene;
+        const grassSize = 0.5;
+        grassModel.scale.set(grassSize, grassSize, grassSize);
+        grassModel.position.set(0, -1.5, 2.2);
+        grassModel.customTag = 'grass';
+
+        // Enable shadow casting for the grass model
+        grassModel.traverse(function(node) {
+            if (node.isMesh) {
+                node.castShadow = true;
+                node.receiveShadow = true;
+            }
+        });
+
+        // Return the loaded grass model through the callback
+        callback(grassModel);
+    });
+}
+
+function moveGrassModels() {
+    const currentFrameTime = performance.now();
+    const deltaTime = (currentFrameTime - lastFrameTime) / 1000; // Convert to seconds
+    lastFrameTime = currentFrameTime;
+
+    requestAnimationFrame(moveGrassModels);
+
+    // Move all grass models in the -x direction
+    grassModels.forEach(grassModel => {
+        grassModel.position.x -= speed * deltaTime; // Adjust speed as needed
+    });
+
+    // Remove grass models that are out of view
+    grassModels = grassModels.filter(grassModel => {
+        if (grassModel.position.x < -10) {
+            scene.remove(grassModel);
+            return false;
+        }
+        return true;
+    });
+
+    // Check if it's time to spawn a new grass belt
+    if (grassModels.length > 0) {
+        const lastGrass = grassModels[grassModels.length - 1];
+        if (lastSpawnPositionX - lastGrass.position.x > spawnDistance) {
+            spawnGrass(6, 1);
+            lastSpawnPositionX = lastGrass.position.x;
+        }
+    } else {
+        spawnGrass(6, 1);
+        lastSpawnPositionX = -4;
+    }
+
+    renderer.render(scene, camera);
+}
+
+function spawnGrass(spawnCount, spacing) {
+    if (!grassModel) return; // Ensure grassModel is loaded before spawning
+
+    for (let i = 0; i < spawnCount; i++) {
+        // Clone the base grass model to create multiple instances
+        const grassClone = grassModel.clone();
+        grassClone.position.set(grassModel.position.x, grassModel.position.y, grassModel.position.z - (i * spacing));
+
+        // Randomly rotate the grass model by 90, 180, or 270 degrees
+        const rotations = [Math.PI / 2, Math.PI, 3 * Math.PI / 2];
+        grassClone.rotation.y = rotations[Math.floor(Math.random() * rotations.length)];
+
+        scene.add(grassClone);
+        grassModels.push(grassClone);
+    }
+}
+
+// Function to start the grass spawning and moving process
+function startGrassBelt() {
+    // Load the initial grass model and start the process
+    createGrassBelt(() => {
+        lastSpawnPositionX = grassModel.position.x;
+        moveGrassModels();
+    });
+}
+
+// Initial call to start the process
+startGrassBelt();
