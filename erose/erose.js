@@ -298,11 +298,16 @@ function createCubeGrid(size, cubeSize) {
     }
 
     function animateCubes() {
+
         requestAnimationFrame(animateCubes);
 
         const currentTime = performance.now(); // Current timestamp
         const deltaTime = (currentTime - previousTime) / 1000; // Calculate delta time in seconds
+
         previousTime = currentTime; // Update the previous frame timestamp
+        if (roseAudio.paused){
+            return
+        }
 
         // Get roseAudio data
         roseAudioAnalyser.getByteFrequencyData(roseAudioDataArray);
@@ -589,6 +594,10 @@ function moveGrassModels() {
     lastFrameTime = currentFrameTime;
 
     requestAnimationFrame(moveGrassModels);
+
+    if(roseAudio.paused){
+        return;
+    }
 
     // Move all grass models in the -x direction
     grassModels.forEach(grassModel => {
