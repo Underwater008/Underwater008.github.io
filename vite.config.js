@@ -7,7 +7,8 @@ module.exports = {
       rollupOptions: {
         input: {
           index: 'index.html',
-          erose: 'erose/erose.html'
+          erose: 'erose/erose.html',
+          udream: 'udream/udream.html',
         }
       }
     },
