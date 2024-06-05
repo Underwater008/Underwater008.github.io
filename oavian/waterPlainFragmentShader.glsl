@@ -2,6 +2,8 @@ uniform vec3 color;
 uniform sampler2D tDiffuse;
 uniform sampler2D tDudv;
 uniform float time;
+uniform float waveStrength;
+uniform float waveSpeed;
 
 
 varying vec4 vUv;
@@ -11,9 +13,6 @@ varying vec4 vUv;
 void main() {
 
     #include <logdepthbuf_fragment>
-
-    float waveStrength = 1.0;
-    float waveSpeed = 0.03;
 
     // simple distortion (ripple) via dudv map (see https://www.youtube.com/watch?v=6B7IF6GOu7s)
 

@@ -14,6 +14,7 @@ import waterPlainVertexShader from './waterPlainVertexShader.glsl'
 import waterPlainFragmentShader from './waterPlainFragmentShader.glsl'
 import birdsVertexShader from './birdsVertexShader.glsl'
 import birdsFragmentShader from './birdsFragmentShader.glsl'
+import {reflector} from "three/nodes";
 
 
 const scene = new THREE.Scene();
@@ -36,13 +37,16 @@ controls.update();
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(directionalLight);
-directionalLight.position.set(0, 10, 10);
+directionalLight.position.set(0, 10, 0);
 
 // Create ambient light
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // white light with 50% intensity
 scene.add(ambientLight);
 
 let sky, sun;
+
+const gui = new GUI();
+
 
 let crane
 // Loader for importing the GLB model
@@ -94,7 +98,6 @@ let mixer
 });*/
 
 function setReflector(){
-    // reflectors/mirrors
 
     let geometry, material;
     geometry = new THREE.CircleGeometry( 999, 64 );
@@ -109,16 +112,40 @@ function setReflector(){
         dudvMap.wrapS = dudvMap.wrapT = THREE.RepeatWrapping;
         customShader.uniforms.tDudv = {value: dudvMap};
         customShader.uniforms.time = {value: 0};
+        customShader.uniforms.waveStrength = {value: 1}
+        customShader.uniforms.waveSpeed = {value: 0.03}
+
+        const reflectorController = {
+            //clipBias: 1.003,
+            color: new THREE.Color(0x000000),
+            waveStrength: 1.0,
+            waveSpeed: 0.03
+        };
 
         const groundMirror = new Reflector( geometry, {
-            clipBias: 0.003,
+            //clipBias: reflectorController.clipBias,
             textureWidth: window.innerWidth * window.devicePixelRatio,
             textureHeight: window.innerHeight * window.devicePixelRatio,
-            color: 0x000000,
+            color: reflectorController.color
         } );
         groundMirror.position.y = 0;
         groundMirror.rotateX( - Math.PI / 2 );
         scene.add( groundMirror );
+
+
+        function guiChanged() {
+            const uniforms = groundMirror.material.uniforms
+            //groundMirror.clipBias = reflectorController.clipBias;
+            uniforms[ 'color' ].value = reflectorController.color;
+            uniforms[ 'waveStrength' ].value = reflectorController.waveStrength;
+            uniforms[ 'waveSpeed' ].value = reflectorController.waveSpeed;
+        }
+
+        //gui.add(reflectorController, 'clipBias', 0.0, 1, 0.001).onChange( guiChanged );
+        gui.addColor(reflectorController, 'color').onChange( guiChanged );
+        gui.add(reflectorController, 'waveStrength', 0.0, 1, 0.001).onChange( guiChanged );
+        gui.add(reflectorController, 'waveSpeed', 0.0, 1, 0.001).onChange( guiChanged );
+
 
         function updateWaterPlain(){
             requestAnimationFrame(updateWaterPlain);
@@ -127,7 +154,6 @@ function setReflector(){
         }
 
         updateWaterPlain();
-
     } );
 
 
@@ -183,8 +209,6 @@ function initSky() {
         renderer.render( scene, camera );
 
     }
-
-    const gui = new GUI();
 
     gui.add( effectController, 'turbidity', 0.0, 20.0, 0.1 ).onChange( guiChanged );
     gui.add( effectController, 'rayleigh', 0.0, 4, 0.001 ).onChange( guiChanged );
@@ -256,19 +280,6 @@ function setStars(){
     scene.add(mesh)
 }
 
-init()
-
-initSky();
-
-setStars()
-
-setReflector()
-
-animate();
-
-makeBirds()
-
-
 function makeBirds(){
     /* TEXTURE WIDTH FOR SIMULATION */
     const WIDTH = 64;
@@ -293,7 +304,8 @@ function makeBirds(){
 
     let gltfs = [ '../3DModels/crane.glb'];
     const colors = [ 0xccFFFF, 0xffdeff ];
-    const sizes = [ 30.2, 0.1 ];
+    let birdMat
+    const sizes = [ 1.0, 0.1 ];
     const selectModel = Math.floor( Math.random() * gltfs.length );
     new GLTFLoader().load( '../3DModels/crane2.glb', function ( gltf ) {
 
@@ -301,6 +313,10 @@ function makeBirds(){
         durationAnimation = Math.round( animations[ 0 ].duration * 60 );
         let birdGeo
         gltf.scene.traverse(function(child) {
+
+            if (child.isMesh) {
+                birdMat = child.material;
+            }
 
             if (child.geometry) {
                 birdGeo = child.geometry;
@@ -312,53 +328,53 @@ function makeBirds(){
                     return;
                 }
 
-                const positionArray = birdGeo.getAttribute('position').array;
-                const count = birdGeo.getAttribute('position').count;
-
-                // Check if the color attribute exists
-                if (!birdGeo.getAttribute('color')) {
-                    const colors = new Float32Array(count * 3);
-
-                    if (child.material.map) {
-                        // Extract colors from texture
-                        const texture = child.material.map.image;
-                        const canvas = document.createElement('canvas');
-                        canvas.width = texture.width;
-                        canvas.height = texture.height;
-                        const context = canvas.getContext('2d');
-                        context.drawImage(texture, 0, 0);
-                        const imageData = context.getImageData(0, 0, texture.width, texture.height).data;
-
-                        for (let i = 0; i < count; i++) {
-                            const u = (birdGeo.attributes.uv.array[i * 2] * texture.width) | 0;
-                            const v = (birdGeo.attributes.uv.array[i * 2 + 1] * texture.height) | 0;
-                            const index = (v * texture.width + u) * 4;
-
-                            colors[i * 3] = imageData[index] / 255;      // R component
-                            colors[i * 3 + 1] = imageData[index + 1] / 255; // G component
-                            colors[i * 3 + 2] = imageData[index + 2] / 255; // B component
-                        }
-                    } else if (child.material.color) {
-                        // Use the color from the material if it exists
-                        const materialColor = child.material.color;
-                        for (let i = 0; i < count; i++) {
-                            colors[i * 3] = materialColor.r;
-                            colors[i * 3 + 1] = materialColor.g;
-                            colors[i * 3 + 2] = materialColor.b;
-                        }
-                    } else {
-                        // Default to white if no colors are available
-                        for (let i = 0; i < count; i++) {
-                            colors[i * 3] = 1;     // R component
-                            colors[i * 3 + 1] = 1; // G component
-                            colors[i * 3 + 2] = 1; // B component
-                        }
-                    }
-
-                    birdGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-                }
-
-                colors.needsUpdate = true;
+                // const positionArray = birdGeo.getAttribute('position').array;
+                // const count = birdGeo.getAttribute('position').count;
+                //
+                // // Check if the color attribute exists
+                // if (!birdGeo.getAttribute('color')) {
+                //     const colors = new Float32Array(count * 3);
+                //
+                //     if (child.material.map) {
+                //         // Extract colors from texture
+                //         const texture = child.material.map.image;
+                //         const canvas = document.createElement('canvas');
+                //         canvas.width = texture.width;
+                //         canvas.height = texture.height;
+                //         const context = canvas.getContext('2d');
+                //         context.drawImage(texture, 0, 0);
+                //         const imageData = context.getImageData(0, 0, texture.width, texture.height).data;
+                //
+                //         for (let i = 0; i < count; i++) {
+                //             const u = (birdGeo.attributes.uv.array[i * 2] * texture.width) | 0;
+                //             const v = (birdGeo.attributes.uv.array[i * 2 + 1] * texture.height) | 0;
+                //             const index = (v * texture.width + u) * 4;
+                //
+                //             colors[i * 3] = imageData[index] / 255;      // R component
+                //             colors[i * 3 + 1] = imageData[index + 1] / 255; // G component
+                //             colors[i * 3 + 2] = imageData[index + 2] / 255; // B component
+                //         }
+                //     } else if (child.material.color) {
+                //         // Use the color from the material if it exists
+                //         const materialColor = child.material.color;
+                //         for (let i = 0; i < count; i++) {
+                //             colors[i * 3] = materialColor.r;
+                //             colors[i * 3 + 1] = materialColor.g;
+                //             colors[i * 3 + 2] = materialColor.b;
+                //         }
+                //     } else {
+                //         // Default to white if no colors are available
+                //         for (let i = 0; i < count; i++) {
+                //             colors[i * 3] = 1;     // R component
+                //             colors[i * 3 + 1] = 1; // G component
+                //             colors[i * 3 + 2] = 1; // B component
+                //         }
+                //     }
+                //
+                //     birdGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                // }
+                //
+                // colors.needsUpdate = true;
 
 
                 const morphAttributes = birdGeo.morphAttributes.position;
@@ -415,7 +431,7 @@ function makeBirds(){
                     //console.log(bIndex)
 
                     vertices.push( birdGeo.getAttribute( 'position' ).array[ bIndex ] );
-                    color.push( birdGeo.getAttribute( 'color' ).array[ bIndex ] );
+                    //color.push( birdGeo.getAttribute( 'color' ).array[ bIndex ] );
 
                 }
 
@@ -441,8 +457,8 @@ function makeBirds(){
                 }
 
                 BirdGeometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array( vertices ), 3 ) );
-                BirdGeometry.setAttribute( 'birdColor', new THREE.BufferAttribute( new Float32Array( color ), 3 ) );
-                BirdGeometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array( color ), 3 ) );
+                //BirdGeometry.setAttribute( 'birdColor', new THREE.BufferAttribute( new Float32Array( color ), 3 ) );
+                //BirdGeometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array( color ), 3 ) );
                 BirdGeometry.setAttribute( 'reference', new THREE.BufferAttribute( new Float32Array( reference ), 4 ) );
                 BirdGeometry.setAttribute( 'seeds', new THREE.BufferAttribute( new Float32Array( seeds ), 4 ) );
 
@@ -496,8 +512,6 @@ function makeBirds(){
 
         window.addEventListener( 'resize', onWindowResize );
 
-        const gui = new GUI();
-
         const effectController = {
 
             separation: 20.0,
@@ -525,7 +539,7 @@ function makeBirds(){
         gui.add( effectController, 'separation', 0.0, 100.0, 1.0 ).onChange( valuesChanger );
         gui.add( effectController, 'alignment', 0.0, 100, 0.001 ).onChange( valuesChanger );
         gui.add( effectController, 'cohesion', 0.0, 100, 0.025 ).onChange( valuesChanger );
-        gui.add( effectController, 'size', 0, 1, 0.01 ).onChange( valuesChanger );
+        gui.add( effectController, 'size', 0, 30, 0.01 ).onChange( valuesChanger );
         gui.add( effectController, 'count', 0, BIRDS, 1 ).onChange( valuesChanger );
         gui.close();
 
@@ -582,12 +596,7 @@ function makeBirds(){
 
         const geometry = BirdGeometry;
 
-        const m = new THREE.MeshStandardMaterial( {
-            vertexColors: true,
-            flatShading: true,
-            roughness: 1,
-            metalness: 0
-        } );
+        const m = birdMat
 
         m.onBeforeCompile = ( shader ) => {
 
@@ -603,7 +612,6 @@ function makeBirds(){
             let insert = /* glsl */`
 						attribute vec4 reference;
 						attribute vec4 seeds;
-						attribute vec3 birdColor;
 						uniform sampler2D texturePosition;
 						uniform sampler2D textureVelocity;
 						uniform sampler2D textureAnimation;
@@ -649,10 +657,13 @@ function makeBirds(){
             shader.vertexShader = shader.vertexShader.replace( token, insert );
 
             materialShader = shader;
+            console.log("Vertex Shader:\n", shader.vertexShader);  // Logs the vertex shader
+            console.log("Fragment Shader:\n", shader.fragmentShader);  // Logs the fragment shader
 
         };
 
         birdMesh = new THREE.Mesh( geometry, m );
+
         birdMesh.rotation.y = Math.PI / 2;
 
         birdMesh.castShadow = true;
@@ -746,3 +757,15 @@ function makeBirds(){
         renderer.render( scene, camera );
     }
 }
+
+init()
+
+initSky();
+
+setStars()
+
+setReflector()
+
+animate();
+
+makeBirds();
