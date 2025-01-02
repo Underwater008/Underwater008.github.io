@@ -7,6 +7,7 @@ module.exports = {
       rollupOptions: {
         input: {
           index: 'index.html',
+          fireworks: 'fireworks.html',
           erose: 'erose/erose.html',
           udream: 'udream/udream.html',
         }
