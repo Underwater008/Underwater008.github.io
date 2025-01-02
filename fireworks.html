@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fireworks - Changing Chars & No Overlap</title>
+  <style>
+    /* Basic reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: black;
+      overflow: hidden;      /* Hide scrollbars */
+      font-family: monospace;
+      width: 100vw;          /* Fill entire viewport width */
+      height: 100vh;         /* Fill entire viewport height */
+      position: relative;    /* So absolute sparks position relative to body */
+    }
+    .spark {
+      position: absolute;
+      color: white;
+      pointer-events: none;  /* clicks pass through sparks */
+      opacity: 1;            /* We'll animate this out in JS if needed */
+    }
+    /* Optional smaller style for tails, if you enable them below */
+    .tail {
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+/* 
+  ------------
+   CONFIG
+  ------------
+*/
+// Gravity
+const GRAVITY = 0.04;
+
+// Rocket parameters
+const ROCKET_SPEED = -5;          // initial upward velocity
+const ROCKET_INTERVAL = 2500;     // ms between each rocket launch
+
+// Spark / explosion parameters
+const SPARK_COUNT_MIN = 10;  
+const SPARK_COUNT_MAX = 20;  
+const SPARK_SPEED_MIN = 1;    
+const SPARK_SPEED_MAX = 2.5;  
+const SPARK_FADE_MIN = 0.003; 
+const SPARK_FADE_MAX = 0.005; 
+
+// Overlap/collision
+const MIN_SPARK_DISTANCE = 12;  // how close sparks can get before pushing away
+
+// Characters that sparks cycle through each frame
+const SPARK_CHAR_SET = [
+  "*", "**", "+*", ".o", "✸", "※", "*+", ".*", "o*", "✨", "❋", "⁂", "⊹", "≛"
+];
+
+// Available colors
+const COLORS = ["red", "yellow", "orange", "cyan", "magenta", "lime", "white"];
+
+/*
+  -------------
+   GLOBALS
+  -------------
+*/
+let rockets = [];
+let sparks = [];
+
+/* 
+  Function that returns a random character from SPARK_CHAR_SET.
+  We'll call this every frame for each spark to make it constantly change.
+*/
+function getRandomSparkChar() {
+  return SPARK_CHAR_SET[Math.floor(Math.random() * SPARK_CHAR_SET.length)];
+}
+
+/* 
+  -------------
+   ROCKET CLASS
+  -------------
+*/
+class Rocket {
+  constructor() {
+    this.x = Math.random() * window.innerWidth;
+    this.y = window.innerHeight - 5;
+    this.vx = (Math.random() - 0.5) * 1.5;
+    this.vy = ROCKET_SPEED + Math.random() * -2;
+    this.exploded = false;
+
+    // random time to explode
+    this.explodeTime = 800 + Math.random() * 700; // 0.8 - 1.5s
+    this.startTime = Date.now();
+
+    // DOM element for rocket
+    this.el = document.createElement("div");
+    this.el.className = "spark"; 
+    this.el.textContent = "^";
+    this.el.style.color = "white";
+    this.el.style.left = this.x + "px";
+    this.el.style.top = this.y + "px";
+    // subtle glow
+    this.el.style.textShadow = "0 0 4px white, 0 0 8px white";
+
+    document.body.appendChild(this.el);
+  }
+
+  update(dt) {
+    const dtFactor = dt * 0.06;
+
+    // gravity
+    this.vy += GRAVITY * dtFactor;
+    // move
+    this.x += this.vx * dtFactor;
+    this.y += this.vy * dtFactor;
+
+    // update DOM
+    this.el.style.left = this.x + "px";
+    this.el.style.top = this.y + "px";
+
+    // if rocket has been in air for explodeTime or starts falling
+    if (!this.exploded && (Date.now() - this.startTime > this.explodeTime || this.vy >= 0)) {
+      this.explode();
+    }
+  }
+
+  explode() {
+    this.exploded = true;
+    if (this.el.parentNode) {
+      this.el.parentNode.removeChild(this.el);
+    }
+
+    // spawn sparks
+    const sparkCount = SPARK_COUNT_MIN + Math.floor(Math.random() * (SPARK_COUNT_MAX - SPARK_COUNT_MIN + 1));
+    for (let i = 0; i < sparkCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = SPARK_SPEED_MIN + Math.random() * (SPARK_SPEED_MAX - SPARK_SPEED_MIN);
+
+      const s = new Spark(this.x, this.y);
+      s.vx = Math.cos(angle) * speed;
+      s.vy = Math.sin(angle) * speed;
+      sparks.push(s);
+    }
+  }
+}
+
+/* 
+  -------------
+   SPARK CLASS
+  -------------
+   Each spark has:
+     - position, velocity
+     - random color
+     - fade-out speed
+     - and changes its character EVERY frame
+*/
+class Spark {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = 0;
+    this.vy = 0;
+    this.alpha = 1;
+    this.fade = SPARK_FADE_MIN + Math.random() * (SPARK_FADE_MAX - SPARK_FADE_MIN);
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    // main spark DOM element
+    this.el = document.createElement("div");
+    this.el.className = "spark";
+    this.el.style.left = this.x + "px";
+    this.el.style.top = this.y + "px";
+    this.el.style.color = this.color;
+    // bloom / glow
+    this.el.style.textShadow = `
+      0 0 6px ${this.color},
+      0 0 10px ${this.color}
+    `;
+
+    document.body.appendChild(this.el);
+
+    // Uncomment if you want tails (may be heavier on performance):
+    // this.tailEnabled = true;
+  }
+
+  update(dt) {
+    const dtFactor = dt * 0.06;
+
+    // gravity
+    this.vy += GRAVITY * 0.5 * dtFactor;
+
+    // store old pos for tail, if using
+    // const oldX = this.x;
+    // const oldY = this.y;
+
+    // move
+    this.x += this.vx * dtFactor;
+    this.y += this.vy * dtFactor;
+
+    // fade
+    this.alpha -= this.fade * dtFactor;
+    if (this.alpha < 0) this.alpha = 0;
+
+    // CHANGE CHARACTER EVERY FRAME
+    this.el.textContent = getRandomSparkChar();
+
+    // update DOM
+    this.el.style.left = this.x + "px";
+    this.el.style.top = this.y + "px";
+    this.el.style.opacity = this.alpha;
+
+    // Optional: create tail
+    /*
+    if (this.tailEnabled) {
+      this.createTailSegment(oldX, oldY);
+    }
+    */
+
+    // if fully invisible or off-screen, remove
+    if (this.alpha <= 0 || this.y > window.innerHeight + 50) {
+      if (this.el.parentNode) {
+        this.el.parentNode.removeChild(this.el);
+      }
+      return false;
+    }
+    return true;
+  }
+
+  /*
+  // TAILS (optional)
+  createTailSegment(x, y) {
+    const tailEl = document.createElement("div");
+    tailEl.className = "spark tail";
+    tailEl.textContent = getRandomSparkChar(); // or the same as main spark
+    tailEl.style.color = this.color;
+    tailEl.style.left = x + "px";
+    tailEl.style.top = y + "px";
+    tailEl.style.opacity = 0.5;
+    tailEl.style.textShadow = `
+      0 0 4px ${this.color},
+      0 0 8px ${this.color}
+    `;
+    document.body.appendChild(tailEl);
+
+    setTimeout(() => {
+      tailEl.style.transition = "opacity 0.3s linear";
+      tailEl.style.opacity = 0;
+      setTimeout(() => {
+        if (tailEl.parentNode) {
+          tailEl.parentNode.removeChild(tailEl);
+        }
+      }, 300);
+    }, 0);
+  }
+  */
+}
+
+/* 
+  -------------
+   ANIMATION LOOP
+  -------------
+*/
+let lastFrameTime = performance.now();
+
+function animate(currentTime) {
+  requestAnimationFrame(animate);
+  const dt = currentTime - lastFrameTime;
+  lastFrameTime = currentTime;
+
+  // 1) Update rockets
+  rockets = rockets.filter(rocket => {
+    if (!rocket.exploded) {
+      rocket.update(dt);
+      return !rocket.exploded;
+    }
+    return false;
+  });
+
+  // 2) Update sparks
+  sparks = sparks.filter(spark => spark.update(dt));
+
+  // 3) Resolve overlaps among sparks
+  resolveSparkCollisions();
+}
+
+// Minimal collision-avoidance: if two sparks are within MIN_SPARK_DISTANCE,
+// we push them apart equally
+function resolveSparkCollisions() {
+  for (let i = 0; i < sparks.length; i++) {
+    for (let j = i + 1; j < sparks.length; j++) {
+      const dx = sparks[j].x - sparks[i].x;
+      const dy = sparks[j].y - sparks[i].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < MIN_SPARK_DISTANCE && dist > 0) {
+        // Overlap amount
+        const overlap = (MIN_SPARK_DISTANCE - dist) / 2;
+        // Direction normalized
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        // Push sparks i and j in opposite directions
+        sparks[i].x -= nx * overlap;
+        sparks[i].y -= ny * overlap;
+        sparks[j].x += nx * overlap;
+        sparks[j].y += ny * overlap;
+      }
+    }
+  }
+}
+
+/* 
+  -------------
+   LAUNCH ROCKETS
+  -------------
+*/
+function spawnRocket() {
+  rockets.push(new Rocket());
+}
+
+// Start animation
+requestAnimationFrame(animate);
+
+// Launch rockets at intervals
+setInterval(spawnRocket, ROCKET_INTERVAL);
+</script>
+
+</body>
+</html>
