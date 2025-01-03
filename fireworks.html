@@ -1,308 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Fireworks - Changing Chars & No Overlap</title>
+  <meta charset="UTF-8">
+  <title>Canvas Fireworks with Bloom (ASCII)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Basic reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
       background: black;
-      overflow: hidden;      /* Hide scrollbars */
-      font-family: monospace;
-      width: 100vw;          /* Fill entire viewport width */
-      height: 100vh;         /* Fill entire viewport height */
-      position: relative;    /* So absolute sparks position relative to body */
+      overflow: hidden;
     }
-    .spark {
-      position: absolute;
-      color: white;
-      pointer-events: none;  /* clicks pass through sparks */
-      opacity: 1;            /* We'll animate this out in JS if needed */
-    }
-    /* Optional smaller style for tails, if you enable them below */
-    .tail {
-      font-size: 0.9em;
+    canvas {
+      display: block;
     }
   </style>
 </head>
 <body>
 
+<canvas id="fireworksCanvas"></canvas>
+
 <script>
-/* 
-  ------------
-   CONFIG
-  ------------
-*/
-// Gravity
-const GRAVITY = 0.04;
+/************************************************************
+ * CONFIG
+ ************************************************************/
+const GRAVITY           = 0.03;
+const BASE_ROCKET_SPEED = -8;
+// Interval between spawns (ms). You can adjust for faster/slower rate.
+const ROCKET_INTERVAL   = 2500;
 
-// Rocket parameters
-const ROCKET_SPEED = -5;          // initial upward velocity
-const ROCKET_INTERVAL = 2500;     // ms between each rocket launch
+const BASE_EXPLODE_LINE = 0.30;
+const EXPLODE_VARIATION = 0.15;
 
-// Spark / explosion parameters
-const SPARK_COUNT_MIN = 10;  
-const SPARK_COUNT_MAX = 20;  
-const SPARK_SPEED_MIN = 1;    
-const SPARK_SPEED_MAX = 2.5;  
-const SPARK_FADE_MIN = 0.003; 
-const SPARK_FADE_MAX = 0.005; 
+const SPARK_COUNT_MIN   = 30;
+const SPARK_COUNT_MAX   = 40;
+const SPARK_SPEED_MIN   = 1;
+const SPARK_SPEED_MAX   = 2.5;
 
-// Overlap/collision
-const MIN_SPARK_DISTANCE = 12;  // how close sparks can get before pushing away
+// Increase fade to shorten spark life visually
+const SPARK_FADE_MIN    = 0.007;
+const SPARK_FADE_MAX    = 0.01;
 
-// Characters that sparks cycle through each frame
-const SPARK_CHAR_SET = [
-  "*", "**", "+*", ".o", "✸", "※", "*+", ".*", "o*", "✨", "❋", "⁂", "⊹", "≛"
-];
+// Increase distances if you want fewer collisions
+const MIN_SPARK_DISTANCE= 2;
+const INITIAL_REPEL_DISTANCE = 2;
 
-// Available colors
-const COLORS = ["red", "yellow", "orange", "cyan", "magenta", "lime", "white"];
+// If alpha >= FADE_THRESHOLD => full ASCII codes [32..126], else => lighter set
+const FADE_THRESHOLD   = 0.3;
 
-/*
-  -------------
-   GLOBALS
-  -------------
-*/
-let rockets = [];
-let sparks = [];
+// Time-based spark lifespan
+const SPARK_MAX_LIFESPAN = 2000; // sparks vanish after ~2 seconds
 
-/* 
-  Function that returns a random character from SPARK_CHAR_SET.
-  We'll call this every frame for each spark to make it constantly change.
-*/
-function getRandomSparkChar() {
-  return SPARK_CHAR_SET[Math.floor(Math.random() * SPARK_CHAR_SET.length)];
+/************************************************************
+ * ASCII / Colors
+ ************************************************************/
+function getRandomFullASCII() {
+  const code = 32 + Math.floor(Math.random() * (126 - 32 + 1));
+  return String.fromCharCode(code);
+}
+const LIGHT_CHAR_SET = `[]\\{}|;:'"-\`./`.split("");
+function getRandomLightChar() {
+  return LIGHT_CHAR_SET[Math.floor(Math.random() * LIGHT_CHAR_SET.length)];
+}
+function getASCIIforAlpha(a) {
+  if (a >= FADE_THRESHOLD) {
+    return getRandomFullASCII();
+  } else {
+    return getRandomLightChar();
+  }
 }
 
-/* 
-  -------------
-   ROCKET CLASS
-  -------------
-*/
+// Colors
+const COLORS = ["red","yellow","orange","cyan","magenta","lime","white","pink","gold"];
+
+// Trails
+const TRAIL_INTERVAL= 80;
+
+/************************************************************
+ * GLOBALS
+ ************************************************************/
+let canvas, ctx;
+let bloomCanvas, bloomCtx; // for bloom pass
+
+let rockets = [];
+let sparks  = [];
+let shotsLaunched = 0;
+let lastTime = 0;
+
+/************************************************************
+ * INIT
+ ************************************************************/
+function init() {
+  // Main canvas
+  canvas = document.getElementById("fireworksCanvas");
+  ctx    = canvas.getContext("2d");
+
+  // Offscreen bloom canvas
+  bloomCanvas = document.createElement("canvas");
+  bloomCtx    = bloomCanvas.getContext("2d");
+
+  onResize();
+  window.addEventListener("resize", onResize);
+
+  lastTime = performance.now();
+  requestAnimationFrame(animateFrame);
+
+  // Launch the first rocket and then schedule repeats
+  spawnRocket();
+  setInterval(spawnRocket, ROCKET_INTERVAL);
+}
+
+function onResize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  bloomCanvas.width  = canvas.width;
+  bloomCanvas.height = canvas.height;
+}
+
+/************************************************************
+ * UTILS
+ ************************************************************/
+function randomExplodeFraction(base, variation) {
+  const offset = (Math.random() * 2 - 1) * variation;
+  let frac = base + offset;
+  if (frac < 0) frac = 0;
+  if (frac > 1) frac = 1;
+  return frac;
+}
+
+/************************************************************
+ * ROCKET
+ ************************************************************/
 class Rocket {
-  constructor() {
-    this.x = Math.random() * window.innerWidth;
-    this.y = window.innerHeight - 5;
-    this.vx = (Math.random() - 0.5) * 1.5;
-    this.vy = ROCKET_SPEED + Math.random() * -2;
+  constructor({ isFirst = false, multiColor = false } = {}) {
+    this.isFirst    = isFirst;
+    this.multiColor = multiColor;
+
+    // If single-color rocket, choose one color
+    if (!this.multiColor) {
+      this.rocketColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+    }
+
+    if (this.isFirst) {
+      // first rocket => center, straight up
+      this.x = canvas.width / 2;
+      this.y = canvas.height - 10;
+      this.vx = 0;
+      this.vy = BASE_ROCKET_SPEED + Math.random() * -1;
+      const frac = randomExplodeFraction(BASE_EXPLODE_LINE, EXPLODE_VARIATION);
+      this.explodeLine = canvas.height * frac;
+    } else {
+      // normal rocket => random x
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height - 10;
+      this.vy = BASE_ROCKET_SPEED + Math.random() * -2;
+
+      // angle toward center with some probability
+      const ANGLE_PROB = 0.6;
+      const vxRange    = 4.0;
+      const centerX    = canvas.width / 2;
+
+      if (Math.random() < ANGLE_PROB) {
+        if (this.x < centerX) this.vx = Math.random() * vxRange;
+        else this.vx = -Math.random() * vxRange;
+      } else {
+        this.vx = 0;
+      }
+      const frac = randomExplodeFraction(BASE_EXPLODE_LINE, EXPLODE_VARIATION);
+      this.explodeLine = canvas.height * frac;
+    }
+
     this.exploded = false;
-
-    // random time to explode
-    this.explodeTime = 800 + Math.random() * 700; // 0.8 - 1.5s
-    this.startTime = Date.now();
-
-    // DOM element for rocket
-    this.el = document.createElement("div");
-    this.el.className = "spark"; 
-    this.el.textContent = "^";
-    this.el.style.color = "white";
-    this.el.style.left = this.x + "px";
-    this.el.style.top = this.y + "px";
-    // subtle glow
-    this.el.style.textShadow = "0 0 4px white, 0 0 8px white";
-
-    document.body.appendChild(this.el);
   }
 
   update(dt) {
     const dtFactor = dt * 0.06;
-
-    // gravity
     this.vy += GRAVITY * dtFactor;
-    // move
-    this.x += this.vx * dtFactor;
-    this.y += this.vy * dtFactor;
+    this.x  += this.vx  * dtFactor;
+    this.y  += this.vy  * dtFactor;
 
-    // update DOM
-    this.el.style.left = this.x + "px";
-    this.el.style.top = this.y + "px";
-
-    // if rocket has been in air for explodeTime or starts falling
-    if (!this.exploded && (Date.now() - this.startTime > this.explodeTime || this.vy >= 0)) {
-      this.explode();
+    if (!this.exploded) {
+      // Once we cross the explode line or start going downward, we explode
+      if (this.y <= this.explodeLine || this.vy >= 0) {
+        this.exploded = true;
+        this.explode();
+      }
     }
   }
 
   explode() {
-    this.exploded = true;
-    if (this.el.parentNode) {
-      this.el.parentNode.removeChild(this.el);
-    }
+    let newSparks = [];
+    const count = SPARK_COUNT_MIN +
+      Math.floor(Math.random() * (SPARK_COUNT_MAX - SPARK_COUNT_MIN + 1));
 
-    // spawn sparks
-    const sparkCount = SPARK_COUNT_MIN + Math.floor(Math.random() * (SPARK_COUNT_MAX - SPARK_COUNT_MIN + 1));
-    for (let i = 0; i < sparkCount; i++) {
+    for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = SPARK_SPEED_MIN + Math.random() * (SPARK_SPEED_MAX - SPARK_SPEED_MIN);
 
-      const s = new Spark(this.x, this.y);
-      s.vx = Math.cos(angle) * speed;
-      s.vy = Math.sin(angle) * speed;
-      sparks.push(s);
+      let c = (this.multiColor ? null : this.rocketColor);
+      newSparks.push(new Spark(this.x, this.y, c, this.multiColor, angle, speed));
     }
+
+    // initial repel among newSparks so they won't overlap right away
+    repelNewSparks(newSparks);
+
+    // now add them to global sparks
+    sparks.push(...newSparks);
   }
 }
 
-/* 
-  -------------
-   SPARK CLASS
-  -------------
-   Each spark has:
-     - position, velocity
-     - random color
-     - fade-out speed
-     - and changes its character EVERY frame
-*/
+/************************************************************
+ * SPARK with TRAILS
+ ************************************************************/
 class Spark {
-  constructor(x, y) {
+  constructor(x, y, color, multiColor, angle, speed) {
     this.x = x;
     this.y = y;
-    this.vx = 0;
-    this.vy = 0;
-    this.alpha = 1;
+    this.baseColor   = color;
+    this.multiColor  = multiColor;
+
+    this.vx   = Math.cos(angle) * speed;
+    this.vy   = Math.sin(angle) * speed;
+    this.alpha= 1;
     this.fade = SPARK_FADE_MIN + Math.random() * (SPARK_FADE_MAX - SPARK_FADE_MIN);
-    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-    // main spark DOM element
-    this.el = document.createElement("div");
-    this.el.className = "spark";
-    this.el.style.left = this.x + "px";
-    this.el.style.top = this.y + "px";
-    this.el.style.color = this.color;
-    // bloom / glow
-    this.el.style.textShadow = `
-      0 0 6px ${this.color},
-      0 0 10px ${this.color}
-    `;
+    this.lastTrailTime = performance.now();
+    this.trailSegs = [];
 
-    document.body.appendChild(this.el);
-
-    // Uncomment if you want tails (may be heavier on performance):
-    // this.tailEnabled = true;
+    // Time-based lifespan
+    this.birthTime = performance.now();
   }
 
   update(dt) {
     const dtFactor = dt * 0.06;
-
-    // gravity
     this.vy += GRAVITY * 0.5 * dtFactor;
+    this.x  += this.vx * dtFactor;
+    this.y  += this.vy * dtFactor;
 
-    // store old pos for tail, if using
-    // const oldX = this.x;
-    // const oldY = this.y;
-
-    // move
-    this.x += this.vx * dtFactor;
-    this.y += this.vy * dtFactor;
-
-    // fade
     this.alpha -= this.fade * dtFactor;
-    if (this.alpha < 0) this.alpha = 0;
-
-    // CHANGE CHARACTER EVERY FRAME
-    this.el.textContent = getRandomSparkChar();
-
-    // update DOM
-    this.el.style.left = this.x + "px";
-    this.el.style.top = this.y + "px";
-    this.el.style.opacity = this.alpha;
-
-    // Optional: create tail
-    /*
-    if (this.tailEnabled) {
-      this.createTailSegment(oldX, oldY);
+    if (this.alpha < 0) {
+      this.alpha = 0;
     }
-    */
 
-    // if fully invisible or off-screen, remove
-    if (this.alpha <= 0 || this.y > window.innerHeight + 50) {
-      if (this.el.parentNode) {
-        this.el.parentNode.removeChild(this.el);
+    // spawn trail
+    let now = performance.now();
+    if (now - this.lastTrailTime >= TRAIL_INTERVAL && this.alpha > 0) {
+      this.spawnTrail();
+      this.lastTrailTime = now;
+    }
+  }
+
+  spawnTrail() {
+    let seg = {
+      x: this.x,
+      y: this.y
+    };
+    if (this.multiColor) {
+      seg.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    } else {
+      seg.color = this.baseColor || "white";
+    }
+    // local repel to ensure new trail segment doesn't overlap the last
+    if (this.trailSegs.length > 0) {
+      const lastSeg = this.trailSegs[this.trailSegs.length - 1];
+      let dx = seg.x - lastSeg.x;
+      let dy = seg.y - lastSeg.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < MIN_SPARK_DISTANCE && dist > 0) {
+        const overlap = (MIN_SPARK_DISTANCE - dist) / 2;
+        const nx = dx / dist, ny = dy / dist;
+        seg.x += nx * overlap;
+        seg.y += ny * overlap;
       }
-      return false;
     }
+    this.trailSegs.push(seg);
+  }
+
+  draw(ctx, visited) {
+    // main spark
+    const ch = getASCIIforAlpha(this.alpha);
+    let c = (this.multiColor)
+      ? COLORS[Math.floor(Math.random() * COLORS.length)]
+      : (this.baseColor || "white");
+
+    // Attempt to draw main spark
+    drawNoOverlap(ctx, this.x, this.y, ch, c, this.alpha, visited);
+
+    // draw trail
+    for (let seg of this.trailSegs) {
+      let segCh = getASCIIforAlpha(this.alpha);
+      drawNoOverlap(ctx, seg.x, seg.y, segCh, seg.color, this.alpha, visited);
+    }
+  }
+
+  isAlive() {
+    // alpha-based
+    if (this.alpha <= 0) return false;
+    // offscreen check
+    if (this.y > canvas.height + 50) return false;
+
+    // time-based limit
+    let age = performance.now() - this.birthTime;
+    if (age > SPARK_MAX_LIFESPAN) return false;
+
     return true;
   }
-
-  /*
-  // TAILS (optional)
-  createTailSegment(x, y) {
-    const tailEl = document.createElement("div");
-    tailEl.className = "spark tail";
-    tailEl.textContent = getRandomSparkChar(); // or the same as main spark
-    tailEl.style.color = this.color;
-    tailEl.style.left = x + "px";
-    tailEl.style.top = y + "px";
-    tailEl.style.opacity = 0.5;
-    tailEl.style.textShadow = `
-      0 0 4px ${this.color},
-      0 0 8px ${this.color}
-    `;
-    document.body.appendChild(tailEl);
-
-    setTimeout(() => {
-      tailEl.style.transition = "opacity 0.3s linear";
-      tailEl.style.opacity = 0;
-      setTimeout(() => {
-        if (tailEl.parentNode) {
-          tailEl.parentNode.removeChild(tailEl);
-        }
-      }, 300);
-    }, 0);
-  }
-  */
 }
 
-/* 
-  -------------
-   ANIMATION LOOP
-  -------------
-*/
-let lastFrameTime = performance.now();
+/************************************************************
+ * HELPER FOR DRAWING NO-OVERLAP (WITH RADIUS CHECK)
+ ************************************************************/
+function drawNoOverlap(ctx, xFloat, yFloat, ch, color, alpha, visited) {
+  // Round positions to integer for indexing
+  const x = Math.round(xFloat);
+  const y = Math.round(yFloat);
 
-function animate(currentTime) {
-  requestAnimationFrame(animate);
-  const dt = currentTime - lastFrameTime;
-  lastFrameTime = currentTime;
+  // We'll use a small radius to ensure text doesn't appear near
+  // an already-drawn character
+  const RADIUS = 4;
 
-  // 1) Update rockets
-  rockets = rockets.filter(rocket => {
-    if (!rocket.exploded) {
-      rocket.update(dt);
-      return !rocket.exploded;
+  // 1) Check bounding box in visited
+  for (let dx = -RADIUS; dx <= RADIUS; dx++) {
+    for (let dy = -RADIUS; dy <= RADIUS; dy++) {
+      const key = (x + dx) + "," + (y + dy);
+      if (visited[key]) {
+        return; // skip if anything is visited
+      }
     }
-    return false;
-  });
-
-  // 2) Update sparks
-  sparks = sparks.filter(spark => spark.update(dt));
-
-  // 3) Resolve overlaps among sparks
-  resolveSparkCollisions();
+  }
+  // 2) Mark bounding box as visited
+  for (let dx = -RADIUS; dx <= RADIUS; dx++) {
+    for (let dy = -RADIUS; dy <= RADIUS; dy++) {
+      const key = (x + dx) + "," + (y + dy);
+      visited[key] = true;
+    }
+  }
+  // 3) Draw
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle   = color;
+  ctx.fillText(ch, xFloat, yFloat);
 }
 
-// Minimal collision-avoidance: if two sparks are within MIN_SPARK_DISTANCE,
-// we push them apart equally
-function resolveSparkCollisions() {
+/************************************************************
+ * REPEL HELPER
+ ************************************************************/
+function repelNewSparks(sparkArray) {
+  for (let i = 0; i < sparkArray.length; i++) {
+    for (let j = i + 1; j < sparkArray.length; j++) {
+      let dx = sparkArray[j].x - sparkArray[i].x;
+      let dy = sparkArray[j].y - sparkArray[i].y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < INITIAL_REPEL_DISTANCE && dist > 0) {
+        let overlap = (INITIAL_REPEL_DISTANCE - dist) / 2;
+        let nx = dx / dist, ny = dy / dist;
+        sparkArray[i].x -= nx * overlap;
+        sparkArray[i].y -= ny * overlap;
+        sparkArray[j].x += nx * overlap;
+        sparkArray[j].y += ny * overlap;
+      }
+    }
+  }
+}
+
+/************************************************************
+ * COLLISIONS
+ ************************************************************/
+function handleCollisions() {
   for (let i = 0; i < sparks.length; i++) {
     for (let j = i + 1; j < sparks.length; j++) {
-      const dx = sparks[j].x - sparks[i].x;
-      const dy = sparks[j].y - sparks[i].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      let dx = sparks[j].x - sparks[i].x;
+      let dy = sparks[j].y - sparks[i].y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < MIN_SPARK_DISTANCE && dist > 0) {
-        // Overlap amount
-        const overlap = (MIN_SPARK_DISTANCE - dist) / 2;
-        // Direction normalized
-        const nx = dx / dist;
-        const ny = dy / dist;
-
-        // Push sparks i and j in opposite directions
+        let overlap = (MIN_SPARK_DISTANCE - dist) / 2;
+        let nx = dx / dist, ny = dy / dist;
         sparks[i].x -= nx * overlap;
         sparks[i].y -= ny * overlap;
         sparks[j].x += nx * overlap;
@@ -312,20 +384,96 @@ function resolveSparkCollisions() {
   }
 }
 
-/* 
-  -------------
-   LAUNCH ROCKETS
-  -------------
-*/
-function spawnRocket() {
-  rockets.push(new Rocket());
+/************************************************************
+ * MAIN LOOP
+ ************************************************************/
+function animateFrame(timestamp) {
+  requestAnimationFrame(animateFrame);
+
+  let dt = timestamp - lastTime;
+  lastTime = timestamp;
+
+  // update rockets
+  rockets.forEach(r => r.update(dt));
+  rockets = rockets.filter(r => !r.exploded);
+
+  // update sparks
+  sparks.forEach(s => s.update(dt));
+  sparks = sparks.filter(s => s.isAlive());
+
+  // collisions
+  handleCollisions();
+
+  // clear main canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "16px monospace";
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+
+  // track visited positions for this frame
+  let visitedPositions = {};
+
+  // draw rockets => '^'
+  rockets.forEach(r => {
+    let rocketColor = (r.multiColor)
+      ? COLORS[Math.floor(Math.random() * COLORS.length)]
+      : r.rocketColor;
+    drawNoOverlap(ctx, r.x, r.y, "^", rocketColor, 1.0, visitedPositions);
+  });
+
+  // draw sparks
+  sparks.forEach(s => s.draw(ctx, visitedPositions));
+
+  // finally, apply a simple bloom pass
+  applyBloom();
 }
 
-// Start animation
-requestAnimationFrame(animate);
+/************************************************************
+ * SIMPLE BLOOM PASS
+ ************************************************************/
+function applyBloom() {
+  // 1) clear bloom canvas
+  bloomCtx.clearRect(0, 0, bloomCanvas.width, bloomCanvas.height);
 
-// Launch rockets at intervals
-setInterval(spawnRocket, ROCKET_INTERVAL);
+  // 2) set filter(s): blur + optional brightness
+  bloomCtx.filter = "blur(8px) brightness(1.3)";
+
+  // 3) draw main canvas into bloomCanvas
+  bloomCtx.drawImage(canvas, 0, 0);
+
+  // 4) composite bloomCanvas back onto main canvas with additive effect
+  ctx.globalCompositeOperation = "lighter";
+  ctx.drawImage(bloomCanvas, 0, 0);
+
+  // 5) reset
+  ctx.globalCompositeOperation = "source-over";
+  bloomCtx.filter = "none";
+}
+
+/************************************************************
+ * LAUNCH
+ ************************************************************/
+function spawnRocket() {
+  shotsLaunched++;
+  if (shotsLaunched === 1) {
+    // First rocket => single, from center => multiColor
+    rockets.push(new Rocket({ isFirst: true, multiColor: true }));
+  } else {
+    // For subsequent launches, randomly decide how many rockets to shoot.
+    // Example: between 1 and 3 rockets
+    const rocketCount = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < rocketCount; i++) {
+      let multiChance = 0.3;  // 30% chance each rocket is multiColor
+      let isMulti = (Math.random() < multiChance);
+      rockets.push(new Rocket({ isFirst: false, multiColor: isMulti }));
+    }
+  }
+}
+
+/************************************************************
+ * RUN
+ ************************************************************/
+init();
 </script>
 
 </body>
