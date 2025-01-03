@@ -26,7 +26,8 @@
  ************************************************************/
 const GRAVITY           = 0.03;
 const BASE_ROCKET_SPEED = -8;
-const ROCKET_INTERVAL   = 2000;
+// Interval between spawns (ms). You can adjust for faster/slower rate.
+const ROCKET_INTERVAL   = 2500;
 
 const BASE_EXPLODE_LINE = 0.30;
 const EXPLODE_VARIATION = 0.15;
@@ -104,7 +105,7 @@ function init() {
   lastTime = performance.now();
   requestAnimationFrame(animateFrame);
 
-  // Launch the first rocket and schedule repeats
+  // Launch the first rocket and then schedule repeats
   spawnRocket();
   setInterval(spawnRocket, ROCKET_INTERVAL);
 }
@@ -142,7 +143,7 @@ class Rocket {
     }
 
     if (this.isFirst) {
-      // center, straight up
+      // first rocket => center, straight up
       this.x = canvas.width / 2;
       this.y = canvas.height - 10;
       this.vx = 0;
@@ -154,10 +155,12 @@ class Rocket {
       this.x = Math.random() * canvas.width;
       this.y = canvas.height - 10;
       this.vy = BASE_ROCKET_SPEED + Math.random() * -2;
+
       // angle toward center with some probability
       const ANGLE_PROB = 0.6;
-      const vxRange = 4.0;
-      const centerX = canvas.width / 2;
+      const vxRange    = 4.0;
+      const centerX    = canvas.width / 2;
+
       if (Math.random() < ANGLE_PROB) {
         if (this.x < centerX) this.vx = Math.random() * vxRange;
         else this.vx = -Math.random() * vxRange;
@@ -167,6 +170,7 @@ class Rocket {
       const frac = randomExplodeFraction(BASE_EXPLODE_LINE, EXPLODE_VARIATION);
       this.explodeLine = canvas.height * frac;
     }
+
     this.exploded = false;
   }
 
@@ -177,6 +181,7 @@ class Rocket {
     this.y  += this.vy  * dtFactor;
 
     if (!this.exploded) {
+      // Once we cross the explode line or start going downward, we explode
       if (this.y <= this.explodeLine || this.vy >= 0) {
         this.exploded = true;
         this.explode();
@@ -312,28 +317,26 @@ function drawNoOverlap(ctx, xFloat, yFloat, ch, color, alpha, visited) {
   const y = Math.round(yFloat);
 
   // We'll use a small radius to ensure text doesn't appear near
-  // an already-drawn character. Increase for bigger "buffer".
+  // an already-drawn character
   const RADIUS = 4;
 
-  // 1) Check if ANY point in bounding box is visited
+  // 1) Check bounding box in visited
   for (let dx = -RADIUS; dx <= RADIUS; dx++) {
     for (let dy = -RADIUS; dy <= RADIUS; dy++) {
       const key = (x + dx) + "," + (y + dy);
       if (visited[key]) {
-        return; // skip drawing if any visited pixel found
+        return; // skip if anything is visited
       }
     }
   }
-
-  // 2) If free => mark that bounding box as visited
+  // 2) Mark bounding box as visited
   for (let dx = -RADIUS; dx <= RADIUS; dx++) {
     for (let dy = -RADIUS; dy <= RADIUS; dy++) {
       const key = (x + dx) + "," + (y + dy);
       visited[key] = true;
     }
   }
-
-  // 3) Finally draw
+  // 3) Draw
   ctx.globalAlpha = alpha;
   ctx.fillStyle   = color;
   ctx.fillText(ch, xFloat, yFloat);
@@ -453,12 +456,17 @@ function applyBloom() {
 function spawnRocket() {
   shotsLaunched++;
   if (shotsLaunched === 1) {
-    // first => from center => multiColor
+    // First rocket => single, from center => multiColor
     rockets.push(new Rocket({ isFirst: true, multiColor: true }));
   } else {
-    let multiChance = 0.3;
-    let isMulti = (Math.random() < multiChance);
-    rockets.push(new Rocket({ isFirst: false, multiColor: isMulti }));
+    // For subsequent launches, randomly decide how many rockets to shoot.
+    // Example: between 1 and 3 rockets
+    const rocketCount = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < rocketCount; i++) {
+      let multiChance = 0.3;  // 30% chance each rocket is multiColor
+      let isMulti = (Math.random() < multiChance);
+      rockets.push(new Rocket({ isFirst: false, multiColor: isMulti }));
+    }
   }
 }
 
