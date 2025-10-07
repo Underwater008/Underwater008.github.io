@@ -7,14 +7,14 @@
     <link rel="icon" href="./images/favicon.ico" type="image/x-icon" sizes="16x16">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Xiao Zhixuan</title>
-  <script type="module" crossorigin src="/assets/index-Dq7mzB0E.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three.module-DQzacYpc.js">
-  <link rel="modulepreload" crossorigin href="/assets/GLTFLoader-CQPCB_ls.js">
-  <link rel="stylesheet" crossorigin href="/assets/three-dNEtxRO1.css">
+  <script type="module" crossorigin src="/assets/index-BRWFfrnW.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/three.module-Bpzav5OJ.js">
+  <link rel="modulepreload" crossorigin href="/assets/GLTFLoader-D6rlin6q.js">
+  <link rel="stylesheet" crossorigin href="/assets/three-33DZokqp.css">
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZMBYSQVFXT"></script>
@@ -97,19 +97,24 @@
     </div>
 
     <!-- Loading Screen -->
-    <div id="loading-screen">
-        <h1 id="loading-text"> I am <span id="job-title">a Game Designer</span></h1>
+    <div id="loading-container">
+        <canvas id="starfield-canvas"></canvas>
+        <canvas id="particle-canvas"></canvas>
+
         <div id="progress-container">
-            <div id="progress"></div>
+            <div id="progress-text">INITIALIZING...</div>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+                <div id="progress-dots"></div>
+            </div>
         </div>
-        <canvas id="drawing-canvas"></canvas>
     </div>
 
     <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
             Zhixuan Xiao</a>, All Rights Reserved.
     </footer>
 
-    <!-- 3D Model -->
+    <!-- 3D Model -->
 </body>
 
 </html>
