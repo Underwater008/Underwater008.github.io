@@ -21,4 +21,4 @@ npx vite build
 ```
 Everything used by the application will be compiled, optimized, and copied into the dist/ folder. The contents of that folder are ready to be hosted on githb.
 
----
+---\nMinor tweak for test commit.
