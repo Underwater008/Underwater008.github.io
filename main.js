@@ -2,9 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader';
 
-const showLoadingScreen = false;
-const firstVisit = localStorage.getItem("firstVisit") === null;
-
 const scene = new THREE.Scene();
 
 const myCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -21,7 +18,6 @@ const controls = new OrbitControls(myCamera, renderer.domElement);
 controls.enablePan = false;
 
 let targetScale = window.innerWidth / 1000;
-let currentItemLoaded = 0;
 
 let model;
 
@@ -39,7 +35,7 @@ loader.load('./3DModels/cozy_campfire_-_shape_key_animation/scene.gltf', (gltf) 
     }
   });
 
-  itemLoaded();
+  notifyLoaderAssetLoaded();
 }, undefined, (error) => {
   console.error(error);
 });
@@ -160,22 +156,6 @@ function resetLandingPage() {
 
 }
 
-//////////// Loading screen logic ////////////
-const loadingScreen = document.getElementById('loading-screen');
-const loadingText = document.getElementById('loading-text');
-const jobTitle = document.getElementById('job-title');
-const progressBar = document.getElementById('progress');
-const jobTitles = ['Gamer', 'a Programmer', 'a Technical Artist', 'a Homo Ludens', 'XIAO'];
-let totalItemsToLoad = 1;
-let currentJobTitleIndex = 0;
-
-if (firstVisit) {
-  cycleJobTitles();
-} else {
-  jobTitle.innerText = jobTitles[jobTitles.length - 1];
-}
-
-//Loading Screen Finished
 function appear() {
   const elements = document.querySelectorAll('.transfadein');
   elements.forEach((element) => {
@@ -183,123 +163,14 @@ function appear() {
     element.style.transform = 'translateY(0)'; /* Set the final position */
   });
 }
+function notifyLoaderAssetLoaded() {
+  window.dispatchEvent(new Event('stellar-loader:assetLoaded'));
+}
 
-function itemLoaded() {
-  currentItemLoaded++;
-  updateProgressBar();
-
-  if (currentItemLoaded >= totalItemsToLoad && (!firstVisit || currentJobTitleIndex >= jobTitles.length)) {
-    setTimeout(() => {
-      loadingText.style.opacity = '0';
-      progressBar.style.opacity = '0';
-      document.getElementById('content-container').style.opacity = '1';
-      loadingScreen.style.zIndex = '-1';
-
-      // Call the appear function after the loading screen is hidden
-      appear();
-      localStorage.setItem("firstVisit", "false");
-    }, 1000);
+window.addEventListener('stellar-loader:complete', () => {
+  const content = document.getElementById('content-container');
+  if (content) {
+    content.style.opacity = '1';
   }
-}
-
-// Progress Bar
-function updateProgressBar() {
-  const progress = document.querySelector('#progress');
-  const currentWidth = parseInt(window.getComputedStyle(progress).getPropertyValue('width'));
-  const newWidth = Math.round(((currentItemLoaded + currentJobTitleIndex) / (totalItemsToLoad + (firstVisit ? jobTitles.length : 0))) * 100);
-  progress.style.width = newWidth + '%';
-}
-
-function cycleJobTitles() {
-  let cycleInterval = setInterval(() => {
-    currentJobTitleIndex++;
-    if (currentJobTitleIndex >= jobTitles.length) {
-      clearInterval(cycleInterval);
-      itemLoaded();
-    } else {
-      // Fade out the previous job title
-      jobTitle.classList.add('fade-out');
-      setTimeout(() => {
-        jobTitle.textContent = jobTitles[currentJobTitleIndex];
-        // Fade in the new job title
-        jobTitle.classList.remove('fade-out');
-        jobTitle.classList.add('fade-in');
-        setTimeout(() => {
-          jobTitle.classList.remove('fade-in');
-        }, 500);
-
-        // Add a delay before updating the progress bar
-        setTimeout(() => {
-          updateProgressBar();
-        }, 1000);
-      }, 500);
-    }
-  }, 1500);
-}
-
-
-// Draw during Loading Screen
-const canvas = document.getElementById("drawing-canvas");
-const ctx = canvas.getContext("2d");
-
-let points = [];
-
-function resizeCanvas() {
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  tempCanvas.getContext("2d").drawImage(canvas, 0, 0);
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  ctx.drawImage(tempCanvas, 0, 0);
-}
-
-// Set the canvas size initially
-resizeCanvas();
-
-// Update the canvas size when the window is resized
-window.addEventListener("resize", resizeCanvas);
-
-function draw(x, y) {
-  ctx.beginPath();
-  ctx.arc(x, y, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  points.push({ x, y });
-}
-
-function redraw() {
-  for (const point of points) {
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-canvas.addEventListener("mousemove", (e) => {
-  draw(e.clientX, e.clientY);
-});
-
-canvas.addEventListener("touchmove", (e) => {
-  // Prevent scrolling on touch devices
-  e.preventDefault();
-
-  // Get the touch position relative to the canvas
-  const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-  const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
-
-  draw(touchX, touchY);
-});
-
-window.addEventListener("resize", () => {
-  redraw();
-});
-
-if (!showLoadingScreen) {
-  const loadingScreen = document.getElementById('loading-screen');
-  loadingScreen.style.display = 'none';
-  document.getElementById('content-container').style.opacity = '1';
   appear();
-}
+});

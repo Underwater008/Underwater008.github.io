@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
     <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./loader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <title>Xiao Zhixuan</title>
@@ -94,12 +95,17 @@
     </div>
 
     <!-- Loading Screen -->
-    <div id="loading-screen">
-        <h1 id="loading-text"> I am <span id="job-title">a Game Designer</span></h1>
+    <div id="loading-container">
+        <canvas id="starfield-canvas"></canvas>
+        <canvas id="particle-canvas"></canvas>
+
         <div id="progress-container">
-            <div id="progress"></div>
+            <div id="progress-text">INITIALIZING...</div>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+                <div id="progress-dots"></div>
+            </div>
         </div>
-        <canvas id="drawing-canvas"></canvas>
     </div>
 
     <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
