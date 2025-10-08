@@ -563,13 +563,11 @@
 
     loadingContainer.classList.add('hidden');
     setTimeout(() => {
-      loadingContainer.style.display = 'none';
-      document.body.classList.remove('loading-active');
       if (contentContainer) {
         contentContainer.style.opacity = '1';
+        contentContainer.style.transition = 'opacity 1s ease';
       }
-      window.dispatchEvent(new Event('stellar-loader:complete'));
-    }, 1000);
+    }, 500);
   }
 
   createPrefixParticles(currentPrefixText);
