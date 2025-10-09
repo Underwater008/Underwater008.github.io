@@ -68,6 +68,22 @@
     checkCompletion();
   });
 
+  loadingContainer.addEventListener('dblclick', () => {
+    if (loaderCompleted) return;
+    console.log('⚡ Loader skipped via double-click');
+    assetsTimedOut = true;
+    timelineComplete = true;
+    clearTimeout(assetTimeout);
+    if (progressBar) {
+      progressBar.style.width = '100%';
+    }
+    if (progressText) {
+      progressText.textContent = 'SKIPPING...';
+      progressText.style.opacity = '1';
+    }
+    checkCompletion();
+  });
+
   // Starfield ---------------------------------------------------------------
   const starCtx = starCanvas.getContext('2d');
   const particleCtx = particleCanvas.getContext('2d');

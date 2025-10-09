@@ -1367,7 +1367,7 @@
         }
 
         // Draw floating card with project info
-        function drawFloatingCard(ctx, project, projected, alpha, isHovered) {
+        function drawFloatingCard(ctx, project, projected, alpha, highlight, showContent) {
             const baseWidth = 200;
             const baseHeight = 120;
             const cardWidth = baseWidth * projected.scale;
@@ -1380,63 +1380,67 @@
             const cardY = projected.y + (30 * projected.scale);
 
             ctx.save();
-            ctx.globalAlpha = alpha * (isHovered ? 1 : 0.8);
+            ctx.globalAlpha = Math.max(0.2, alpha);
 
             // Card background
-            ctx.fillStyle = isHovered ? '#000' : '#fff';
-            ctx.strokeStyle = '#000';
+            const backgroundColor = highlight ? '#000' : '#fff';
+            const borderColor = highlight ? '#fff' : '#000';
+            ctx.fillStyle = backgroundColor;
+            ctx.strokeStyle = borderColor;
             ctx.lineWidth = Math.max(1, 2 * projected.scale);
 
             ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
             ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
 
-            // Project title
-            ctx.fillStyle = isHovered ? '#fff' : '#000';
-            ctx.font = `bold ${titleSize}px "Courier New"`;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
+            if (showContent) {
+                // Project title
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.3, alpha);
+                ctx.font = `bold ${titleSize}px "Courier New"`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
 
-            const maxTitleWidth = cardWidth - padding * 2;
-            let title = project.title;
-            while (ctx.measureText(title).width > maxTitleWidth && title.length > 0) {
-                title = title.slice(0, -1);
-            }
-            ctx.fillText(title, cardX + padding, cardY + padding);
-
-            // Category
-            ctx.font = `${fontSize * 0.7}px "Courier New"`;
-            ctx.fillStyle = isHovered ? '#fff' : '#000';
-            ctx.globalAlpha = alpha * 0.5;
-            ctx.fillText(project.category, cardX + padding, cardY + padding + titleSize + 4);
-            ctx.globalAlpha = alpha;
-
-            // Description
-            ctx.font = `${fontSize * 0.8}px "Courier New"`;
-            ctx.fillStyle = isHovered ? '#fff' : '#000';
-            ctx.globalAlpha = alpha * 0.7;
-
-            const descY = cardY + padding + titleSize + fontSize + 8;
-            const lineHeight = fontSize * 1.2;
-            const maxLines = 2;
-            const words = project.desc.split(' ');
-            let line = '';
-            let lineCount = 0;
-
-            for (let i = 0; i < words.length && lineCount < maxLines; i++) {
-                const testLine = line + words[i] + ' ';
-                const metrics = ctx.measureText(testLine);
-
-                if (metrics.width > maxTitleWidth && line !== '') {
-                    ctx.fillText(line.trim(), cardX + padding, descY + lineCount * lineHeight);
-                    line = words[i] + ' ';
-                    lineCount++;
-                } else {
-                    line = testLine;
+                const maxTitleWidth = cardWidth - padding * 2;
+                let title = project.title;
+                while (ctx.measureText(title).width > maxTitleWidth && title.length > 0) {
+                    title = title.slice(0, -1);
                 }
-            }
+                ctx.fillText(title, cardX + padding, cardY + padding);
 
-            if (lineCount < maxLines && line.trim() !== '') {
-                ctx.fillText(line.trim() + '...', cardX + padding, descY + lineCount * lineHeight);
+                // Category
+                ctx.font = `${fontSize * 0.7}px "Courier New"`;
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.2, alpha * 0.6);
+                ctx.fillText(project.category, cardX + padding, cardY + padding + titleSize + 4);
+
+                // Description
+                ctx.font = `${fontSize * 0.8}px "Courier New"`;
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.3, alpha * 0.8);
+
+                const descY = cardY + padding + titleSize + fontSize + 8;
+                const lineHeight = fontSize * 1.2;
+                const maxLines = 2;
+                const words = project.desc.split(' ');
+                let line = '';
+                let lineCount = 0;
+
+                for (let i = 0; i < words.length && lineCount < maxLines; i++) {
+                    const testLine = line + words[i] + ' ';
+                    const metrics = ctx.measureText(testLine);
+
+                    if (metrics.width > maxTitleWidth && line !== '') {
+                        ctx.fillText(line.trim(), cardX + padding, descY + lineCount * lineHeight);
+                        line = words[i] + ' ';
+                        lineCount++;
+                    } else {
+                        line = testLine;
+                    }
+                }
+
+                if (lineCount < maxLines && line.trim() !== '') {
+                    ctx.fillText(line.trim() + '...', cardX + padding, descY + lineCount * lineHeight);
+                }
             }
 
             ctx.restore();
@@ -1450,6 +1454,27 @@
             ctx.font = '12px "Courier New"';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+
+            const hasExplicitSelection = selectedProjectIndex !== null && projects[selectedProjectIndex];
+            let activeProject = null;
+            if (hasExplicitSelection) {
+                activeProject = projects[selectedProjectIndex];
+            } else {
+                if (currentFilter === 'game') {
+                    const candidates = projects.filter(project => {
+                        if (project.type !== 'game') return false;
+                        if (currentSubFilter === 'games') return !project.subtype;
+                        if (currentSubFilter === 'projects') return project.subtype === 'project';
+                        return true;
+                    });
+                    activeProject = candidates.length > 0 ? candidates[0] : null;
+                } else if (currentFilter === 'tech' || currentFilter === 'creative') {
+                    activeProject = projects.find(project => project.type === currentFilter) || null;
+                }
+            }
+            if (!activeProject && projects.length > 0) {
+                activeProject = projects[0];
+            }
 
             // Draw and update background grid particles with wave effect and depth
             gridParticles.forEach(particle => {
@@ -1535,6 +1560,8 @@
                 // Always show all projects (no filtering)
 
                 const isHovered = hoveredNode === i;
+                const isDefaultActive = !hasExplicitSelection && activeProject && cluster.project === activeProject;
+                const isSelected = hasExplicitSelection && activeProject && cluster.project === activeProject;
                 const distanceToCamera = projected.z;
                 const cardThreshold = 450;
 
@@ -1552,65 +1579,18 @@
                     ctx.restore();
                 });
 
-                // Draw card when close to camera
-                if (distanceToCamera < cardThreshold) {
-                    const cardWidth = 300 * projected.scale;
-                    const cardHeight = 150 * projected.scale;
-                    const cardX = projected.x - cardWidth / 2;
-                    const cardY = projected.y + 30 * projected.scale;
-                    const padding = 15 * projected.scale;
-
-                    ctx.save();
-                    const cardAlpha = Math.max(0.6, Math.min(1, (cardThreshold - distanceToCamera) / 100));
-                    ctx.globalAlpha = cardAlpha;
-
-                    ctx.fillStyle = isHovered ? '#000' : '#fff';
-                    ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
-                    ctx.strokeStyle = isHovered ? '#fff' : '#000';
-                    ctx.lineWidth = 2 * projected.scale;
-                    ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
-
-                    // Title
-                    ctx.fillStyle = isHovered ? '#fff' : '#000';
-                    const titleSize = Math.max(10, 14 * projected.scale);
-                    ctx.font = `bold ${titleSize}px "Courier New"`;
-                    ctx.textAlign = 'left';
-                    ctx.fillText(cluster.project.title, cardX + padding, cardY + padding + titleSize);
-
-                    // Category
-                    const catSize = Math.max(8, 10 * projected.scale);
-                    ctx.font = `${catSize}px "Courier New"`;
-                    ctx.globalAlpha = cardAlpha * 0.7;
-                    ctx.fillText(cluster.project.category, cardX + padding, cardY + padding + titleSize + catSize + 5);
-
-                    // Description
-                    ctx.globalAlpha = cardAlpha * 0.9;
-                    const descSize = Math.max(9, 11 * projected.scale);
-                    ctx.font = `${descSize}px "Courier New"`;
-                    const maxWidth = cardWidth - padding * 2;
-                    const words = cluster.project.desc.split(' ');
-                    let line = '';
-                    let y = cardY + padding + titleSize + catSize + 20;
-                    const lineHeight = descSize * 1.4;
-
-                    for (let word of words) {
-                        const testLine = line + word + ' ';
-                        const metrics = ctx.measureText(testLine);
-                        if (metrics.width > maxWidth && line !== '') {
-                            ctx.fillText(line, cardX + padding, y);
-                            line = word + ' ';
-                            y += lineHeight;
-                            if (y > cardY + cardHeight - padding - lineHeight) break;
-                        } else {
-                            line = testLine;
-                        }
-                    }
-                    if (line && y <= cardY + cardHeight - padding) {
-                        ctx.fillText(line.trim() + '...', cardX + padding, y);
-                    }
-
-                    ctx.restore();
+                const highlight = isSelected || isHovered;
+                const showContent = projected.scale >= 0.35;
+                let cardAlpha;
+                if (highlight) {
+                    cardAlpha = 1;
+                } else if (isDefaultActive) {
+                    cardAlpha = 0.85;
+                } else {
+                    const distanceFactor = Math.max(0, cardThreshold - distanceToCamera);
+                    cardAlpha = Math.max(0.35, Math.min(0.9, distanceFactor / 100));
                 }
+                drawFloatingCard(ctx, cluster.project, projected, cardAlpha, highlight, showContent);
             });
 
             // Draw fake grid points
