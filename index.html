@@ -1,105 +1,1813 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./images/favicon.ico" type="image/x-icon" sizes="16x16">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hubballi&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap">
-    <script src="https://cdn.jsdelivr.net/npm/progressbar.js@1.0.0/dist/progressbar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
-    <title>Xiao Zhixuan</title>
-  <script type="module" crossorigin src="/assets/index-BRWFfrnW.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three.module-Bpzav5OJ.js">
-  <link rel="modulepreload" crossorigin href="/assets/GLTFLoader-D6rlin6q.js">
-  <link rel="stylesheet" crossorigin href="/assets/three-33DZokqp.css">
+    <title>XIAO - Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            color: #000;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-bottom: 2px solid #000;
+            padding: 20px 40px;
+            z-index: 200;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #header h1 {
+            font-size: 20px;
+            letter-spacing: 3px;
+        }
+
+        /* Filters */
+        #filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        #filters button {
+            background: none;
+            border: 2px solid #000;
+            padding: 8px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #filters button:hover,
+        #filters button.active {
+            background: #000;
+            color: #fff;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            width: 280px;
+            background: #fff;
+            border-right: 2px solid #000;
+            z-index: 150;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #sidebar h3 {
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .project-list-item {
+            padding: 15px;
+            border: 2px solid #000;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .project-list-item:hover,
+        .project-list-item.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .project-list-item .title {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .project-list-item .cat {
+            font-size: 9px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+
+        .project-list-item:hover .cat,
+        .project-list-item.active .cat {
+            opacity: 0.7;
+        }
+
+        /* Main Container */
+        #main-container {
+            position: fixed;
+            top: 80px;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            cursor: grab;
+        }
+
+        #main-container:active {
+            cursor: grabbing;
+        }
+
+        #constellation-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Main Content Particle Canvas */
+        #content-container #content-particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        /* Loading Screen Particle Canvas */
+        #loading-container #loading-particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+        }
+
+        /* Detail Panel */
+        #detail-panel {
+            position: fixed;
+            right: -500px;
+            top: 80px;
+            bottom: 0;
+            width: 450px;
+            background: #fff;
+            border-left: 2px solid #000;
+            padding: 40px;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 250;
+            overflow-y: auto;
+        }
+
+        #detail-panel.active {
+            right: 0;
+        }
+
+        #detail-panel .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        #detail-panel h2 {
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        #detail-panel .category {
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: 0.5;
+            margin-bottom: 30px;
+        }
+
+        #detail-panel p {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        #detail-panel .meta {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        #detail-panel .meta-item {
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        #detail-panel .meta-item strong {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+            margin-bottom: 5px;
+        }
+
+        /* Info */
+        #constellation-info {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 100;
+            text-align: center;
+        }
+
+        /* Loading Screen */
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            z-index: 999;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        #loading-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #starfield-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #progress-container {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
+        }
+
+        #progress-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            color: #000;
+            opacity: 0;
+        }
+
+        #progress-bar-container {
+            width: 300px;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #progress-dots {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .progress-dot {
+            width: 4px;
+            height: 4px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+        }
+
+        .progress-dot.active {
+            background: #000;
+        }
+
+        body.loading-active {
+            overflow: hidden;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            #header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            #filters {
+                flex-wrap: wrap;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 30vh;
+                bottom: auto;
+            }
+
+            #main-container {
+                left: 0;
+                top: auto;
+            }
+
+            #detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZMBYSQVFXT"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+<body class="loading-active">
+    <!-- Main Content Container -->
+    <div id="content-container" style="opacity: 0;">
+        <canvas id="content-particle-canvas"></canvas>
 
-    gtag('config', 'G-ZMBYSQVFXT');
-</script>
-
-<body>
-
-    <header class="transfadein">
-        <button id="reset-btn">XIAO</button>
-    </header>
-
-    <div id="content-container">
-
-        <div id="homo-ludens-info" style="opacity: 0; display: none;">
-
-            <p>Homo Ludens is a term that means "playful human." It comes from a 1938 book by Johan Huizinga. The idea
-                is that play is a crucial part of human culture and influences how we develop as a society. Play is not
-                just for fun; it affects many areas of our lives like language, art, and religion. This concept has
-                inspired researchers to study the role of play in various fields.</p>
-
-            <ol>
-                <p>Rules of play</p>
-
-                <li>Play is free, is in fact freedom.</li>
-                <li>Play is not "ordinary" or "real" life.</li>
-                <li>Play is distinct from "ordinary" life both as to locality and duration.</li>
-                <li>Play creates order, is order. Play demands order absolute and supreme.</li>
-                <li>Play is connected with no material interest, and no profit can be gained from it</li>
-            </ol>
-
-            <a href="./homoludens.html">
-                <button> Become a Homo Ludens</button>
-            </a>
+        <div id="header">
+        <h1>XIAO</h1>
+        <div id="filters">
+            <button class="active" data-filter="game">WORKS</button>
+            <button data-filter="tech">TECHNICAL</button>
+            <button data-filter="creative">CREATIVE</button>
+            <button data-filter="about">ABOUT</button>
         </div>
-
-        <div id="about-xiao-info" style="opacity: 0; display: none;">
-
-            <div class="rpg-bio">
-                <!-- <img src="path/to/your/image.jpg" alt="Your Name"> -->
-                <h2>Zhixuan <span style="color: red;">Xiao</span></h2>
-                <h3>Game Designer
-                    <br>
-                    Programmer
-                    <br>
-                    Technical Artist
-                    <br>
-                    and much more.
-                </h3>
-            </div>
-            <p>
-                Xiao is a creative professional with a unique ability to seamlessly blend art and technology, producing
-                captivating and innovative works in various creative industries. His expertise in high-performance
-                software development, machine learning, computer vision, computer graphics, and interaction design has
-                allowed him to excel in the realms of multimedia, research, and entertainment.
-            </p>
-
-            <video width="320" height="240" autoplay loop muted >
-                <source src="./videos/0001-0300.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-
-        </div>
-
-        <!-- Navigation Bar -->
-        <nav class="transfadein">
-            <button id="About-btn">About</button>
-            <!-- <button id="stellarune-btn">Stellarune</button>
-            <button id="freefall2-btn">Freefall2</button> -->
-            <button id="homo-ludens">What is Homo Ludens</button>
-            <button id="blogs-btn">Works</button>
-            <div id="bgMedia"></div>
-        </nav>
-
     </div>
+
+    <div id="sidebar">
+        <h3 id="sidebar-title">WORKS</h3>
+        <div id="works-subfilter" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #000; padding-bottom: 10px;">
+            <button class="subfilter-btn active" data-subfilter="all" style="background: none; border: none; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; padding: 5px 10px; opacity: 1; transition: opacity 0.3s;">ALL</button>
+            <button class="subfilter-btn" data-subfilter="games" style="background: none; border: none; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; padding: 5px 10px; opacity: 0.5; transition: opacity 0.3s;">GAMES</button>
+            <button class="subfilter-btn" data-subfilter="projects" style="background: none; border: none; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; cursor: pointer; padding: 5px 10px; opacity: 0.5; transition: opacity 0.3s;">PROJECTS</button>
+        </div>
+        <div id="project-list"></div>
+    </div>
+
+    <div id="main-container">
+        <canvas id="constellation-canvas"></canvas>
+    </div>
+
+    <div id="constellation-info">
+        DRAG TO ROTATE • SCROLL TO ZOOM • HOVER NODES • CLICK TO EXPLORE
+    </div>
+
+    <div id="detail-panel">
+        <span class="close">×</span>
+        <h2 id="detail-title">PROJECT</h2>
+        <div class="category" id="detail-category">CATEGORY</div>
+        <p id="detail-desc"></p>
+        <div class="meta" id="detail-meta"></div>
+    </div>
+
+    <script type="module">
+        // Projects data
+        const projects = [
+            {
+                id: 'stellarune',
+                title: 'STELLARUNE',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'A unique action strategy game where players use dice to cast magic spells while engaging in real-time, grid-based combat.',
+                fullDesc: 'Stellarune is a unique action strategy game where players use dice to cast magic spells while engaging in real-time, grid-based combat. Here, magic is a power bestowed from the stars and where the essence of a soul manifests in the form of dice. Players receive dice faces with magic spells inscribed on them from defeating foes and can use them to customize dice to suit their individual playstyle.',
+                meta: {
+                    role: 'Project Manager, Lead Programmer, Technical Artist',
+                    team: '15 members',
+                    engine: 'Unreal Engine 5',
+                    year: '2022-2023'
+                },
+                tags: ['UE5', 'C++', 'Multiplayer'],
+                connections: ['dice-gen', 'vfx-system']
+            },
+            {
+                id: 'cyber-cipher',
+                title: 'CYBER CIPHER',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Award-winning 2.5D action game about a computer bug navigating through firewalls.',
+                fullDesc: 'Award-winning 2.5D action game about a computer bug who must dodge hazards and security firewalls as they try to corrupt the User\'s programming files. Created for the 2023 Global Game Jam with the support of Coexist Gamelab.',
+                meta: {
+                    award: 'Global Game Jam 2023',
+                    role: 'Game Designer, Programmer',
+                    year: '2023'
+                },
+                tags: ['Unity', 'C#', 'GGJ'],
+                connections: ['high-noon']
+            },
+            {
+                id: 'dice-gen',
+                title: 'DICE FACE GEN',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Python script for Maya converting 2D images into 3D dice face models.',
+                fullDesc: 'Python script interacting with Autodesk Maya to convert 2D images into 3D models with specific modifications. The script includes a GUI creation function with an interface designed in PyQt. A button in the GUI triggers the 3D model creation process using user-provided values.',
+                meta: {
+                    tools: 'Python, Maya, PyQt',
+                    purpose: 'Stellarune Pipeline Tool',
+                    year: '2022'
+                },
+                tags: ['Python', 'Maya', 'Pipeline'],
+                connections: ['stellarune', 'vfx-system']
+            },
+            {
+                id: 'vfx-system',
+                title: 'VFX SYSTEM',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Dynamic Niagara particle system with user parameters for real-time control.',
+                fullDesc: 'Niagara System using User Parameters to control VFX transform and animation, accessible from any Actor Blueprint. The system is configured to adjust sprite size, orientation, and color. A unique aspect is the capacity to modify system parameters externally, allowing for dynamic particle spawn and transform changes.',
+                meta: {
+                    engine: 'Unreal Engine 5',
+                    type: 'Niagara System',
+                    year: '2023'
+                },
+                tags: ['UE5', 'Niagara', 'VFX'],
+                connections: ['stellarune', 'procedural']
+            },
+            {
+                id: 'procedural',
+                title: 'PROCEDURAL ANIM',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Unity C# script for procedural animation using Inverse Kinematics.',
+                fullDesc: 'C# script for procedural animation made with Unity Animation Rigging package. Character rigged in Blender with adjustable parameters for different movement styles. Utilizes Inverse Kinematics to ensure fluid limb movement.',
+                meta: {
+                    tools: 'Unity, C#, Blender',
+                    features: 'IK, Animation Rigging',
+                    year: '2023'
+                },
+                tags: ['Unity', 'C#', 'IK'],
+                connections: ['vfx-system', 'ocean']
+            },
+            {
+                id: 'anim-state',
+                title: 'ANIMATION STATE MACHINE',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'UE5 Animation Blueprint controlling dice model behavior with state transitions.',
+                fullDesc: 'Animation Blueprint system for controlling die model behavior using an integer variable "Face". If the value is between 1-6, the die rolls to that specific face. If 0 or 7+, the die maintains perpetual rolling animation. System starts from a conduit state and transitions to one of six states, each linked to a specific dice face.',
+                meta: {
+                    engine: 'Unreal Engine 5',
+                    purpose: 'Stellarune Animation System',
+                    year: '2022'
+                },
+                tags: ['UE5', 'Animation', 'Blueprint'],
+                connections: ['stellarune']
+            },
+            {
+                id: 'fireworks',
+                title: 'FIREWORKS VFX',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Particle effect system for fireworks visualization.',
+                fullDesc: 'Unreal Engine 5 Niagara particle system designed specifically for fireworks visualization with realistic explosion patterns and particle behavior.',
+                meta: {
+                    engine: 'Unreal Engine 5',
+                    type: 'Niagara System',
+                    year: '2023'
+                },
+                tags: ['UE5', 'Niagara', 'VFX'],
+                connections: ['vfx-system']
+            },
+            {
+                id: 'procgen-crystals',
+                title: 'PROCGEN CRYSTALS',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Procedurally generated crystal system.',
+                fullDesc: 'Procedural crystal generation system using Unreal Engine with dynamic geometry and material properties.',
+                meta: {
+                    engine: 'Unreal Engine',
+                    type: 'Procedural Generation',
+                    year: '2023'
+                },
+                tags: ['UE5', 'Procedural', '3D'],
+                connections: ['vfx-system']
+            },
+            {
+                id: 'text-converter',
+                title: 'TEXT-IMAGE CONVERTER',
+                category: 'TECHNICAL ART',
+                type: 'tech',
+                desc: 'Python tool for text and image processing.',
+                fullDesc: 'Converter tool for text/image processing built with Python, enabling seamless conversion between text and image formats.',
+                meta: {
+                    tools: 'Python',
+                    type: 'Utility Tool',
+                    year: '2023'
+                },
+                tags: ['Python', 'Tool', 'Utility'],
+                connections: []
+            },
+            {
+                id: 'ocean',
+                title: 'OCEAN',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Blender 3D environment design exploring underwater themes.',
+                fullDesc: 'Blender 3D environment design exploring underwater themes and atmospheric lighting techniques. This piece explores the intersection of technical skill and artistic vision, using procedural shaders and particle systems.',
+                meta: {
+                    medium: 'Blender 3D',
+                    year: '2023'
+                },
+                tags: ['Blender', '3D', 'Environment'],
+                connections: ['procedural']
+            },
+            {
+                id: 'untitled',
+                title: 'UNTITLED',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Blender 3D artwork.',
+                fullDesc: 'An experimental 3D piece created in Blender exploring form and space.',
+                meta: {
+                    medium: 'Blender',
+                    year: '2023'
+                },
+                tags: ['Blender', '3D'],
+                connections: []
+            },
+            {
+                id: 'unattainable-dream',
+                title: 'UNATTAINABLE DREAM',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Blender 3D artwork exploring dreams and aspirations.',
+                fullDesc: 'A contemplative 3D piece created in Blender that explores themes of unattainable dreams and aspirations.',
+                meta: {
+                    medium: 'Blender',
+                    year: '2023'
+                },
+                tags: ['Blender', '3D', 'Conceptual'],
+                connections: []
+            },
+            {
+                id: 'drifter',
+                title: 'DRIFTER',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'VR artwork created with Gravity Sketch and Quill.',
+                fullDesc: 'Virtual reality artwork created using Gravity Sketch and Quill VR, exploring spatial design and immersive art creation.',
+                meta: {
+                    medium: 'Gravity Sketch, Quill VR',
+                    year: '2021'
+                },
+                tags: ['VR', '3D', 'Immersive'],
+                connections: []
+            },
+            {
+                id: 'eternal-love',
+                title: 'ETERNAL LOVE',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Mixed media artwork combining ink, origami paper, and Python.',
+                fullDesc: 'A unique mixed media piece that combines traditional materials (ink and origami paper) with computational art created using Python.',
+                meta: {
+                    medium: 'Ink, Origami Paper, Python',
+                    year: '2023'
+                },
+                tags: ['Mixed Media', 'Python', 'Traditional'],
+                connections: []
+            },
+            {
+                id: 'sketch-210413',
+                title: 'SKETCH 210413',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Web-based interactive sketch.',
+                fullDesc: 'An interactive web-based sketch created using HTML, CSS, and Javascript, exploring digital art and interaction design.',
+                meta: {
+                    medium: 'HTML, CSS, Javascript',
+                    year: '2023'
+                },
+                tags: ['Web', 'Interactive', 'Code Art'],
+                connections: []
+            },
+            {
+                id: 'skull-red-cloth',
+                title: 'SKULL ON RED CLOTH',
+                category: 'CREATIVE',
+                type: 'creative',
+                desc: 'Traditional pastel artwork.',
+                fullDesc: 'A traditional art piece created with pastels on pastel paper, depicting a skull on red cloth.',
+                meta: {
+                    medium: 'Pastel, Pastel Paper',
+                    year: '2020'
+                },
+                tags: ['Traditional', 'Pastel', 'Drawing'],
+                connections: []
+            },
+            {
+                id: 'high-noon',
+                title: 'HIGH NOON',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: '4-player competitive strategy board game with western duel mechanics.',
+                fullDesc: 'High Noon at Blackmeadow is a 4 player competitive strategy game designed to bring the western duel alive on a board. It incorporated an exhilarating experience challenging both the players\' physical reflex and their strategic planning.',
+                meta: {
+                    type: 'Board Game',
+                    players: '4',
+                    year: '2022'
+                },
+                tags: ['Board Game', 'Strategy'],
+                connections: ['cyber-cipher']
+            },
+            {
+                id: 'godzilla',
+                title: 'GODZILLA SIMULATOR',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Search and rescue game where you relive memories of Godzilla attack survivors.',
+                fullDesc: 'Relive the memories of those who suffered during the Godzilla attack. Acting as a GEMA volunteer, search and rescue the damaged area and discover the hidden truth.',
+                meta: {
+                    role: 'Game Designer',
+                    type: 'Simulation'
+                },
+                tags: ['Unity', 'Simulation'],
+                connections: []
+            },
+            {
+                id: 'idyllia',
+                title: 'IDYLLIA',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'A short downloadable puzzle game where your garden grows as you solve puzzles.',
+                fullDesc: 'Idyllia is a short downloadable puzzle game for Windows and macOS. The player solves tile-based puzzles, and for each puzzle solved, the garden grows larger and lusher. The garden, however, is greedy for life. Where will that greed take it?',
+                meta: {
+                    platform: 'Windows, macOS',
+                    type: 'Puzzle Game'
+                },
+                tags: ['Puzzle', 'Downloadable'],
+                connections: []
+            },
+            {
+                id: 'roomba-out',
+                title: 'ROOMBA OUT!',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Strategy game where you control a Shiba Inu to guide a Roomba out of the house.',
+                fullDesc: 'Roomba OUT! is a strategy game where the player needs to control the Shiba Inu to "guide" the Roomba out of the house, based on the fact that the idiot robot can only turn right when facing obstacles.',
+                meta: {
+                    type: 'Strategy Puzzle'
+                },
+                tags: ['Strategy', 'Puzzle'],
+                connections: []
+            },
+            {
+                id: 'one-more-floor',
+                title: 'ONE MORE FLOOR',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Horror survival game in a desolate, dark, ravaged world.',
+                fullDesc: 'A desolate, dark, ravaged world. Overrun. Lost. These creatures are everywhere, lurking around every corner, every shadow, where light cannot find them. Play as a child stuck in this building, cornered by mysterious, terrifying creatures, as he must fight his way to survival and to freedom!',
+                meta: {
+                    type: 'Horror Survival'
+                },
+                tags: ['Horror', 'Survival'],
+                connections: []
+            },
+            {
+                id: 'antiquity',
+                title: "ANTIQUITY'S LOCUS",
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Narrative game exploring LGBTQ+ themes during the AIDS crisis.',
+                fullDesc: 'Teresa had a few acquaintances in Mason City prior to the accident, but being an out lesbian during the aids crisis in a suburban town of only 30,000 people doesn\'t leave you with a particularly massive support network.',
+                meta: {
+                    type: 'Narrative Game'
+                },
+                tags: ['Narrative', 'LGBTQ+'],
+                connections: []
+            },
+            {
+                id: 'free-fall',
+                title: 'FREE FALL 2',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'A relaxation and freedom themed experience.',
+                fullDesc: 'Take a breath, relax, go for a walk, free fall... or do whatever makes you feel free and emancipate. Take care of yourselves out there, you are beautiful 🌈',
+                meta: {
+                    type: 'Relaxation Experience'
+                },
+                tags: ['Relaxation', 'Experience'],
+                connections: []
+            },
+            {
+                id: 'sayhelp',
+                title: 'SAYHELP',
+                category: 'GAME DESIGN',
+                type: 'game',
+                desc: 'Philosophical narrative game.',
+                fullDesc: 'In the center of the pine wood called Coilla Doraca there lived not long ago two Philosophers. They were wiser than anything else in the world except the Salmon who lies in the pool of Glyn Cagny into which the nuts of knowledge fall from the hazel bush on its bank.',
+                meta: {
+                    type: 'Narrative Game'
+                },
+                tags: ['Narrative', 'Philosophy'],
+                connections: []
+            },
+            {
+                id: 'wheelchair-vr',
+                title: 'WHEELCHAIR SIMULATION VR',
+                category: 'VR PROJECT',
+                type: 'game',
+                subtype: 'project',
+                desc: 'Virtual reality wheelchair simulation experience.',
+                fullDesc: 'An immersive VR experience that simulates wheelchair navigation, designed to build empathy and understanding.',
+                meta: {
+                    platform: 'VR',
+                    type: 'Simulation'
+                },
+                tags: ['VR', 'Simulation', 'Accessibility'],
+                connections: []
+            }
+        ];
+
+        // Initialize
+        const filterButtons = document.querySelectorAll('#filters button');
+        const detailPanel = document.getElementById('detail-panel');
+        const particleCanvas = document.getElementById('content-particle-canvas');
+        const particleCtx = particleCanvas.getContext('2d');
+        const projectList = document.getElementById('project-list');
+
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+
+        let currentFilter = 'game';
+        let currentSubFilter = 'all'; // all, games, projects
+        let selectedProjectIndex = null;
+
+        // Create project list in sidebar
+        function createProjectList() {
+            projectList.innerHTML = '';
+
+            if (currentFilter === 'game') {
+                // WORKS view - filter based on subfilter
+                const games = projects.filter(p => p.type === 'game' && !p.subtype);
+                const projectItems = projects.filter(p => p.type === 'game' && p.subtype === 'project');
+
+                if (currentSubFilter === 'all' || currentSubFilter === 'games') {
+                    games.forEach((project, idx) => {
+                        const i = projects.indexOf(project);
+                        const item = document.createElement('div');
+                        item.className = 'project-list-item';
+                        item.dataset.index = i;
+                        item.dataset.type = project.type;
+                        item.innerHTML = `
+                            <div class="title">${project.title}</div>
+                            <div class="cat">${project.category}</div>
+                        `;
+                        item.addEventListener('click', () => focusOnProject(i));
+                        projectList.appendChild(item);
+                    });
+                }
+
+                if (currentSubFilter === 'all' || currentSubFilter === 'projects') {
+                    projectItems.forEach((project, idx) => {
+                        const i = projects.indexOf(project);
+                        const item = document.createElement('div');
+                        item.className = 'project-list-item';
+                        item.dataset.index = i;
+                        item.dataset.type = project.type;
+                        item.innerHTML = `
+                            <div class="title">${project.title}</div>
+                            <div class="cat">${project.category}</div>
+                        `;
+                        item.addEventListener('click', () => focusOnProject(i));
+                        projectList.appendChild(item);
+                    });
+                }
+            } else {
+                // Regular view for other filters
+                projects.forEach((project, i) => {
+                    if (currentFilter === 'about' || project.type === currentFilter) {
+                        const item = document.createElement('div');
+                        item.className = 'project-list-item';
+                        item.dataset.index = i;
+                        item.dataset.type = project.type;
+                        item.innerHTML = `
+                            <div class="title">${project.title}</div>
+                            <div class="cat">${project.category}</div>
+                        `;
+                        item.addEventListener('click', () => focusOnProject(i));
+                        projectList.appendChild(item);
+                    }
+                });
+            }
+        }
+
+        // Update project list visibility based on filter
+        function updateProjectList() {
+            const items = projectList.querySelectorAll('.project-list-item');
+            items.forEach((item, i) => {
+                if (currentFilter === 'about' || item.dataset.type === currentFilter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Filtering
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentFilter = button.dataset.filter;
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Show/hide subfilter based on filter
+                const subfilterDiv = document.getElementById('works-subfilter');
+                if (currentFilter === 'game') {
+                    subfilterDiv.style.display = 'flex';
+                    document.getElementById('sidebar-title').textContent = 'WORKS';
+                } else if (currentFilter === 'tech') {
+                    subfilterDiv.style.display = 'none';
+                    document.getElementById('sidebar-title').textContent = 'TECHNICAL';
+                } else if (currentFilter === 'creative') {
+                    subfilterDiv.style.display = 'none';
+                    document.getElementById('sidebar-title').textContent = 'CREATIVE';
+                } else {
+                    subfilterDiv.style.display = 'none';
+                    document.getElementById('sidebar-title').textContent = 'ABOUT';
+                }
+
+                createProjectList();
+            });
+        });
+
+        // Subfilter buttons (for WORKS)
+        const subfilterButtons = document.querySelectorAll('.subfilter-btn');
+        subfilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentSubFilter = button.dataset.subfilter;
+                subfilterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.opacity = '0.5';
+                });
+                button.classList.add('active');
+                button.style.opacity = '1';
+                createProjectList();
+            });
+        });
+
+        // Detail panel
+        function showDetail(project) {
+            document.getElementById('detail-title').textContent = project.title;
+            document.getElementById('detail-category').textContent = project.category;
+            document.getElementById('detail-desc').textContent = project.fullDesc;
+
+            const metaHTML = Object.entries(project.meta).map(([key, value]) =>
+                `<div class="meta-item"><strong>${key.toUpperCase()}</strong>${value}</div>`
+            ).join('');
+            document.getElementById('detail-meta').innerHTML = metaHTML;
+
+            detailPanel.classList.add('active');
+        }
+
+        document.querySelector('#detail-panel .close').addEventListener('click', () => {
+            detailPanel.classList.remove('active');
+        });
+
+        // Transition particles
+        const transitionParticles = [];
+
+        function createTransitionParticles() {
+            for (let i = 0; i < 50; i++) {
+                transitionParticles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    life: 1,
+                    size: Math.random() * 3 + 1
+                });
+            }
+        }
+
+        function animateParticles() {
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+
+            for (let i = transitionParticles.length - 1; i >= 0; i--) {
+                const p = transitionParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+
+                if (p.life <= 0) {
+                    transitionParticles.splice(i, 1);
+                    continue;
+                }
+
+                particleCtx.fillStyle = `rgba(0, 0, 0, ${p.life})`;
+                particleCtx.fillRect(p.x, p.y, p.size, p.size);
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+
+        // Constellation 3D View
+        const constellationCanvas = document.getElementById('constellation-canvas');
+        const ctx = constellationCanvas.getContext('2d');
+        const mainContainer = document.getElementById('main-container');
+
+        let cameraX = 0, cameraY = 0, cameraZ = 0; // Camera position
+        let targetCameraX = 0, targetCameraY = 0, targetCameraZ = 0;
+        let zoom = 1;
+        let targetZoom = 1;
+        let isDragging = false;
+        let lastMouseX = 0, lastMouseY = 0;
+        let hoveredNode = null;
+        let focusedNodeIndex = null;
+        let time = 0;
+
+        // Simplex noise function for curl noise
+        function noise(x, y, z) {
+            // More complex multi-layered noise
+            const freq1 = 0.08;
+            const freq2 = 0.15;
+            const freq3 = 0.05;
+
+            const n1 = Math.sin(x * freq1 + time * 0.3) * Math.cos(y * freq1 + time * 0.2);
+            const n2 = Math.sin(y * freq2 - time * 0.25) * Math.cos(z * freq2 + time * 0.15);
+            const n3 = Math.sin(z * freq3 + time * 0.2) * Math.cos(x * freq3 - time * 0.1);
+
+            return (n1 + n2 + n3) / 3;
+        }
+
+        // Curl noise for fluid particle movement
+        function curlNoise(x, y, z) {
+            const eps = 0.1;
+            const n1 = noise(x, y + eps, z);
+            const n2 = noise(x, y - eps, z);
+            const n3 = noise(x, y, z + eps);
+            const n4 = noise(x, y, z - eps);
+            const n5 = noise(x + eps, y, z);
+            const n6 = noise(x - eps, y, z);
+
+            return {
+                x: (n1 - n2) - (n5 - n6),
+                y: (n3 - n4) - (n1 - n2),
+                z: (n5 - n6) - (n3 - n4)
+            };
+        }
+
+        constellationCanvas.width = mainContainer.clientWidth;
+        constellationCanvas.height = mainContainer.clientHeight;
+
+        // ASCII characters for background like Codex
+        const asciiChars = ['~', '-', '_', '.', '·', '˙'];
+
+        // Create dense grid of ASCII character particles with depth variation
+        const gridParticles = [];
+        const gridCols = Math.floor(constellationCanvas.width / 12);
+        const gridRows = Math.floor(constellationCanvas.height / 16);
+
+        for (let row = 0; row < gridRows; row++) {
+            for (let col = 0; col < gridCols; col++) {
+                const x = col * 12;
+                const y = row * 16;
+                const depth = Math.random(); // 0 to 1, for parallax depth
+                gridParticles.push({
+                    x,
+                    y,
+                    baseX: x,
+                    baseY: y,
+                    vx: 0,
+                    vy: 0,
+                    char: asciiChars[Math.floor(Math.random() * asciiChars.length)],
+                    phase: Math.random() * Math.PI * 2,
+                    depth: depth,
+                    baseAlpha: 0.05 + depth * 0.15 // Deeper = darker
+                });
+            }
+        }
+
+        // Infinite grid system
+        const gridSpacingX = 300;
+        const gridSpacingY = 300;
+        const gridSpacingZ = 300;
+        const nearSpawnDistance = 50;
+
+        // Real project nodes
+        const projectClusters = [];
+        const priorityProjectIds = ['stellarune', 'fireworks'];
+        let initialPlacementDone = false;
+        const initialFakeReserveCells = new Set();
+
+        // Separate projects by type and position them
+        const gameProjects = projects.filter(p => p.type === 'game');
+        const techProjects = projects.filter(p => p.type === 'tech');
+        const creativeProjects = projects.filter(p => p.type === 'creative');
+
+        const categoryGroups = [
+            { projects: gameProjects, offsetZ: 0 },
+            { projects: techProjects, offsetZ: gridSpacingZ },
+            { projects: creativeProjects, offsetZ: gridSpacingZ * 2 }
+        ];
+
+        // Project pool for spawning/despawning
+        const allProjects = [...gameProjects, ...techProjects, ...creativeProjects];
+        const projectPool = allProjects.map(project => ({
+            project,
+            spawned: false,
+            gridX: 0,
+            gridY: 0,
+            gridZ: 0
+        }));
+
+        function spawnProject(projectData, gx, gy, gz) {
+            const x = gx * gridSpacingX;
+            const y = gy * gridSpacingY;
+            const z = gz * gridSpacingZ;
+
+            const particles = [];
+            const text = projectData.project.title;
+            const charSpacing = 8;
+            const startX = -(text.length * charSpacing) / 2;
+
+            for (let j = 0; j < text.length; j++) {
+                particles.push({
+                    char: text[j],
+                    offsetX: startX + j * charSpacing,
+                    offsetY: 0
+                });
+            }
+
+            const cluster = {
+                x, y, z,
+                baseX: x, baseY: y, baseZ: z,
+                vx: 0, vy: 0, vz: 0,
+                particles,
+                project: projectData.project,
+                isReal: true,
+                projectData: projectData
+            };
+
+            projectClusters.push(cluster);
+            projectData.spawned = true;
+            projectData.gridX = gx;
+            projectData.gridY = gy;
+            projectData.gridZ = gz;
+            return cluster;
+        }
+
+        function despawnProject(projectData) {
+            const index = projectClusters.findIndex(c => c.projectData === projectData);
+            if (index !== -1) {
+                projectClusters.splice(index, 1);
+                projectData.spawned = false;
+            }
+        }
+
+        function projectCellToScreen(gx, gy, gz) {
+            const worldX = gx * gridSpacingX;
+            const worldY = gy * gridSpacingY;
+            const worldZ = gz * gridSpacingZ;
+            return project3D(worldX, worldY, worldZ);
+        }
+
+        function updateProjectSpawning() {
+            // Calculate visible grid range, only forward along camera direction
+            const minGX = Math.floor((cameraX - renderDistance) / gridSpacingX);
+            const maxGX = Math.ceil((cameraX + renderDistance) / gridSpacingX);
+            const minGY = Math.floor((cameraY - renderDistance) / gridSpacingY);
+            const maxGY = Math.ceil((cameraY + renderDistance) / gridSpacingY);
+            let minGZ = Math.ceil((cameraZ + nearSpawnDistance) / gridSpacingZ);
+            const maxGZ = Math.ceil((cameraZ + renderDistance) / gridSpacingZ);
+            if (minGZ > maxGZ) {
+                minGZ = maxGZ;
+            }
+
+            // Despawn projects outside visible range
+            projectPool.forEach(pd => {
+                if (pd.spawned) {
+                    if (pd.gridX < minGX || pd.gridX > maxGX ||
+                        pd.gridY < minGY || pd.gridY > maxGY ||
+                        pd.gridZ < minGZ || pd.gridZ > maxGZ) {
+                        despawnProject(pd);
+                    }
+                }
+            });
+
+            // Collect visible grid cells with distance metadata
+            const visibleCells = [];
+            for (let gx = minGX; gx <= maxGX; gx++) {
+                for (let gy = minGY; gy <= maxGY; gy++) {
+                    for (let gz = minGZ; gz <= maxGZ; gz++) {
+                        const projected = projectCellToScreen(gx, gy, gz);
+                        if (!projected) continue;
+                        const margin = 40;
+                        if (
+                            projected.x < -margin || projected.x > constellationCanvas.width + margin ||
+                            projected.y < -margin || projected.y > constellationCanvas.height + margin
+                        ) {
+                            continue;
+                        }
+                        const cellKey = getGridKey(gx, gy, gz);
+                        visibleCells.push({
+                            key: cellKey,
+                            gx,
+                            gy,
+                            gz,
+                            distance: projected.z
+                        });
+                    }
+                }
+            }
+            const visibleGridCells = new Set(visibleCells.map(cell => cell.key));
+
+            const usedInitialCells = new Set();
+            if (!initialPlacementDone) {
+                const sortedCells = [...visibleCells].sort((a, b) => a.distance - b.distance);
+                const reserveCount = Math.min(
+                    Math.max(5, Math.floor(sortedCells.length * 0.2)),
+                    Math.max(0, sortedCells.length - 1)
+                );
+                const projectCellCount = Math.max(0, sortedCells.length - reserveCount);
+                const projectCells = sortedCells.slice(0, projectCellCount);
+                const reservedCells = sortedCells.slice(projectCellCount);
+                reservedCells.forEach(cell => initialFakeReserveCells.add(cell.key));
+
+                const coneDistributeCells = (cells) => {
+                    const layers = new Map();
+                    cells.forEach(cell => {
+                        const layerKey = cell.gz;
+                        const radial = Math.sqrt(cell.gx * cell.gx + cell.gy * cell.gy);
+                        const angle = Math.atan2(cell.gy, cell.gx);
+                        if (!layers.has(layerKey)) {
+                            layers.set(layerKey, []);
+                        }
+                        layers.get(layerKey).push({
+                            ...cell,
+                            radial,
+                            angle
+                        });
+                    });
+
+                    const layerKeys = Array.from(layers.keys()).sort((a, b) => a - b);
+                    layerKeys.forEach(key => {
+                        layers.get(key).sort((a, b) => {
+                            if (a.radial !== b.radial) {
+                                return a.radial - b.radial;
+                            }
+                            return a.angle - b.angle;
+                        });
+                    });
+
+                    const ordered = [];
+                    let added = true;
+                    while (added) {
+                        added = false;
+                        for (const key of layerKeys) {
+                            const bucket = layers.get(key);
+                            if (!bucket || bucket.length === 0) continue;
+                            ordered.push(bucket.shift());
+                            added = true;
+                        }
+                    }
+
+                    return ordered;
+                };
+                const distributedProjectCells = coneDistributeCells(projectCells);
+
+                const priorityPool = priorityProjectIds
+                    .map(id => projectPool.find(pd => pd.project.id === id))
+                    .filter(pd => pd && !pd.spawned);
+                const otherPool = projectPool.filter(
+                    pd => !pd.spawned && !priorityProjectIds.includes(pd.project.id)
+                );
+
+                let distributedIndex = 0;
+                const placedCells = new Set();
+                const rejectedCells = [];
+                const cellKeyOf = (cell) => getGridKey(cell.gx, cell.gy, cell.gz);
+                const hasNeighbor = (cell, store) => {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            if (dx === 0 && dy === 0) continue;
+                            const neighborKey = getGridKey(cell.gx + dx, cell.gy + dy, cell.gz);
+                            if (store.has(neighborKey)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+                const takeCell = () => {
+                    while (distributedIndex < distributedProjectCells.length) {
+                        const cell = distributedProjectCells[distributedIndex];
+                        distributedIndex += 1;
+                        const key = cellKeyOf(cell);
+                        if (placedCells.has(key)) {
+                            continue;
+                        }
+                        if (hasNeighbor(cell, placedCells)) {
+                            rejectedCells.push(cell);
+                            continue;
+                        }
+                        placedCells.add(key);
+                        return cell;
+                    }
+                    while (rejectedCells.length > 0) {
+                        const cell = rejectedCells.shift();
+                        const key = cellKeyOf(cell);
+                        if (placedCells.has(key)) continue;
+                        placedCells.add(key);
+                        return cell;
+                    }
+                    return null;
+                };
+                const assignProject = (pool) => {
+                    pool.forEach(pd => {
+                        if (pd.spawned) return;
+                        const cell = takeCell();
+                        if (!cell) return;
+                        spawnProject(pd, cell.gx, cell.gy, cell.gz);
+                        usedInitialCells.add(cell.key);
+                    });
+                };
+
+                assignProject(priorityPool);
+                assignProject(otherPool);
+                initialPlacementDone = true;
+            }
+
+            // Find unspawned projects and place them randomly in visible range
+            const unspawnedProjects = projectPool.filter(pd => !pd.spawned);
+            const availableCells = visibleCells
+                .map(cell => cell.key)
+                .filter(key => !usedInitialCells.has(key) && !initialFakeReserveCells.has(key));
+
+            unspawnedProjects.forEach(pd => {
+                if (availableCells.length === 0) return;
+
+                // Pick random available cell
+                const randomIndex = Math.floor(Math.random() * availableCells.length);
+                const key = availableCells[randomIndex];
+                availableCells.splice(randomIndex, 1);
+
+                const [gx, gy, gz] = key.split(',').map(Number);
+
+                // Check if cell is not occupied by fake point or another project
+                const hasRealProject = projectClusters.some(c =>
+                    Math.abs(c.x - gx * gridSpacingX) < 10 &&
+                    Math.abs(c.y - gy * gridSpacingY) < 10 &&
+                    Math.abs(c.z - gz * gridSpacingZ) < 10
+                );
+
+                if (!hasRealProject) {
+                    spawnProject(pd, gx, gy, gz);
+                }
+            });
+        }
+
+        // Fake grid points for infinite grid
+        const fakeGridPoints = new Map(); // key: "x,y,z" -> point data
+        const renderDistance = 1200; // How far to render fake points
+
+        function getGridKey(gx, gy, gz) {
+            return `${gx},${gy},${gz}`;
+        }
+
+        function generateFakePoint(gx, gy, gz) {
+            const x = gx * gridSpacingX;
+            const y = gy * gridSpacingY;
+            const z = gz * gridSpacingZ;
+
+            return {
+                x, y, z,
+                text: '',
+                phase: Math.random() * Math.PI * 2,
+                changeTimer: 0,
+                isReal: false
+            };
+        }
+
+        function updateFakePointText(point) {
+            // Random characters from extended set
+            const chars = '!@#$%^&*()_+=-0987654321';
+
+            // Random length between 1 and 8
+            const length = Math.floor(Math.random() * 8) + 1;
+            let text = '';
+            for (let i = 0; i < length; i++) {
+                text += chars[Math.floor(Math.random() * chars.length)];
+            }
+            point.text = text;
+        }
+
+        function updateInfiniteGrid() {
+            // Calculate which grid cells are visible
+            const minGX = Math.floor((cameraX - renderDistance) / gridSpacingX);
+            const maxGX = Math.ceil((cameraX + renderDistance) / gridSpacingX);
+            const minGY = Math.floor((cameraY - renderDistance) / gridSpacingY);
+            const maxGY = Math.ceil((cameraY + renderDistance) / gridSpacingY);
+            let minGZ = Math.ceil((cameraZ + nearSpawnDistance) / gridSpacingZ);
+            const maxGZ = Math.ceil((cameraZ + renderDistance) / gridSpacingZ);
+            if (minGZ > maxGZ) {
+                minGZ = maxGZ;
+            }
+
+            // Remove points that are too far
+            const keysToRemove = [];
+            fakeGridPoints.forEach((point, key) => {
+                const [gx, gy, gz] = key.split(',').map(Number);
+                if (gx < minGX || gx > maxGX || gy < minGY || gy > maxGY || gz < minGZ || gz > maxGZ) {
+                    keysToRemove.push(key);
+                }
+            });
+            keysToRemove.forEach(key => fakeGridPoints.delete(key));
+
+            // Add new points in visible range
+            for (let gx = minGX; gx <= maxGX; gx += 1) {
+                for (let gy = minGY; gy <= maxGY; gy += 1) {
+                    for (let gz = minGZ; gz <= maxGZ; gz += 1) {
+                        const key = getGridKey(gx, gy, gz);
+                        if (!fakeGridPoints.has(key)) {
+                            // Check if there's a real project at this position
+                            const hasRealProject = projectClusters.some(p =>
+                                Math.abs(p.x - gx * gridSpacingX) < 10 &&
+                                Math.abs(p.y - gy * gridSpacingY) < 10 &&
+                                Math.abs(p.z - gz * gridSpacingZ) < 10
+                            );
+                            if (!hasRealProject) {
+                                fakeGridPoints.set(key, generateFakePoint(gx, gy, gz));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        constellationCanvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        let mouseX = -9999;
+        let mouseY = -9999;
+
+        constellationCanvas.addEventListener('mousemove', (e) => {
+            const rect = constellationCanvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            if (isDragging) {
+                // Pan camera on X/Y plane
+                const dragSpeed = 1.5;
+                targetCameraX -= (e.clientX - lastMouseX) * dragSpeed;
+                targetCameraY -= (e.clientY - lastMouseY) * dragSpeed;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+
+            checkNodeHover(mouseX, mouseY);
+        });
+
+        constellationCanvas.addEventListener('mouseleave', () => {
+            mouseX = -9999;
+            mouseY = -9999;
+        });
+
+        constellationCanvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        constellationCanvas.addEventListener('click', () => {
+            if (hoveredNode !== null) {
+                showDetail(projects[hoveredNode]);
+            }
+        });
+
+        constellationCanvas.addEventListener('wheel', (e) => {
+            // Scroll to move camera forward/backward (no bounds)
+            targetCameraZ += e.deltaY * 0.5;
+            e.preventDefault();
+        }, { passive: false });
+
+        // Focus on a specific project
+        function focusOnProject(index) {
+            focusedNodeIndex = index;
+            selectedProjectIndex = index;
+
+            // Update sidebar selection
+            const items = projectList.querySelectorAll('.project-list-item');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+
+            // Move camera to center on the project
+            const cluster = projectClusters[index];
+            targetCameraX = cluster.x;
+            targetCameraY = cluster.y;
+            targetCameraZ = cluster.z - 350; // Position camera 350 units in front of project
+
+            // Show detail panel
+            showDetail(projects[index]);
+        }
+
+        // Reset focus when clicking elsewhere
+        constellationCanvas.addEventListener('dblclick', () => {
+            focusedNodeIndex = null;
+            selectedProjectIndex = null;
+            targetCameraX = 0;
+            targetCameraY = 0;
+            targetCameraZ = 0; // Reset camera to origin
+            targetZoom = 1;
+
+            const items = projectList.querySelectorAll('.project-list-item');
+            items.forEach(item => item.classList.remove('active'));
+        });
+
+        function checkNodeHover(mouseX, mouseY) {
+            hoveredNode = null;
+            let closestDist = Infinity;
+
+            projectClusters.forEach((cluster, i) => {
+                if (currentFilter !== 'about' && cluster.project.type !== currentFilter) return;
+
+                const projected = project3D(cluster.x, cluster.y, cluster.z);
+                if (!projected) return;
+
+                // Check if mouse is near text cluster
+                const textWidth = cluster.particles.length * 8 * projected.scale;
+                const textHeight = 20 * projected.scale;
+                const dx = mouseX - projected.x;
+                const dy = mouseY - projected.y;
+
+                if (Math.abs(dx) < textWidth / 2 && Math.abs(dy) < textHeight / 2) {
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < closestDist) {
+                        hoveredNode = i;
+                        closestDist = dist;
+                    }
+                }
+            });
+
+            constellationCanvas.style.cursor = hoveredNode !== null ? 'pointer' : 'default';
+        }
+
+        function project3D(x, y, z) {
+            // Apply camera position offset
+            const viewX = x - cameraX;
+            const viewY = y - cameraY;
+            const viewZ = z - cameraZ;
+
+            // Enforce minimum distance from camera
+            const minDistance = 50;
+            const maxDistance = 2000;
+
+            if (viewZ < minDistance || viewZ > maxDistance) {
+                return null; // Too close or too far
+            }
+
+            // Perspective projection
+            const scale = (300 / viewZ) * zoom;
+            return {
+                x: constellationCanvas.width / 2 + viewX * scale,
+                y: constellationCanvas.height / 2 + viewY * scale,
+                scale,
+                z: viewZ
+            };
+        }
+
+        // Draw a node as simple circle
+        function drawNode(ctx, x, y, scale, isHovered) {
+            const radius = Math.max(4, 8 * scale);
+
+            ctx.save();
+            ctx.fillStyle = isHovered ? '#ff0000' : '#000';
+
+            // Draw glow for hovered nodes
+            if (isHovered) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff0000';
+            }
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Draw floating card with project info
+        function drawFloatingCard(ctx, project, projected, alpha, highlight, showContent) {
+            const baseWidth = 200;
+            const baseHeight = 120;
+            const cardWidth = baseWidth * projected.scale;
+            const cardHeight = baseHeight * projected.scale;
+            const padding = 15 * projected.scale;
+            const fontSize = Math.max(8, 12 * projected.scale);
+            const titleSize = Math.max(10, 16 * projected.scale);
+
+            const cardX = projected.x - cardWidth / 2;
+            const cardY = projected.y + (30 * projected.scale);
+
+            ctx.save();
+            ctx.globalAlpha = Math.max(0.2, alpha);
+
+            // Card background
+            const backgroundColor = highlight ? '#000' : '#fff';
+            const borderColor = highlight ? '#fff' : '#000';
+            ctx.fillStyle = backgroundColor;
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = Math.max(1, 2 * projected.scale);
+
+            ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
+            ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
+
+            if (showContent) {
+                // Project title
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.3, alpha);
+                ctx.font = `bold ${titleSize}px "Courier New"`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+
+                const maxTitleWidth = cardWidth - padding * 2;
+                let title = project.title;
+                while (ctx.measureText(title).width > maxTitleWidth && title.length > 0) {
+                    title = title.slice(0, -1);
+                }
+                ctx.fillText(title, cardX + padding, cardY + padding);
+
+                // Category
+                ctx.font = `${fontSize * 0.7}px "Courier New"`;
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.2, alpha * 0.6);
+                ctx.fillText(project.category, cardX + padding, cardY + padding + titleSize + 4);
+
+                // Description
+                ctx.font = `${fontSize * 0.8}px "Courier New"`;
+                ctx.fillStyle = highlight ? '#fff' : '#000';
+                ctx.globalAlpha = Math.max(0.3, alpha * 0.8);
+
+                const descY = cardY + padding + titleSize + fontSize + 8;
+                const lineHeight = fontSize * 1.2;
+                const maxLines = 2;
+                const words = project.desc.split(' ');
+                let line = '';
+                let lineCount = 0;
+
+                for (let i = 0; i < words.length && lineCount < maxLines; i++) {
+                    const testLine = line + words[i] + ' ';
+                    const metrics = ctx.measureText(testLine);
+
+                    if (metrics.width > maxTitleWidth && line !== '') {
+                        ctx.fillText(line.trim(), cardX + padding, descY + lineCount * lineHeight);
+                        line = words[i] + ' ';
+                        lineCount++;
+                    } else {
+                        line = testLine;
+                    }
+                }
+
+                if (lineCount < maxLines && line.trim() !== '') {
+                    ctx.fillText(line.trim() + '...', cardX + padding, descY + lineCount * lineHeight);
+                }
+            }
+
+            ctx.restore();
+        }
+
+        function animateConstellation() {
+            time += 0.02;
+
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, constellationCanvas.width, constellationCanvas.height);
+            ctx.font = '12px "Courier New"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const hasExplicitSelection = selectedProjectIndex !== null && projects[selectedProjectIndex];
+            let activeProject = null;
+            if (hasExplicitSelection) {
+                activeProject = projects[selectedProjectIndex];
+            } else {
+                if (currentFilter === 'game') {
+                    const candidates = projects.filter(project => {
+                        if (project.type !== 'game') return false;
+                        if (currentSubFilter === 'games') return !project.subtype;
+                        if (currentSubFilter === 'projects') return project.subtype === 'project';
+                        return true;
+                    });
+                    activeProject = candidates.length > 0 ? candidates[0] : null;
+                } else if (currentFilter === 'tech' || currentFilter === 'creative') {
+                    activeProject = projects.find(project => project.type === currentFilter) || null;
+                }
+            }
+            if (!activeProject && projects.length > 0) {
+                activeProject = projects[0];
+            }
+
+            // Draw and update background grid particles with wave effect and depth
+            gridParticles.forEach(particle => {
+                // Wave animation like Codex - depth affects wave amplitude
+                const depthFactor = 0.3 + particle.depth * 0.7;
+                const waveOffset = (Math.sin(particle.baseX * 0.01 + time * depthFactor) * 3 +
+                                   Math.sin(particle.baseY * 0.01 + time * 0.7 * depthFactor) * 3) * depthFactor;
+
+                // Apply spring force to return to base
+                const springStrength = 0.1 * depthFactor;
+                particle.vx += (particle.baseX - particle.x) * springStrength;
+                particle.vy += (particle.baseY - particle.y + waveOffset) * springStrength;
+
+                // Dampening
+                particle.vx *= 0.85;
+                particle.vy *= 0.85;
+
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                // Draw character with depth-based alpha
+                const alpha = particle.baseAlpha + Math.sin(particle.phase + time * 2 * depthFactor) * 0.03;
+                const size = 10 + particle.depth * 4; // Deeper = larger
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#000';
+                ctx.font = `${size}px "Courier New"`;
+                ctx.fillText(particle.char, particle.x, particle.y);
+                ctx.restore();
+            });
+
+            // Update camera position smoothly
+            cameraX += (targetCameraX - cameraX) * 0.1;
+            cameraY += (targetCameraY - cameraY) * 0.1;
+            cameraZ += (targetCameraZ - cameraZ) * 0.1;
+            zoom += (targetZoom - zoom) * 0.1;
+
+            // Update infinite grid and project spawning based on camera position
+            updateInfiniteGrid();
+            updateProjectSpawning();
+
+            // Apply physics to clusters
+            projectClusters.forEach((cluster, clusterIndex) => {
+                // Add curl noise movement in 3D
+                const curl = curlNoise(cluster.x * 0.002, cluster.y * 0.002, cluster.z * 0.002);
+                const noiseStrength = 1.5;
+                cluster.vx += curl.x * noiseStrength;
+                cluster.vy += curl.y * noiseStrength;
+                cluster.vz += curl.z * noiseStrength;
+
+                // Spring force to return to base
+                const springStrength = 0.015;
+                cluster.vx += (cluster.baseX - cluster.x) * springStrength;
+                cluster.vy += (cluster.baseY - cluster.y) * springStrength;
+                cluster.vz += (cluster.baseZ - cluster.z) * springStrength;
+
+                // Dampening
+                cluster.vx *= 0.93;
+                cluster.vy *= 0.93;
+                cluster.vz *= 0.93;
+
+                // Limit velocity
+                const maxVel = 3;
+                cluster.vx = Math.max(-maxVel, Math.min(maxVel, cluster.vx));
+                cluster.vy = Math.max(-maxVel, Math.min(maxVel, cluster.vy));
+                cluster.vz = Math.max(-maxVel, Math.min(maxVel, cluster.vz));
+
+                // Update position
+                cluster.x += cluster.vx;
+                cluster.y += cluster.vy;
+                cluster.z += cluster.vz;
+            });
+
+            // Sort clusters by depth (far to near)
+            const sortedClusters = projectClusters
+                .map((cluster, i) => ({ cluster, i, projected: project3D(cluster.x, cluster.y, cluster.z) }))
+                .filter(item => item.projected !== null)
+                .sort((a, b) => b.projected.z - a.projected.z);
+
+            // Draw clusters
+            sortedClusters.forEach(({ cluster, i, projected }) => {
+                // Always show all projects (no filtering)
+
+                const isHovered = hoveredNode === i;
+                const isDefaultActive = !hasExplicitSelection && activeProject && cluster.project === activeProject;
+                const isSelected = hasExplicitSelection && activeProject && cluster.project === activeProject;
+                const distanceToCamera = projected.z;
+                const cardThreshold = 450;
+
+                // Draw each character particle in the cluster
+                cluster.particles.forEach(particle => {
+                    const px = projected.x + particle.offsetX * projected.scale;
+                    const py = projected.y + particle.offsetY * projected.scale;
+
+                    ctx.save();
+                    const fontSize = Math.max(8, 12 * projected.scale);
+                    ctx.font = isHovered ? `bold ${fontSize}px "Courier New"` : `${fontSize}px "Courier New"`;
+                    ctx.fillStyle = isHovered ? '#ff0000' : '#000';
+                    ctx.globalAlpha = Math.max(0.45, Math.min(1, projected.scale * 1.5));
+                    ctx.fillText(particle.char, px, py);
+                    ctx.restore();
+                });
+
+                const highlight = isSelected || isHovered;
+                const showContent = projected.scale >= 0.35;
+                let cardAlpha;
+                if (highlight) {
+                    cardAlpha = 1;
+                } else if (isDefaultActive) {
+                    cardAlpha = 0.85;
+                } else {
+                    const distanceFactor = Math.max(0, cardThreshold - distanceToCamera);
+                    cardAlpha = Math.max(0.35, Math.min(0.9, distanceFactor / 100));
+                }
+                drawFloatingCard(ctx, cluster.project, projected, cardAlpha, highlight, showContent);
+            });
+
+            // Draw fake grid points
+            fakeGridPoints.forEach(point => {
+                const projected = project3D(point.x, point.y, point.z);
+                if (!projected) return;
+
+                // Check if this fake point is too close to any real project cluster in 3D space
+                let tooCloseToProject = false;
+                for (const cluster of projectClusters) {
+                    const dx = point.x - cluster.x;
+                    const dy = point.y - cluster.y;
+                    const dz = point.z - cluster.z;
+                    const distance3D = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    // Skip drawing if within 150 units of a real project in 3D space
+                    if (distance3D < 150) {
+                        tooCloseToProject = true;
+                        break;
+                    }
+                }
+
+                if (tooCloseToProject) return; // Skip this fake point
+
+                // Update text animation
+                point.changeTimer -= 0.02;
+                if (point.changeTimer <= 0) {
+                    updateFakePointText(point);
+                    point.changeTimer = 0.1 + Math.random() * 0.3; // Change every 0.1-0.4 seconds
+                }
+
+                const alpha = 0.2 + Math.sin(point.phase + time * 2) * 0.1;
+                const fontSize = Math.max(8, 12 * projected.scale);
+
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#000';
+                ctx.font = `${fontSize}px "Courier New"`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(point.text, projected.x, projected.y);
+                ctx.restore();
+            });
+
+            requestAnimationFrame(animateConstellation);
+        }
+
+        // Initialize
+        createProjectList();
+        animateConstellation();
+
+        window.addEventListener('resize', () => {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+            constellationCanvas.width = mainContainer.clientWidth;
+            constellationCanvas.height = mainContainer.clientHeight;
+        });
+    </script>
+    </div>
+    <!-- End of content-container -->
 
     <!-- Loading Screen -->
     <div id="loading-container">
         <canvas id="starfield-canvas"></canvas>
-        <canvas id="particle-canvas"></canvas>
+        <canvas id="loading-particle-canvas"></canvas>
 
         <div id="progress-container">
             <div id="progress-text">INITIALIZING...</div>
@@ -110,11 +1818,6 @@
         </div>
     </div>
 
-    <footer>® <a href="mailto:xiaozhixuan2000@gmail.com" style="color: black; text-decoration: none;">
-            Zhixuan Xiao</a>, All Rights Reserved.
-    </footer>
-
-    <!-- 3D Model -->
+    <script type="module" src="./loader.js"></script>
 </body>
-
 </html>

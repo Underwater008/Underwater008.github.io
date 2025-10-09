@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+*.package-lock.json
+
+# Environment
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime*
+
+# Build output
+/dist
+/build
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+*.tmp
+*.temp
+.DS_Store
+
+
+.abc
