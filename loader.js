@@ -1,11 +1,14 @@
 (() => {
+  console.log('🚀 Loader.js starting...');
   const loadingContainer = document.getElementById('loading-container');
   if (!loadingContainer) {
+    console.error('❌ Loading container not found!');
     return;
   }
+  console.log('✅ Loading container found');
 
   const starCanvas = document.getElementById('starfield-canvas');
-  const particleCanvas = document.getElementById('particle-canvas');
+  const particleCanvas = document.getElementById('loading-particle-canvas');
   const progressBar = document.getElementById('progress-bar');
   const progressText = document.getElementById('progress-text');
   const progressDots = document.getElementById('progress-dots');
@@ -93,6 +96,7 @@
     articleSpacing = 0;
   }
   resizeCanvases();
+  console.log('📐 Canvas dimensions:', particleCanvas.width, 'x', particleCanvas.height);
   window.addEventListener('resize', () => {
     resizeCanvases();
     createPrefixParticles(currentPrefixText);
@@ -516,6 +520,7 @@
 
     if (titleIndex !== currentTitleIndex) {
       currentTitleIndex = titleIndex;
+      console.log('🎬 Showing title', titleIndex, ':', titles[titleIndex]);
       showTitle(currentTitleIndex);
     }
 
@@ -571,6 +576,8 @@
   }
 
   createPrefixParticles(currentPrefixText);
+  console.log('🎬 Starting animation with title 0:', titles[0]);
   showTitle(0);
   animate();
+  console.log('✨ Animation loop started');
 })();

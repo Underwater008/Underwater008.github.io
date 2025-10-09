@@ -134,7 +134,7 @@
         }
 
         /* Main Content Particle Canvas */
-        #content-container #particle-canvas {
+        #content-container #content-particle-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -143,7 +143,7 @@
         }
 
         /* Loading Screen Particle Canvas */
-        #loading-container #particle-canvas {
+        #loading-container #loading-particle-canvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -240,10 +240,8 @@
             width: 100%;
             height: 100%;
             background: #fff;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            z-index: 999;
+            opacity: 1;
             transition: opacity 1s ease;
         }
 
@@ -261,7 +259,10 @@
         }
 
         #progress-container {
-            position: relative;
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 10;
             text-align: center;
         }
@@ -272,6 +273,7 @@
             letter-spacing: 3px;
             margin-bottom: 20px;
             color: #000;
+            opacity: 0;
         }
 
         #progress-bar-container {
@@ -345,7 +347,7 @@
 <body class="loading-active">
     <!-- Main Content Container -->
     <div id="content-container" style="opacity: 0;">
-        <canvas id="particle-canvas"></canvas>
+        <canvas id="content-particle-canvas"></canvas>
 
         <div id="header">
         <h1>XIAO</h1>
@@ -748,7 +750,7 @@
         // Initialize
         const filterButtons = document.querySelectorAll('#filters button');
         const detailPanel = document.getElementById('detail-panel');
-        const particleCanvas = document.getElementById('particle-canvas');
+        const particleCanvas = document.getElementById('content-particle-canvas');
         const particleCtx = particleCanvas.getContext('2d');
         const projectList = document.getElementById('project-list');
 
@@ -1656,7 +1658,7 @@
     <!-- Loading Screen -->
     <div id="loading-container">
         <canvas id="starfield-canvas"></canvas>
-        <canvas id="particle-canvas"></canvas>
+        <canvas id="loading-particle-canvas"></canvas>
 
         <div id="progress-container">
             <div id="progress-text">INITIALIZING...</div>
