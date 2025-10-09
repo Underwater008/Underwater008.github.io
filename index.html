@@ -1329,7 +1329,7 @@
             const viewZ = z - cameraZ;
 
             // Enforce minimum distance from camera
-            const minDistance = 200;
+            const minDistance = 50;
             const maxDistance = 2000;
 
             if (viewZ < minDistance || viewZ > maxDistance) {
@@ -1574,7 +1574,7 @@
                     const fontSize = Math.max(8, 12 * projected.scale);
                     ctx.font = isHovered ? `bold ${fontSize}px "Courier New"` : `${fontSize}px "Courier New"`;
                     ctx.fillStyle = isHovered ? '#ff0000' : '#000';
-                    ctx.globalAlpha = Math.min(1, projected.scale * 1.5);
+                    ctx.globalAlpha = Math.max(0.45, Math.min(1, projected.scale * 1.5));
                     ctx.fillText(particle.char, px, py);
                     ctx.restore();
                 });
@@ -1597,6 +1597,23 @@
             fakeGridPoints.forEach(point => {
                 const projected = project3D(point.x, point.y, point.z);
                 if (!projected) return;
+
+                // Check if this fake point is too close to any real project cluster in 3D space
+                let tooCloseToProject = false;
+                for (const cluster of projectClusters) {
+                    const dx = point.x - cluster.x;
+                    const dy = point.y - cluster.y;
+                    const dz = point.z - cluster.z;
+                    const distance3D = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    // Skip drawing if within 150 units of a real project in 3D space
+                    if (distance3D < 150) {
+                        tooCloseToProject = true;
+                        break;
+                    }
+                }
+
+                if (tooCloseToProject) return; // Skip this fake point
 
                 // Update text animation
                 point.changeTimer -= 0.02;
