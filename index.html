@@ -133,13 +133,23 @@
             height: 100%;
         }
 
-        /* Particle Canvas */
-        #particle-canvas {
+        /* Main Content Particle Canvas */
+        #content-container #particle-canvas {
             position: fixed;
             top: 0;
             left: 0;
             pointer-events: none;
             z-index: 150;
+        }
+
+        /* Loading Screen Particle Canvas */
+        #loading-container #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
         }
 
         /* Detail Panel */
@@ -1646,6 +1656,7 @@
     <!-- Loading Screen -->
     <div id="loading-container">
         <canvas id="starfield-canvas"></canvas>
+        <canvas id="particle-canvas"></canvas>
 
         <div id="progress-container">
             <div id="progress-text">INITIALIZING...</div>
