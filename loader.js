@@ -89,7 +89,7 @@
   const particleCtx = particleCanvas.getContext('2d');
 
   const prefixLeftRatio = 0.15;
-  const titles = ['HELLO WORLD', 'I am a GAMER', 'I am a PROGRAMMER', 'I am a DESIGNER', 'I am Homo Ludens', 'I am XIAO'];
+  const titles = ['HELLO WORLD', 'I am a GAMER', 'I am a DEVELOPER', 'I am Homo Ludens', 'I am XIAO'];
   let currentTitleIndex = 0;
   let currentPrefixText = '';
   let prefixRightEdge = 0;
@@ -178,15 +178,15 @@
     update() {
       const dx = this.targetX - this.x;
       const dy = this.targetY - this.y;
-      const ease = 0.08;
+      const ease = 0.06;
 
       this.x += dx * ease;
       this.y += dy * ease;
 
       if (this.opacity < this.targetOpacity) {
-        this.opacity = Math.min(this.opacity + 0.03, this.targetOpacity);
+        this.opacity = Math.min(this.opacity + 0.02, this.targetOpacity);
       } else if (this.opacity > this.targetOpacity) {
-        this.opacity = Math.max(this.opacity - 0.03, this.targetOpacity);
+        this.opacity = Math.max(this.opacity - 0.02, this.targetOpacity);
       }
     }
 
@@ -522,7 +522,9 @@
 
   // Animation loop ----------------------------------------------------------
   let startTime = Date.now();
-  const titleDuration = 2000;
+  const titleDuration = 1500;
+  const titleDelay = 500; // Delay after particles settle before next title
+  const totalDuration = titleDuration + titleDelay;
   let animationActive = true;
 
   function animate() {
@@ -532,7 +534,7 @@
 
     const currentTime = Date.now();
     const elapsed = currentTime - startTime;
-    const titleIndex = Math.min(Math.floor(elapsed / titleDuration), titles.length - 1);
+    const titleIndex = Math.min(Math.floor(elapsed / totalDuration), titles.length - 1);
 
     if (titleIndex !== currentTitleIndex) {
       currentTitleIndex = titleIndex;
@@ -564,7 +566,16 @@
       particle.draw();
     });
 
-    const progress = Math.min((elapsed / (titleDuration * titles.length)) * 100, 100);
+    // Calculate progress, but complete early when last title is shown
+    let progress;
+    if (titleIndex === titles.length - 1) {
+      // On last title, progress based on titleDuration only (no delay after)
+      const lastTitleElapsed = elapsed - (totalDuration * (titles.length - 1));
+      progress = Math.min(((totalDuration * (titles.length - 1) + lastTitleElapsed) / (totalDuration * (titles.length - 1) + titleDuration)) * 100, 100);
+    } else {
+      progress = Math.min((elapsed / (totalDuration * (titles.length - 1) + titleDuration)) * 100, 100);
+    }
+
     if (progressBar) {
       progressBar.style.width = `${progress}%`;
     }
