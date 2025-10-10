@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XIAO - Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="./public/images/favicon.svg">
+    <link rel="alternate icon" href="./public/images/favicon.ico">
     <style>
         * {
             margin: 0;
@@ -36,6 +38,14 @@
         #header h1 {
             font-size: 20px;
             letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #header h1 img {
+            height: 24px;
+            width: auto;
         }
 
         /* Filters */
@@ -350,7 +360,7 @@
         <canvas id="content-particle-canvas"></canvas>
 
         <div id="header">
-        <h1>XIAO</h1>
+        <h1><img src="./public/images/favicon.svg" alt="Logo">XIAO</h1>
         <div id="filters">
             <button class="active" data-filter="game">WORKS</button>
             <button data-filter="tech">TECHNICAL</button>
@@ -888,8 +898,13 @@
             detailPanel.classList.add('active');
         }
 
-        document.querySelector('#detail-panel .close').addEventListener('click', () => {
+        function hideDetailPanel() {
             detailPanel.classList.remove('active');
+            selectedProjectIndex = null;
+        }
+
+        document.querySelector('#detail-panel .close').addEventListener('click', () => {
+            hideDetailPanel();
         });
 
         // Transition particles
@@ -1015,10 +1030,21 @@
         const nearSpawnDistance = 50;
 
         // Real project nodes
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         const projectClusters = [];
         const priorityProjectIds = ['stellarune', 'fireworks'];
         let initialPlacementDone = false;
-        const initialFakeReserveCells = new Set();
+        const recycledQueue = [];
+        const occupiedCells = new Map();
+        let previousVisibleCells = new Set();
+        let latestNewlyVisibleKeys = new Set();
 
         // Separate projects by type and position them
         const gameProjects = projects.filter(p => p.type === 'game');
@@ -1036,9 +1062,9 @@
         const projectPool = allProjects.map(project => ({
             project,
             spawned: false,
-            gridX: 0,
-            gridY: 0,
-            gridZ: 0
+            gridX: null,
+            gridY: null,
+            gridZ: null
         }));
 
         function spawnProject(projectData, gx, gy, gz) {
@@ -1066,7 +1092,9 @@
                 particles,
                 project: projectData.project,
                 isReal: true,
-                projectData: projectData
+                projectData: projectData,
+                spawnAlpha: 0, // Start invisible
+                targetAlpha: 1 // Fade to visible
             };
 
             projectClusters.push(cluster);
@@ -1074,14 +1102,31 @@
             projectData.gridX = gx;
             projectData.gridY = gy;
             projectData.gridZ = gz;
+            const cellKey = getGridKey(gx, gy, gz);
+            fakeGridPoints.delete(cellKey);
+            occupiedCells.set(cellKey, projectData);
             return cluster;
         }
 
         function despawnProject(projectData) {
             const index = projectClusters.findIndex(c => c.projectData === projectData);
-            if (index !== -1) {
-                projectClusters.splice(index, 1);
-                projectData.spawned = false;
+            if (index === -1) return;
+
+            const [cluster] = projectClusters.splice(index, 1);
+            projectData.spawned = false;
+
+            if (projectData.gridX !== null) {
+                const key = getGridKey(projectData.gridX, projectData.gridY, projectData.gridZ);
+                occupiedCells.delete(key);
+                fakeGridPoints.delete(key);
+            }
+
+            if (cluster) {
+                cluster.spawnAlpha = 0;
+            }
+
+            if (!recycledQueue.includes(projectData)) {
+                recycledQueue.push(projectData);
             }
         }
 
@@ -1104,9 +1149,13 @@
                 minGZ = maxGZ;
             }
 
-            // Despawn projects outside visible range
+            // Despawn projects outside visible range (but not selected project)
             projectPool.forEach(pd => {
                 if (pd.spawned) {
+                    // Don't despawn the currently selected project
+                    const isSelected = selectedProjectIndex !== null && projects[selectedProjectIndex] === pd.project;
+                    if (isSelected) return;
+
                     if (pd.gridX < minGX || pd.gridX > maxGX ||
                         pd.gridY < minGY || pd.gridY > maxGY ||
                         pd.gridZ < minGZ || pd.gridZ > maxGZ) {
@@ -1140,19 +1189,19 @@
                     }
                 }
             }
-            const visibleGridCells = new Set(visibleCells.map(cell => cell.key));
+            const sortedCells = [...visibleCells].sort((a, b) => a.distance - b.distance);
+            const currentVisibleKeys = new Set(sortedCells.map(cell => cell.key));
+            const newlyVisibleCells = sortedCells.filter(cell => !previousVisibleCells.has(cell.key));
+            const edgeCells = newlyVisibleCells.filter(cell => cell.gx === minGX || cell.gx === maxGX || cell.gy === minGY || cell.gy === maxGY || cell.gz === minGZ || cell.gz === maxGZ);
+            latestNewlyVisibleKeys = new Set(newlyVisibleCells.map(cell => cell.key));
 
-            const usedInitialCells = new Set();
             if (!initialPlacementDone) {
-                const sortedCells = [...visibleCells].sort((a, b) => a.distance - b.distance);
                 const reserveCount = Math.min(
                     Math.max(5, Math.floor(sortedCells.length * 0.2)),
                     Math.max(0, sortedCells.length - 1)
                 );
                 const projectCellCount = Math.max(0, sortedCells.length - reserveCount);
                 const projectCells = sortedCells.slice(0, projectCellCount);
-                const reservedCells = sortedCells.slice(projectCellCount);
-                reservedCells.forEach(cell => initialFakeReserveCells.add(cell.key));
 
                 const coneDistributeCells = (cells) => {
                     const layers = new Map();
@@ -1248,43 +1297,73 @@
                         if (pd.spawned) return;
                         const cell = takeCell();
                         if (!cell) return;
+                        console.log('Initial spawn:', pd.project.title, 'at', cell.gx, cell.gy, cell.gz);
                         spawnProject(pd, cell.gx, cell.gy, cell.gz);
-                        usedInitialCells.add(cell.key);
                     });
                 };
 
+                console.log('Starting initial placement, priority pool:', priorityPool.length, 'other pool:', otherPool.length);
                 assignProject(priorityPool);
                 assignProject(otherPool);
                 initialPlacementDone = true;
+                console.log('Initial placement done, spawned projects:', projectClusters.length);
             }
 
-            // Find unspawned projects and place them randomly in visible range
-            const unspawnedProjects = projectPool.filter(pd => !pd.spawned);
-            const availableCells = visibleCells
-                .map(cell => cell.key)
-                .filter(key => !usedInitialCells.has(key) && !initialFakeReserveCells.has(key));
+            const neighborOffsets = [
+                [-1, -1], [-1, 0], [-1, 1],
+                [0, -1],           [0, 1],
+                [1, -1], [1, 0], [1, 1]
+            ];
 
-            unspawnedProjects.forEach(pd => {
-                if (availableCells.length === 0) return;
+            const cameraGridX = Math.round(cameraX / gridSpacingX);
+            const cameraGridY = Math.round(cameraY / gridSpacingY);
 
-                // Pick random available cell
-                const randomIndex = Math.floor(Math.random() * availableCells.length);
-                const key = availableCells[randomIndex];
-                availableCells.splice(randomIndex, 1);
+            const candidateCells = edgeCells.filter(cell => !occupiedCells.has(cell.key));
+            const frontCells = candidateCells.filter(cell => cell.gz === maxGZ);
+            const lateralCells = candidateCells.filter(cell => cell.gz !== maxGZ);
 
-                const [gx, gy, gz] = key.split(',').map(Number);
+            const centerCells = frontCells.filter(cell => cell.gx === cameraGridX);
+            const leftCells = frontCells.filter(cell => cell.gx < cameraGridX);
+            const rightCells = frontCells.filter(cell => cell.gx > cameraGridX);
 
-                // Check if cell is not occupied by fake point or another project
-                const hasRealProject = projectClusters.some(c =>
-                    Math.abs(c.x - gx * gridSpacingX) < 10 &&
-                    Math.abs(c.y - gy * gridSpacingY) < 10 &&
-                    Math.abs(c.z - gz * gridSpacingZ) < 10
-                );
+            const buckets = [];
+            if (centerCells.length) buckets.push(centerCells);
+            if (leftCells.length) buckets.push(leftCells);
+            if (rightCells.length) buckets.push(rightCells);
 
-                if (!hasRealProject) {
-                    spawnProject(pd, gx, gy, gz);
-                }
+            shuffleArray(buckets);
+
+            const orderedCandidates = [];
+            buckets.forEach(bucket => {
+                shuffleArray(bucket);
+                orderedCandidates.push(...bucket);
             });
+
+            const shuffledLateral = shuffleArray([...lateralCells]);
+            orderedCandidates.push(...shuffledLateral);
+
+            const newlyPlaced = new Set();
+
+            const cellHasNeighbor = (cell) => {
+                for (const [dx, dy] of neighborOffsets) {
+                    const key = getGridKey(cell.gx + dx, cell.gy + dy, cell.gz);
+                    if (occupiedCells.has(key) || newlyPlaced.has(key)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            orderedCandidates.forEach(cell => {
+                if (recycledQueue.length === 0) return;
+                if (cellHasNeighbor(cell)) return;
+
+                const projectData = recycledQueue.shift();
+                spawnProject(projectData, cell.gx, cell.gy, cell.gz);
+                newlyPlaced.add(cell.key);
+            });
+
+            previousVisibleCells = currentVisibleKeys;
         }
 
         // Fake grid points for infinite grid
@@ -1323,7 +1402,6 @@
         }
 
         function updateInfiniteGrid() {
-            // Calculate which grid cells are visible
             const minGX = Math.floor((cameraX - renderDistance) / gridSpacingX);
             const maxGX = Math.ceil((cameraX + renderDistance) / gridSpacingX);
             const minGY = Math.floor((cameraY - renderDistance) / gridSpacingY);
@@ -1334,31 +1412,28 @@
                 minGZ = maxGZ;
             }
 
-            // Remove points that are too far
+            // Remove fake points that drifted too far away
             const keysToRemove = [];
             fakeGridPoints.forEach((point, key) => {
                 const [gx, gy, gz] = key.split(',').map(Number);
-                if (gx < minGX || gx > maxGX || gy < minGY || gy > maxGY || gz < minGZ || gz > maxGZ) {
+                if (gx < minGX || gx > maxGX ||
+                    gy < minGY || gy > maxGY ||
+                    gz < minGZ || gz > maxGZ) {
                     keysToRemove.push(key);
                 }
             });
             keysToRemove.forEach(key => fakeGridPoints.delete(key));
 
-            // Add new points in visible range
             for (let gx = minGX; gx <= maxGX; gx += 1) {
                 for (let gy = minGY; gy <= maxGY; gy += 1) {
                     for (let gz = minGZ; gz <= maxGZ; gz += 1) {
                         const key = getGridKey(gx, gy, gz);
-                        if (!fakeGridPoints.has(key)) {
-                            // Check if there's a real project at this position
-                            const hasRealProject = projectClusters.some(p =>
-                                Math.abs(p.x - gx * gridSpacingX) < 10 &&
-                                Math.abs(p.y - gy * gridSpacingY) < 10 &&
-                                Math.abs(p.z - gz * gridSpacingZ) < 10
-                            );
-                            if (!hasRealProject) {
-                                fakeGridPoints.set(key, generateFakePoint(gx, gy, gz));
-                            }
+                        if (occupiedCells.has(key)) {
+                            fakeGridPoints.delete(key);
+                            continue;
+                        }
+                        if (!fakeGridPoints.has(key) && latestNewlyVisibleKeys.has(key)) {
+                            fakeGridPoints.set(key, generateFakePoint(gx, gy, gz));
                         }
                     }
                 }
@@ -1400,9 +1475,15 @@
             isDragging = false;
         });
 
-        constellationCanvas.addEventListener('click', () => {
+        constellationCanvas.addEventListener('click', (e) => {
             if (hoveredNode !== null) {
+                selectedProjectIndex = hoveredNode;
                 showDetail(projects[hoveredNode]);
+                return;
+            }
+
+            if (detailPanel.classList.contains('active')) {
+                hideDetailPanel();
             }
         });
 
@@ -1423,11 +1504,49 @@
                 item.classList.toggle('active', i === index);
             });
 
-            // Move camera to center on the project
-            const cluster = projectClusters[index];
-            targetCameraX = cluster.x;
+            // Find the correct cluster by matching the project
+            const targetProject = projects[index];
+            let cluster = projectClusters.find(c => c.project === targetProject);
+
+            // If project is not spawned, spawn it at camera position
+            if (!cluster) {
+                console.log('Project not spawned, spawning:', targetProject.title);
+                const projectData = projectPool.find(pd => pd.project === targetProject);
+                if (projectData && !projectData.spawned) {
+                    // Spawn at a grid position in front of camera
+                    const gx = Math.round(cameraX / gridSpacingX);
+                    const gy = Math.round(cameraY / gridSpacingY);
+                    const gz = Math.round((cameraZ + 500) / gridSpacingZ); // Spawn ahead of camera
+                    spawnProject(projectData, gx, gy, gz);
+                    cluster = projectClusters.find(c => c.project === targetProject);
+                }
+            }
+
+            if (!cluster) {
+                console.error('Failed to spawn project:', targetProject.title);
+                return;
+            }
+
+            // Calculate camera offset to account for UI windows
+            // Canvas is already offset by sidebar (280px left) via CSS
+            // But canvas coordinates still use center as origin
+            // Detail panel (450px) takes up right side of canvas
+            const detailPanelWidth = 450;
+            const canvasWidth = constellationCanvas.width;
+
+            // Visible area center is shifted left from canvas center
+            const visibleWidth = canvasWidth - detailPanelWidth;
+            const visibleCenterX = visibleWidth / 2;
+            const canvasCenterX = canvasWidth / 2;
+            const screenSpaceOffset = canvasCenterX - visibleCenterX; // How far to shift left
+
+            // Convert screen-space offset to world-space offset at the project's distance
+            const cameraDistance = 200; // Closer distance for better view
+            const worldSpaceOffset = screenSpaceOffset * (cameraDistance / 300); // 300 is the perspective scale factor
+
+            targetCameraX = cluster.x + worldSpaceOffset; // Move camera right to shift view left
             targetCameraY = cluster.y;
-            targetCameraZ = cluster.z - 350; // Position camera 350 units in front of project
+            targetCameraZ = cluster.z - cameraDistance;
 
             // Show detail panel
             showDetail(projects[index]);
@@ -1488,7 +1607,7 @@
                 return null; // Too close or too far
             }
 
-            // Perspective projection
+            // Perspective projection (no UI adjustment here - handled by camera offset)
             const scale = (300 / viewZ) * zoom;
             return {
                 x: constellationCanvas.width / 2 + viewX * scale,
@@ -1708,6 +1827,10 @@
                 .sort((a, b) => b.projected.z - a.projected.z);
 
             // Draw clusters
+            if (Math.random() < 0.01) { // Log occasionally
+                console.log('Drawing', sortedClusters.length, 'clusters, total spawned:', projectClusters.length);
+            }
+
             sortedClusters.forEach(({ cluster, i, projected }) => {
                 // Always show all projects (no filtering)
 
@@ -1716,6 +1839,11 @@
                 const isSelected = hasExplicitSelection && activeProject && cluster.project === activeProject;
                 const distanceToCamera = projected.z;
                 const cardThreshold = 450;
+
+                // Update spawn fade-in animation
+                if (cluster.spawnAlpha < cluster.targetAlpha) {
+                    cluster.spawnAlpha = Math.min(cluster.spawnAlpha + 0.05, cluster.targetAlpha); // Faster fade-in
+                }
 
                 // Draw each character particle in the cluster
                 cluster.particles.forEach(particle => {
@@ -1726,7 +1854,11 @@
                     const fontSize = Math.max(8, 12 * projected.scale);
                     ctx.font = isHovered ? `bold ${fontSize}px "Courier New"` : `${fontSize}px "Courier New"`;
                     ctx.fillStyle = isHovered ? '#ff0000' : '#000';
-                    ctx.globalAlpha = Math.max(0.45, Math.min(1, projected.scale * 1.5));
+
+                    // Combine scale-based alpha with spawn animation alpha
+                    const baseAlpha = Math.max(0.45, Math.min(1, projected.scale * 1.5));
+                    ctx.globalAlpha = baseAlpha * cluster.spawnAlpha;
+
                     ctx.fillText(particle.char, px, py);
                     ctx.restore();
                 });
@@ -1742,7 +1874,8 @@
                     const distanceFactor = Math.max(0, cardThreshold - distanceToCamera);
                     cardAlpha = Math.max(0.35, Math.min(0.9, distanceFactor / 100));
                 }
-                drawFloatingCard(ctx, cluster.project, projected, cardAlpha, highlight, showContent);
+                // Apply spawn animation to card alpha
+                drawFloatingCard(ctx, cluster.project, projected, cardAlpha * cluster.spawnAlpha, highlight, showContent);
             });
 
             // Draw fake grid points
