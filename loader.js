@@ -11,7 +11,7 @@
   const particleCanvas = document.getElementById('loading-particle-canvas');
   const progressBar = document.getElementById('progress-bar');
   const progressText = document.getElementById('progress-text');
-  const progressDots = document.getElementById('progress-dots');
+  const progressTitle = document.getElementById('progress-title');
   const contentContainer = document.getElementById('content-container');
 
   if (contentContainer) {
@@ -20,17 +20,10 @@
   document.body.classList.add('loading-active');
 
   // Populate progress dots
-  if (progressDots) {
-    progressDots.innerHTML = '';
-    for (let i = 0; i < 20; i += 1) {
-      const dot = document.createElement('div');
-      dot.className = 'progress-dot';
-      progressDots.appendChild(dot);
-    }
-  }
+  const progressDots = null;
 
   // Asset tracking ----------------------------------------------------------
-  let assetsRequired = 1;
+  let assetsRequired = 0;
   let assetsLoaded = 0;
   let assetsTimedOut = false;
   let timelineComplete = false;
@@ -77,9 +70,11 @@
     if (progressBar) {
       progressBar.style.width = '100%';
     }
+    if (progressTitle) {
+      progressTitle.textContent = 'SKIPPING...';
+    }
     if (progressText) {
-      progressText.textContent = 'SKIPPING...';
-      progressText.style.opacity = '1';
+      progressText.textContent = '100%';
     }
     checkCompletion();
   });
@@ -515,8 +510,13 @@
     }
 
     suffixParticles = newParticles;
-    if (progressText) {
-      progressText.textContent = fullText;
+    if (progressTitle) {
+      // Fade out, change text, fade in
+      progressTitle.style.opacity = '0';
+      setTimeout(() => {
+        progressTitle.textContent = fullText;
+        progressTitle.style.opacity = '1';
+      }, 250);
     }
   }
 
@@ -538,7 +538,7 @@
 
     if (titleIndex !== currentTitleIndex) {
       currentTitleIndex = titleIndex;
-      console.log('🎬 Showing title', titleIndex, ':', titles[titleIndex]);
+      console.log('🎬 Showing title', titleIndex, ':', titles[titleIndex], 'at', elapsed.toFixed(0), 'ms');
       showTitle(currentTitleIndex);
     }
 
@@ -566,23 +566,21 @@
       particle.draw();
     });
 
-    // Calculate progress, but complete early when last title is shown
-    let progress;
-    if (titleIndex === titles.length - 1) {
-      // On last title, progress based on titleDuration only (no delay after)
-      const lastTitleElapsed = elapsed - (totalDuration * (titles.length - 1));
-      progress = Math.min(((totalDuration * (titles.length - 1) + lastTitleElapsed) / (totalDuration * (titles.length - 1) + titleDuration)) * 100, 100);
-    } else {
-      progress = Math.min((elapsed / (totalDuration * (titles.length - 1) + titleDuration)) * 100, 100);
-    }
+    // Calculate progress - all titles get equal time including the last one
+    const progress = Math.min((elapsed / (totalDuration * titles.length)) * 100, 100);
 
     if (progressBar) {
       progressBar.style.width = `${progress}%`;
     }
 
+    if (progressText) {
+      progressText.textContent = `${Math.round(progress)}%`;
+      progressText.style.opacity = '1';
+    }
+
     if (progress >= 100 && !timelineComplete) {
       timelineComplete = true;
-      setTimeout(checkCompletion, 400);
+      checkCompletion();
     }
 
     requestAnimationFrame(animate);
@@ -593,13 +591,23 @@
     loaderCompleted = true;
     animationActive = false;
 
-    loadingContainer.classList.add('hidden');
+    const elapsed = Date.now() - startTime;
+    console.log('✅ Loader complete! Showing portfolio page at', elapsed.toFixed(0), 'ms');
+
+    // Smooth fade out for loading screen
+    loadingContainer.style.transition = 'opacity 0.8s ease-out';
+    loadingContainer.style.opacity = '0';
+
+    // Smooth fade in for portfolio
+    if (contentContainer) {
+      contentContainer.style.transition = 'opacity 0.8s ease-in';
+      contentContainer.style.opacity = '1';
+    }
+
+    // Remove loading container after fade completes
     setTimeout(() => {
-      if (contentContainer) {
-        contentContainer.style.opacity = '1';
-        contentContainer.style.transition = 'opacity 1s ease';
-      }
-    }, 500);
+      loadingContainer.classList.add('hidden');
+    }, 800);
   }
 
   createPrefixParticles(currentPrefixText);

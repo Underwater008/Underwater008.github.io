@@ -252,7 +252,7 @@
             background: #fff;
             z-index: 999;
             opacity: 1;
-            transition: opacity 1s ease;
+            transition: opacity 0.4s ease;
         }
 
         #loading-container.hidden {
@@ -270,20 +270,30 @@
 
         #progress-container {
             position: absolute;
-            bottom: 80px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
             text-align: center;
         }
 
-        #progress-text {
+        #progress-title {
             font-family: 'Courier New', monospace;
             font-size: 14px;
             letter-spacing: 3px;
             margin-bottom: 20px;
             color: #000;
-            opacity: 0;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #progress-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            letter-spacing: 3px;
+            margin-top: 20px;
+            color: #000;
+            opacity: 1;
         }
 
         #progress-bar-container {
@@ -299,24 +309,6 @@
             background: #000;
             width: 0%;
             transition: width 0.3s ease;
-        }
-
-        #progress-dots {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .progress-dot {
-            width: 4px;
-            height: 4px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 50%;
-        }
-
-        .progress-dot.active {
-            background: #000;
         }
 
         body.loading-active {
@@ -1943,11 +1935,11 @@
         <canvas id="loading-particle-canvas"></canvas>
 
         <div id="progress-container">
-            <div id="progress-text">INITIALIZING...</div>
+            <div id="progress-title">INITIALIZING...</div>
             <div id="progress-bar-container">
                 <div id="progress-bar"></div>
-                <div id="progress-dots"></div>
             </div>
+            <div id="progress-text">0%</div>
         </div>
     </div>
 
