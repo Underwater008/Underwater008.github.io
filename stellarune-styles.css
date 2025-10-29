@@ -1,0 +1,345 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    color: #000;
+    background-color: #fff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Navigation */
+.navbar {
+    background-color: #fff;
+    border-bottom: 2px solid #000;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-logo {
+    flex: 1;
+    text-align: center;
+}
+
+.nav-logo a {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #000;
+    text-decoration: none;
+}
+
+.nav-link {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #000;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 2px solid #000;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* Hero Section */
+.hero {
+    padding: 100px 0 60px;
+    text-align: center;
+    border-bottom: 2px solid #000;
+}
+
+.hero h1 {
+    font-size: 64px;
+    letter-spacing: 12px;
+    margin-bottom: 20px;
+}
+
+.hero .subtitle {
+    font-size: 12px;
+    letter-spacing: 3px;
+    opacity: 0.5;
+}
+
+/* Section Base */
+section {
+    padding: 80px 0;
+    border-bottom: 2px solid #000;
+}
+
+section h2 {
+    font-size: 14px;
+    letter-spacing: 4px;
+    margin-bottom: 40px;
+    opacity: 0.5;
+}
+
+section h3 {
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+section p {
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+/* Game Details Section */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.detail-item {
+    padding: 20px;
+    border: 2px solid #000;
+}
+
+.detail-item h3 {
+    font-size: 10px;
+    letter-spacing: 3px;
+    opacity: 0.5;
+    margin-bottom: 10px;
+}
+
+.detail-item p {
+    font-size: 12px;
+}
+
+.contribution-section,
+.team-section {
+    padding: 30px;
+    border: 2px solid #000;
+    margin-bottom: 30px;
+}
+
+.team-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.team-section li {
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+/* Overview Section */
+.overview-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.overview-images {
+    display: grid;
+    gap: 20px;
+}
+
+.overview-images img {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Roadmap Section */
+.roadmap-image img {
+    width: 100%;
+    border: 2px solid #000;
+    margin-top: 30px;
+}
+
+/* Prototype Section */
+.prototype-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+}
+
+.prototype-content img {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Development Section */
+.dev-tool {
+    padding: 40px;
+    border: 2px solid #000;
+    margin-bottom: 30px;
+}
+
+.dev-tool h3 {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.dev-tool p {
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.dev-tool ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 20px 0;
+}
+
+.dev-tool li {
+    font-size: 12px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.dev-tool li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+}
+
+.dev-image {
+    margin-top: 30px;
+}
+
+.dev-image img {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Gameplay Features Section */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feature-item {
+    border: 2px solid #000;
+    padding: 20px;
+}
+
+.feature-item img {
+    width: 100%;
+    border: 2px solid #000;
+    margin-bottom: 20px;
+}
+
+.feature-item h4 {
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.feature-item p {
+    font-size: 12px;
+}
+
+/* Concept Design Section */
+.concept-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.concept-gallery img {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Exhibition Section */
+.exhibition-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.exhibition-gallery img {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Footer */
+.footer {
+    padding: 40px 0;
+    text-align: center;
+    border-top: 2px solid #000;
+}
+
+.footer p {
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+
+    .nav-container {
+        padding: 0 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-left, .nav-right {
+        gap: 10px;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+        letter-spacing: 6px;
+    }
+
+    .overview-content {
+        grid-template-columns: 1fr;
+    }
+
+    .details-grid,
+    .features-grid,
+    .concept-gallery,
+    .exhibition-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .prototype-content {
+        grid-template-columns: 1fr;
+    }
+}

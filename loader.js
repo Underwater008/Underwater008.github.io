@@ -7,6 +7,19 @@
   }
   console.log('✅ Loading container found');
 
+  // Check if loading has already been shown in this session
+  const loadingShown = sessionStorage.getItem('loading-shown');
+  if (loadingShown === 'true') {
+    console.log('⏭️  Loading already shown this session, skipping...');
+    loadingContainer.style.display = 'none';
+    const contentContainer = document.getElementById('content-container');
+    if (contentContainer) {
+      contentContainer.style.opacity = '1';
+    }
+    document.body.classList.remove('loading-active');
+    return;
+  }
+
   const starCanvas = document.getElementById('starfield-canvas');
   const particleCanvas = document.getElementById('loading-particle-canvas');
   const progressBar = document.getElementById('progress-bar');
@@ -593,6 +606,9 @@
 
     const elapsed = Date.now() - startTime;
     console.log('✅ Loader complete! Showing portfolio page at', elapsed.toFixed(0), 'ms');
+
+    // Mark loading as shown for this session
+    sessionStorage.setItem('loading-shown', 'true');
 
     // Smooth fade out for loading screen
     loadingContainer.style.transition = 'opacity 0.8s ease-out';

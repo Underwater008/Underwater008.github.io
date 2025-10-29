@@ -228,6 +228,26 @@
             margin-bottom: 5px;
         }
 
+        #detail-panel .view-full-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        #detail-panel .view-full-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
         /* Info */
         #constellation-info {
             position: fixed;
@@ -385,6 +405,7 @@
         <div class="category" id="detail-category">CATEGORY</div>
         <p id="detail-desc"></p>
         <div class="meta" id="detail-meta"></div>
+        <div id="detail-action"></div>
     </div>
 
     <script type="module">
@@ -396,10 +417,12 @@
                 category: 'GAME DESIGN',
                 type: 'game',
                 desc: 'A unique action strategy game where players use dice to cast magic spells while engaging in real-time, grid-based combat.',
-                fullDesc: 'Stellarune is a unique action strategy game where players use dice to cast magic spells while engaging in real-time, grid-based combat. Here, magic is a power bestowed from the stars and where the essence of a soul manifests in the form of dice. Players receive dice faces with magic spells inscribed on them from defeating foes and can use them to customize dice to suit their individual playstyle.',
+                fullDesc: 'Stellarune is a unique action strategy game where players use dice to cast magic spells while engaging in real-time, grid-based combat. Here, magic is a power bestowed from the stars and where the essence of a soul manifests in the form of dice. Players receive dice faces with magic spells inscribed on them from defeating foes and can use them to customize dice to suit their individual playstyle. Of these spells, they fall into unique classes that have certain class abilities and archetypes. Currently, available classes are Aether (Neutral), Ignist (Fire), and Tempest (Lightning).',
                 meta: {
-                    role: 'Project Manager, Lead Programmer, Technical Artist',
-                    team: '15 members',
+                    role: 'Project Manager, Game Designer, Lead Programmer, Technical Artist, Concept Artist',
+                    'developed by': 'Mergician Productions',
+                    'team size': 'Total: 15 (Core: Zhixuan Xiao, Harith Reef Liew, Eric Ni, Kirby Neo, May Li)',
+                    contribution: 'Game Mechanics, Prototype, Visual Scripting, C++ Programming, Perforce Version Control, Project Management, Tools programming, PyQt GUI design, AWS Dedicated Multiplayer Server, 3D&2D animation, Rigging, Concept Art, GDC Exhibition, Funding, Pitch & Presentations',
                     engine: 'Unreal Engine 5',
                     year: '2022-2023'
                 },
@@ -453,17 +476,17 @@
             },
             {
                 id: 'procedural',
-                title: 'PROCEDURAL ANIM',
+                title: 'RIG & PROCEDURAL ANIMATION',
                 category: 'TECHNICAL ART',
                 type: 'tech',
                 desc: 'Unity C# script for procedural animation using Inverse Kinematics.',
-                fullDesc: 'C# script for procedural animation made with Unity Animation Rigging package. Character rigged in Blender with adjustable parameters for different movement styles. Utilizes Inverse Kinematics to ensure fluid limb movement.',
+                fullDesc: 'Procedural Animation made with Unity Animation Rigging package. Character rigged in Blender with a C# script for Procedural Animation in the Unity Engine. The script includes adjustable parameters for different movement styles including stepDistance, stepHeight, and stepSpeed. Utilizes Inverse Kinematics to ensure fluid limb movement. The rigging process involves creating a skeleton that accurately mirrors articulation, with custom curves and weight painting for realistic deformation.',
                 meta: {
-                    tools: 'Unity, C#, Blender',
-                    features: 'IK, Animation Rigging',
+                    tools: 'C# script, Inverse Kinematics, Blender, Unity Engine',
+                    features: 'IK, Animation Rigging, Procedural Animation, Raycast & Gizmos',
                     year: '2023'
                 },
-                tags: ['Unity', 'C#', 'IK'],
+                tags: ['Unity', 'C#', 'IK', 'Rigging'],
                 connections: ['vfx-system', 'ocean']
             },
             {
@@ -881,6 +904,14 @@
             document.getElementById('detail-title').textContent = project.title;
             document.getElementById('detail-category').textContent = project.category;
             document.getElementById('detail-desc').textContent = project.fullDesc;
+
+            // Add "View Full Project" button for projects with dedicated pages
+            const actionDiv = document.getElementById('detail-action');
+            if (project.id === 'stellarune') {
+                actionDiv.innerHTML = '<a href="stellarune.html" class="view-full-btn">VIEW FULL PROJECT →</a>';
+            } else {
+                actionDiv.innerHTML = '';
+            }
 
             const metaHTML = Object.entries(project.meta).map(([key, value]) =>
                 `<div class="meta-item"><strong>${key.toUpperCase()}</strong>${value}</div>`
