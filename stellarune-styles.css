@@ -76,21 +76,34 @@ body {
 
 /* Hero Section */
 .hero {
-    padding: 100px 0 60px;
+    padding: 0;
     text-align: center;
     border-bottom: 2px solid #000;
+}
+
+.hero-image {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.hero-image img {
+    width: 100%;
+    display: block;
+    border: none;
 }
 
 .hero h1 {
     font-size: 64px;
     letter-spacing: 12px;
-    margin-bottom: 20px;
+    margin: 60px 0 20px;
 }
 
 .hero .subtitle {
     font-size: 12px;
     letter-spacing: 3px;
     opacity: 0.5;
+    margin-bottom: 60px;
 }
 
 /* Section Base */
