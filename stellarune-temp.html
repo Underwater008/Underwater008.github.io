@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellarune — XIAO (Copy)</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="#technical" class="nav-link">Technical</a>
+                <a href="#creative" class="nav-link">Creative</a>
+                <a href="#games" class="nav-link">Games</a>
+                <a href="#about" class="nav-link">About</a>
+            </div>
+            <div class="nav-logo">
+                <a href="#home">XIAO (Copy)</a>
+            </div>
+            <div class="nav-right">
+                <a href="#login" class="nav-link">Login Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Stellarune</h1>
+            <p class="subtitle">An Action Strategy Game</p>
+        </div>
+    </section>
+
+    <!-- Game Details Section -->
+    <section class="game-details">
+        <div class="container">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <h3>— GAME NAME</h3>
+                    <p><em>Stellarune</em></p>
+                </div>
+                <div class="detail-item">
+                    <h3>— FORMAT</h3>
+                    <p><em>Videogame</em></p>
+                </div>
+                <div class="detail-item">
+                    <h3>— ROLE</h3>
+                    <p><em>Project Manager, Game Designer, Lead Programmer, Technical Artist, Concept Artist</em></p>
+                </div>
+                <div class="detail-item">
+                    <h3>— DEVELOPED BY</h3>
+                    <p><em>Mergician Productions</em></p>
+                </div>
+            </div>
+
+            <div class="contribution-section">
+                <h3>— CONTRIBUTION</h3>
+                <p><em>Game Mechanics, Prototype, Visual Scripting, C++ Programming, Perforce Version Control, Project Management, Tools programming, PyQt GUI design, AWS Dedicated Multiplayer Server, 3D&2D animation, Rigging, Concept Art, GDC Exhibition, Funding, Pitch & Presentations.</em></p>
+            </div>
+
+            <div class="team-section">
+                <h3>— TEAM SIZE</h3>
+                <ul>
+                    <li><em>Total: 15</em></li>
+                    <li><em>Core: Zhixuan Xiao, Harith Reef Liew, Eric Ni, Kirby Neo, May Li</em></li>
+                    <li><em>Contributor: 7</em></li>
+                    <li><em>Outsource: 3</em></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="overview">
+        <div class="container">
+            <h2>OVERVIEW</h2>
+            <div class="overview-content">
+                <div class="overview-text">
+                    <p>Stellarune is a unique action strategy game, where players use dice to cast magic spells while engaging in real-time, grid-based combat. Here, magic is a power bestowed from the stars and where the essence of a soul manifests in the form of dice. Defeat various foes while using strategy to reach the top of the tower.</p>
+                    
+                    <h3>Gameplay Features</h3>
+                    <p>Players receive dice faces with magic spells inscribed on them from defeating foes and can use them to customize dice to suit their individual playstyle.</p>
+                    
+                    <p>Of these spells, they fall into unique classes that have certain class abilities and archetypes. Currently, available classes are Aether (Neutral), Ignist (Fire), and Tempest (Lightning). We will be adding Poison, Water, and Wind in the upcoming year.</p>
+                </div>
+                <div class="overview-images">
+                    <img src="assets/4_ss_4cf1dead6be7b791bab5ce08d98d2f435bba14c9.jpg" alt="Stellarune Gameplay">
+                    <img src="assets/5_ss_33e96de61b8cc603d19898c9e154b3a859c61b6b.jpg" alt="Stellarune Gameplay">
+                    <img src="assets/6_ss_b9757b758805103c2176a5943808bde98a9f4cdd.jpg" alt="Stellarune Gameplay">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="roadmap">
+        <div class="container">
+            <h2>ROADMAP</h2>
+            <p>In my role as the game project's manager, I've recorded the significant developmental milestones that have taken place from when the project began in June 2022 until now, October 2023.</p>
+            <div class="roadmap-image">
+                <img src="assets/7_XiaoLayout-10.png" alt="Development Roadmap">
+            </div>
+        </div>
+    </section>
+
+    <!-- Prototype Section -->
+    <section class="prototype">
+        <div class="container">
+            <h2>PROTOTYPE</h2>
+            <div class="prototype-content">
+                <img src="assets/8_ss_6b674af2e25f30406fb78ad858fea88e6a893796.jpg" alt="Prototype">
+                <img src="assets/9_ss_b2706cd431248cb55ab5ac65588b0eddf65c31fc.jpg" alt="Prototype">
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Section -->
+    <section class="development">
+        <div class="container">
+            <h2>DEVELOPMENT</h2>
+            <p>As the lead programmer, I'd like to highlight several technical tools and assets I created that have been instrumental in our game development process.</p>
+
+            <div class="dev-tool">
+                <h3>Dice Face Generation Tool</h3>
+                <p><strong>Python script | Autodesk Maya</strong></p>
+                <ul>
+                    <li>The Python script interacts with Autodesk Maya to convert 2D images into 3D models with specific modifications.</li>
+                    <li>The script includes a GUI creation function, with an interface designed in PyQt.</li>
+                    <li>A button in the GUI triggers the 3D model creation process using the values provided by the user.</li>
+                </ul>
+                <p>The Python script was developed to address the lack of an efficient and custom converter in our in-house pipeline. It interacts with Autodesk Maya 2022, with the functionality to mass produce 3D dice faces from 2D images. Through the GUI, users can easily set up custom parameters to set the size, shape, and height of the generated mesh.</p>
+                <div class="dev-image">
+                    <img src="assets/10_Frame+32+%282%29.png" alt="Dice Face Generation Tool">
+                </div>
+            </div>
+
+            <div class="dev-tool">
+                <h3>Animation State Machine</h3>
+                <p><strong>Animation Blueprint | Unreal Engine 5</strong></p>
+                <ul>
+                    <li>The Animation State Machine is developed within Unreal Engine 5, controlling the behavior of a die model.</li>
+                    <li>The Animation State Machine uses an integer variable `Face` to dictate the die to either roll to any of its faces or maintain a continuous rolling animation.</li>
+                    <li>If the integer value is between 1-6, the die will roll to that specific face. If the integer value is 0 or above 7, the die will remain in a perpetual rolling animation.</li>
+                </ul>
+                <p>This animation blueprint leverages an integer variable in the animation blueprint to determine the dice face or keep it rolling. The system starts from a conduit state and transitions to one of six states, each linked to a specific dice face, based on the 'Face' variable. The result is a flexible dice animation system offering both specific outcomes and continuous roll animation.</p>
+                <div class="dev-image">
+                    <img src="assets/11_XiaoLayout-11.png" alt="Animation State Machine">
+                </div>
+            </div>
+
+            <div class="dev-tool">
+                <h3>Dynamic Parameter VFX</h3>
+                <p><strong>Niagara System | Unreal Engine 5</strong></p>
+                <ul>
+                    <li>This Niagara System uses `User Parameter` to control the the VFX's transform and animation. It can be accessed from any Actor Blueprint.</li>
+                    <li>The Niagara system is designed in such a way that outside input can dynamically modify system parameters.</li>
+                    <li>The final result involves some color adjustment and the addition of a custom color parameter in the system for easy color change.</li>
+                </ul>
+                <p>The system is configured to adjust sprite size, orientation, and color. Duplicating emitters and implementing rotation creates the circle's dynamic visual. A fade effect is introduced using velocity and scale color modules. A unique aspect of this project is the capacity to modify the system's parameters externally, allowing for dynamic particle spawn and transform changes.</p>
+            </div>
+
+            <div class="dev-tool">
+                <h3>Woulder</h3>
+                <p><strong>Procreate | Unreal Engine 5 | Blender | Maya</strong></p>
+                <ul>
+                    <li>First enemy I conceived.</li>
+                    <li>It is the enemy and instructor you meet during Tutorial.</li>
+                    <li>Design, model, rig, and animation.</li>
+                </ul>
+                <p>This enemy is designed to be the first enemy that players encounter. Its role is crucial as it serves as an interactive tutorial, guiding players through the basic controls and gameplay mechanics. Additionally, this encounter offers players a sneak peek into the narrative of the game, setting the tone and context for the adventure ahead. This enemy serves a companion role after the tutorial which helps immerse players in the early stages of the game's story, ensuring a seamless and engaging introduction to the game world.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gameplay Features Section -->
+    <section class="gameplay-features">
+        <div class="container">
+            <h2>Gameplay Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <img src="assets/12_Battle2Ribbeam+00_00_00-00_00_13.gif" alt="Battle Feature">
+                    <h4>Action & Strategy</h4>
+                    <p>Real time action strategy & grid-based combat. Roll dice to cast spells (use strategy to create and customize your dice).</p>
+                </div>
+                <div class="feature-item">
+                    <img src="assets/13_DiceCustimization+00_00_19-00_00_33.gif" alt="Dice Customization">
+                    <h4>Scene Pillars</h4>
+                    <p>Climb dungeon-like towers, defeat enemies and collect runes. Fight your way to the top of the tower to prove your worth.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="assets/14_OverGlazeMageStella+00_00_00-00_00_30.gif" alt="VFX Feature">
+                    <h4>Player Autonomy</h4>
+                    <p>Runes are spells that inscribe onto dice to let you dictate how your dice to act. As you progress, you gain more dice and runes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Concept Design Section -->
+    <section class="concept-design">
+        <div class="container">
+            <h2>CONCEPT DESIGN</h2>
+            <div class="concept-gallery">
+                <img src="assets/23_467467e.png" alt="Concept Art">
+                <img src="assets/24_232424.png" alt="Concept Art">
+                <img src="assets/25_image.png" alt="Concept Art">
+                <img src="assets/26_2342423.png" alt="Concept Art">
+                <img src="assets/27_123342.png" alt="Concept Art">
+                <img src="assets/28_thunder.png" alt="Concept Art">
+            </div>
+        </div>
+    </section>
+
+    <!-- Exhibition Section -->
+    <section class="exhibition">
+        <div class="container">
+            <h2>EXHIBITION</h2>
+            <div class="exhibition-gallery">
+                <img src="assets/19_BA1780B0-01F0-4738-9B2B-4D432A67E708.jpg" alt="Exhibition">
+                <img src="assets/20_IMG_2377.jpg" alt="Exhibition">
+                <img src="assets/21_IMG_9596.jpg" alt="Exhibition">
+                <img src="assets/22_IMG_4468.jpg" alt="Exhibition">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>By Zhixuan Xiao. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
