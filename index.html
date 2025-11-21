@@ -228,6 +228,26 @@
             margin-bottom: 5px;
         }
 
+        #detail-panel .view-full-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        #detail-panel .view-full-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
         /* Info */
         #constellation-info {
             position: fixed;
@@ -345,7 +365,7 @@
             }
         }
     </style>
-  <script type="module" crossorigin src="/assets/index-BJJbtNEz.js"></script>
+  <script type="module" crossorigin src="/assets/index-COiSfjWT.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
 </head>
 <body class="loading-active">
@@ -387,6 +407,7 @@
         <div class="category" id="detail-category">CATEGORY</div>
         <p id="detail-desc"></p>
         <div class="meta" id="detail-meta"></div>
+        <div id="detail-action"></div>
     </div>
 
     </div>
