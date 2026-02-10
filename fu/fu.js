@@ -17,6 +17,17 @@ const CONFIG = {
     scrambleDur: 900,
     convergeDur: 450,
     settleDur: 250,
+    // Draw phase: seconds before 福 bursts into particles
+    fuExplodeDelay: 2.0,
+    // Draw phase: independent timing controls (seconds)
+    fuRiseDuration: 0.8,
+    fuShrinkDuration: 0.8,
+    fuShrinkEndScale: 0.18,
+    // Draw camera timing (seconds): quick pullback, then hold until burst
+    fuCameraPullbackDuration: 0.45,
+    fuCameraReturnDuration: 0.7,
+    // Firework shell rise time (seconds) before burst
+    shellRiseDuration: 2.5,
 };
 
 const LUCKY_CHARS_BY_DENSITY = [
@@ -79,6 +90,14 @@ function project3D(x, y, z, fov) {
         screenX: x * scale + window.innerWidth / 2,
         screenY: y * scale + window.innerHeight / 2,
         scale,
+    };
+}
+const SCENE_FOV = 500;
+
+function gridToWorld(col, row) {
+    return {
+        x: (col - cols / 2) * cellSize,
+        y: (row - rows / 2) * cellSize,
     };
 }
 
@@ -184,12 +203,20 @@ document.fonts.load(`64px ${chosenFont}`, '福大吉').then(() => {
 // --- 3D Daji Cluster ---
 let daji3DParticles = [];
 let daji3DEntryTime = 0;
+let daji3DFromSeed = false;
 let hoveredIdx = -1;
 
-function initDaji3D() {
+function initDaji3D(seedParticles) {
     daji3DParticles = [];
     hoveredIdx = -1;
+    daji3DFromSeed = false;
     hideTooltip();
+    if (Array.isArray(seedParticles) && seedParticles.length > 0) {
+        daji3DParticles = seedParticles.map((p) => ({ ...p }));
+        daji3DFromSeed = true;
+        daji3DEntryTime = globalTime;
+        return;
+    }
     if (!fontsReady) return;
 
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
@@ -220,24 +247,34 @@ function render3DDaji() {
     ctx.save();
     ctx.scale(dpr, dpr);
 
-    const fov = 500;
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
-    const breatheAmp = spread * 0.06;
     const entryT = Math.min(1, (globalTime - daji3DEntryTime) / 1.2);
-    const zInflate = easeInOut(entryT);
+    // When entering from seed, z is already correct — no inflate animation
+    const zInflate = daji3DFromSeed ? 1 : easeInOut(entryT);
+    // Blend timer: 0→1 over 0.6s — used to transition from seed look to metallic look
+    const blendT = daji3DFromSeed ? Math.min(1, (globalTime - daji3DEntryTime) / 0.6) : 1;
+    // Breathing delays until blend is mostly done, then eases in over 0.8s
+    const breatheDelay = 0.5;
+    const breatheRamp = daji3DFromSeed
+        ? Math.min(1, Math.max(0, (globalTime - daji3DEntryTime - breatheDelay) / 0.8))
+        : zInflate;
+    const breatheAmp = spread * 0.06 * breatheRamp;
 
     const projected = [];
     for (let i = 0; i < daji3DParticles.length; i++) {
         const p = daji3DParticles[i];
-        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp * zInflate;
+        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp;
         const isHovered = i === hoveredIdx;
         const hoverPush = isHovered ? -80 : 0;
-        const proj = project3D(p.baseX, p.baseY, z + hoverPush, fov);
+        const proj = project3D(p.baseX, p.baseY, z + hoverPush, SCENE_FOV);
+        const stableScale = SCENE_FOV / (SCENE_FOV + p.origZ);
 
         projected.push({
             idx: i, z, baseY: p.baseY,
             screenX: proj.screenX, screenY: proj.screenY, scale: proj.scale,
+            stableScale,
             char: p.char, alpha: p.alpha, lum: p.lum, isHovered,
+            seedR: p.r, seedG: p.g, seedB: p.b,
         });
     }
 
@@ -252,7 +289,7 @@ function render3DDaji() {
 
     for (const p of projected) {
         let fontSize = baseFontSize * p.scale;
-        let alpha = p.alpha * p.scale;
+        let alpha = p.alpha * Math.max(0.2, p.stableScale * 1.25);
 
         if (p.isHovered) {
             fontSize *= 2.2;
@@ -266,9 +303,14 @@ function render3DDaji() {
         const hDist = Math.abs(yNorm - highlightPos);
         const highlight = Math.max(0, 1 - hDist * 3);
 
-        const gr = Math.min(255, Math.floor(lerp(255, 180, gradT) + highlight * 55));
-        const gg = Math.min(255, Math.floor(lerp(225, 130, gradT) + highlight * 40));
-        const gb = Math.min(255, Math.floor(lerp(50, 10, gradT) + highlight * 50));
+        const metalR = Math.min(255, Math.floor(lerp(255, 180, gradT) + highlight * 55));
+        const metalG = Math.min(255, Math.floor(lerp(225, 130, gradT) + highlight * 40));
+        const metalB = Math.min(255, Math.floor(lerp(50, 10, gradT) + highlight * 50));
+
+        // Blend from seed colors to metallic gradient
+        const gr = Math.round(lerp(p.seedR, metalR, blendT));
+        const gg = Math.round(lerp(p.seedG, metalG, blendT));
+        const gb = Math.round(lerp(p.seedB, metalB, blendT));
 
         ctx.font = `${fontSize}px "Courier New", "SF Mono", monospace`;
         ctx.textAlign = 'center';
@@ -279,7 +321,7 @@ function render3DDaji() {
             ctx.shadowBlur = fontSize * 0.9;
         } else if (alpha > 0.3) {
             ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, ${alpha * 0.5})`;
-            ctx.shadowBlur = fontSize * 0.4;
+            ctx.shadowBlur = fontSize * lerp(0.65, 0.4, blendT);
         } else {
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
@@ -350,19 +392,19 @@ function hideTooltip() {
 function updateHover(clientX, clientY) {
     if (daji3DParticles.length === 0) { hoveredIdx = -1; hideTooltip(); return; }
 
-    const fov = 500;
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
-    const breatheAmp = spread * 0.06;
     const entryT = Math.min(1, (globalTime - daji3DEntryTime) / 1.2);
-    const zInflate = easeInOut(entryT);
+    const zInflate = daji3DFromSeed ? 1 : easeInOut(entryT);
+    const blendT = daji3DFromSeed ? Math.min(1, (globalTime - daji3DEntryTime) / 0.6) : 1;
+    const breatheAmp = spread * 0.06 * (daji3DFromSeed ? blendT : zInflate);
 
     let bestIdx = -1, bestDist = Infinity;
 
     for (let i = 0; i < daji3DParticles.length; i++) {
         const p = daji3DParticles[i];
         if (!CHAR_BLESSINGS[p.char]) continue;
-        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp * zInflate;
-        const proj = project3D(p.baseX, p.baseY, z, fov);
+        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp;
+        const proj = project3D(p.baseX, p.baseY, z, SCENE_FOV);
         const dx = proj.screenX - clientX;
         const dy = proj.screenY - clientY;
         const dist = dx * dx + dy * dy;
@@ -382,8 +424,8 @@ function updateHover(clientX, clientY) {
     if (bestIdx !== hoveredIdx) {
         hoveredIdx = bestIdx;
         const p = daji3DParticles[bestIdx];
-        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp * zInflate;
-        const proj = project3D(p.baseX, p.baseY, z, fov);
+        const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp;
+        const proj = project3D(p.baseX, p.baseY, z, SCENE_FOV);
         showTooltip(p.char, proj.screenX, proj.screenY);
     }
 }
@@ -522,6 +564,61 @@ function drawOverlayText(text, yFraction, color, alpha, size, fontOverride) {
     ctx.restore();
 }
 
+function renderProjectedGlyphs(glyphs) {
+    if (glyphs.length === 0) return;
+
+    const projected = [];
+    for (const g of glyphs) {
+        const proj = project3D(g.x, g.y, g.z, SCENE_FOV);
+        const fontSize = cellSize * (g.size || 1) * proj.scale;
+        if (fontSize < 2) continue;
+        const alpha = Math.min(1, (g.alpha || 0) * Math.max(0.2, proj.scale * 1.25));
+        if (alpha <= 0.01) continue;
+        projected.push({
+            screenX: proj.screenX,
+            screenY: proj.screenY,
+            z: g.z,
+            char: g.char,
+            r: g.r,
+            g: g.g,
+            b: g.b,
+            alpha,
+            fontSize,
+            glow: g.glow || 0,
+            blur: g.blur || 0.5,
+        });
+    }
+    if (projected.length === 0) return;
+
+    projected.sort((a, b) => b.z - a.z);
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let lastFontSize = 0;
+    for (const p of projected) {
+        const rounded = Math.round(p.fontSize);
+        if (rounded !== lastFontSize) {
+            ctx.font = `${rounded}px "Courier New", "SF Mono", monospace`;
+            lastFontSize = rounded;
+        }
+        if (p.glow > 0 && p.alpha > 0.3) {
+            ctx.shadowColor = `rgba(${p.r}, ${p.g}, ${p.b}, ${Math.min(1, p.alpha * p.glow)})`;
+            ctx.shadowBlur = rounded * p.blur;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = `rgb(${p.r}, ${p.g}, ${p.b})`;
+        ctx.fillText(p.char, p.screenX, p.screenY);
+    }
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    ctx.restore();
+}
+
 // ============================================================
 // STATE MACHINE
 // ============================================================
@@ -529,13 +626,21 @@ let state = 'arrival';
 let stateTime = 0;
 let globalTime = 0;
 let stateStartGlobal = 0;
+let drawToFortuneSeed = null;
 
 function changeState(newState) {
     state = newState;
     stateStartGlobal = globalTime;
     stateTime = 0;
     if (newState === 'draw') initDrawAnimation();
-    if (newState === 'fortune') initDaji3D();
+    if (newState === 'fortune') {
+        if (drawToFortuneSeed && drawToFortuneSeed.length > 0) {
+            initDaji3D(drawToFortuneSeed);
+            drawToFortuneSeed = null;
+        } else {
+            initDaji3D();
+        }
+    }
     if (newState === 'fireworks') { hoveredIdx = -1; hideTooltip(); initFireworks(); }
 }
 
@@ -564,53 +669,67 @@ function renderArrivalOverlay() {
 }
 
 // ============================================================
-// DRAW — 福 dissolves → scatter → scramble → 大吉 converges
+// DRAW — 福 launches like firework → burst → reform into 大吉
 // ============================================================
 let morphParticles = [];
+let launchTrail = [];
+let burstFlash = 0;
+
+// Draw phase timing
+const DRAW_LAUNCH = CONFIG.fuExplodeDelay;
+const DRAW_RISE = CONFIG.fuRiseDuration;
+const DRAW_SHRINK = CONFIG.fuShrinkDuration;
+const DRAW_SHRINK_END_SCALE = CONFIG.fuShrinkEndScale;
+const DRAW_CAMERA_PULLBACK = CONFIG.fuCameraPullbackDuration;
+const DRAW_CAMERA_RETURN = CONFIG.fuCameraReturnDuration;
+const DRAW_SCATTER = DRAW_LAUNCH + 0.7;
+const DRAW_REFORM = DRAW_SCATTER + 0.9;
+const DRAW_SETTLE = DRAW_REFORM + 0.25;
 
 function initDrawAnimation() {
     morphParticles = [];
+    launchTrail = [];
+    burstFlash = 0;
+    drawToFortuneSeed = null;
     if (!fontsReady) return;
 
-    const centerCol = cols / 2;
-    const centerRow = rows / 2;
-
-    // Source: positions sampled from calligraphy 福
-    const fuGridSize = Math.min(cols, rows) * 0.55;
-    const fuPoints = fuShape.map(pt => ({
-        col: centerCol + pt.nx * fuGridSize * 0.5,
-        row: centerRow + pt.ny * fuGridSize * 0.5,
-        brightness: pt.brightness,
-    }));
-
-    // Target: positions for 大吉
-    const dajiGridSize = Math.min(cols, rows) * 0.40;
+    const spread = Math.min(cols, rows) * 0.40 * cellSize;
+    const depth = spread * 0.4;
     const dajiTargets = dajiShape.map(pt => ({
-        col: centerCol + pt.nx * dajiGridSize * 0.5 * pt.aspect,
-        row: centerRow + pt.ny * dajiGridSize * 0.5,
+        x: pt.nx * spread * 0.5 * pt.aspect,
+        y: pt.ny * spread * 0.5,
+        z: (Math.random() - 0.5) * depth,
         brightness: pt.brightness,
     }));
 
-    const maxCount = Math.max(fuPoints.length, dajiTargets.length);
+    // Burst origin — where 福 explodes (upper area)
+    const burstOrigin = gridToWorld(cols / 2, rows * 0.22);
 
-    for (let i = 0; i < maxCount; i++) {
-        const src = fuPoints[i % fuPoints.length];
-        const tgt = dajiTargets[i % dajiTargets.length];
-        const dx = src.col - centerCol;
-        const dy = src.row - centerRow;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    for (let i = 0; i < dajiTargets.length; i++) {
+        const tgt = dajiTargets[i];
+        const angle = Math.random() * Math.PI * 2;
+        const scatterRadius = spread * (0.24 + Math.random() * 0.36);
+        const scatterLift = spread * (0.06 + Math.random() * 0.24);
 
         morphParticles.push({
-            col: src.col, row: src.row,
-            startCol: src.col, startRow: src.row,
-            targetCol: tgt.col, targetRow: tgt.row,
-            vx: (dx / dist) * (2 + Math.random() * 4) + (Math.random() - 0.5) * 3,
-            vy: (dy / dist) * (2 + Math.random() * 4) + (Math.random() - 0.5) * 3,
+            x: burstOrigin.x,
+            y: burstOrigin.y,
+            z: 0,
+            startX: burstOrigin.x,
+            startY: burstOrigin.y,
+            startZ: 0,
+            scatterX: burstOrigin.x + Math.cos(angle) * scatterRadius,
+            scatterY: burstOrigin.y + Math.sin(angle) * scatterRadius * 0.6 + scatterLift,
+            scatterZ: (Math.random() - 0.5) * depth * 1.6,
+            targetX: tgt.x,
+            targetY: tgt.y,
+            targetZ: tgt.z,
             char: ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)],
             scrambleTimer: 0,
             finalChar: selectCharByLuminance(tgt.brightness),
             brightness: tgt.brightness,
             phase: Math.random() * Math.PI * 2,
+            active: false,
         });
     }
 }
@@ -619,76 +738,246 @@ function updateDraw() {
     updateBgParticles(globalTime);
 
     const t = stateTime;
-    const scatterEnd = CONFIG.scatterDur / 1000;
-    const scrambleEnd = scatterEnd + CONFIG.scrambleDur / 1000;
-    const convergeEnd = scrambleEnd + CONFIG.convergeDur / 1000;
-    const settleEnd = convergeEnd + CONFIG.settleDur / 1000;
 
-    for (const p of morphParticles) {
-        if (t < scatterEnd) {
-            const st = t / scatterEnd;
-            p.col = p.startCol + p.vx * st * 8;
-            p.row = p.startRow + p.vy * st * 8;
-            p.scrambleTimer -= 1;
-            if (p.scrambleTimer <= 0) {
-                p.char = ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)];
-                p.scrambleTimer = 2 + Math.random() * 3;
-            }
-        } else if (t < scrambleEnd) {
-            const st = (t - scatterEnd) / (scrambleEnd - scatterEnd);
-            const scatteredCol = p.startCol + p.vx * 8;
-            const scatteredRow = p.startRow + p.vy * 8;
-            const midCol = lerp(scatteredCol, p.targetCol, easeInOut(st) * 0.5);
-            const midRow = lerp(scatteredRow, p.targetRow, easeInOut(st) * 0.5);
-            p.col = midCol + Math.sin(p.phase + globalTime * 5) * (1 - st) * 2;
-            p.row = midRow + Math.cos(p.phase + globalTime * 4) * (1 - st) * 2;
-            p.scrambleTimer -= 1;
-            if (p.scrambleTimer <= 0) {
-                p.char = Math.random() < st * st
-                    ? p.finalChar
-                    : ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)];
-                p.scrambleTimer = 2 + st * 15;
-            }
-        } else if (t < convergeEnd) {
-            const st = (t - scrambleEnd) / (convergeEnd - scrambleEnd);
-            const eased = easeInOut(st);
-            const scatteredCol = p.startCol + p.vx * 8;
-            const scatteredRow = p.startRow + p.vy * 8;
-            p.col = lerp(lerp(scatteredCol, p.targetCol, 0.5), p.targetCol, eased);
-            p.row = lerp(lerp(scatteredRow, p.targetRow, 0.5), p.targetRow, eased);
-            if (st > 0.3) p.char = p.finalChar;
-        } else {
-            p.col = p.targetCol;
-            p.row = p.targetRow;
-            p.char = p.finalChar;
+    // --- LAUNCH: trail sparks behind rising 福 ---
+    if (t < DRAW_LAUNCH) {
+        const riseT = Math.min(1, t / Math.max(0.001, DRAW_RISE));
+        const launchT = easeInOut(riseT);
+        const fuRow = lerp(rows * 0.5, rows * 0.22, launchT);
+        const fuCol = cols / 2;
+        const fuPos = gridToWorld(fuCol, fuRow);
+        if (Math.random() < 0.6) {
+            launchTrail.push({
+                x: fuPos.x + (Math.random() - 0.5) * cellSize * 4,
+                y: fuPos.y + cellSize * (0.9 + Math.random() * 2.2),
+                z: (Math.random() - 0.5) * cellSize * 3,
+                vx: (Math.random() - 0.5) * cellSize * 0.08,
+                vy: cellSize * (0.08 + Math.random() * 0.12),
+                vz: (Math.random() - 0.5) * cellSize * 0.06,
+                char: ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)],
+                life: 1,
+                decay: 0.015 + Math.random() * 0.025,
+            });
         }
-
-        const col = Math.floor(p.col);
-        const row = Math.floor(p.row);
-        const color = lerpColor(p.brightness);
-
-        let alpha;
-        if (t < scatterEnd) {
-            alpha = 0.5 + p.brightness * 0.3;
-        } else if (t >= convergeEnd) {
-            const settleSt = Math.min(1, (t - convergeEnd) / (settleEnd - convergeEnd));
-            alpha = Math.min(1, (0.5 + p.brightness * 0.5) * (1 + Math.sin(settleSt * Math.PI) * 0.3));
-        } else {
-            alpha = 0.4 + p.brightness * 0.5;
-        }
-
-        setCell(col, row, 0, p.char, color.r, color.g, color.b, Math.min(1, alpha));
     }
 
-    if (t >= settleEnd + 0.3) changeState('fortune');
+    // --- BURST FLASH ---
+    if (t >= DRAW_LAUNCH && t < DRAW_LAUNCH + 0.15) {
+        burstFlash = 1 - (t - DRAW_LAUNCH) / 0.15;
+        for (const p of morphParticles) p.active = true;
+    } else if (t >= DRAW_LAUNCH + 0.15) {
+        burstFlash = 0;
+    }
+
+    // --- Morph particles: scatter → reform → settle ---
+    if (t >= DRAW_LAUNCH) {
+        for (const p of morphParticles) {
+            if (!p.active) continue;
+
+            if (t < DRAW_SCATTER) {
+                // Scatter outward from burst point
+                const st = (t - DRAW_LAUNCH) / (DRAW_SCATTER - DRAW_LAUNCH);
+                const eased = 1 - Math.pow(1 - st, 2);
+                p.x = lerp(p.startX, p.scatterX, eased);
+                p.y = lerp(p.startY, p.scatterY, eased) + st * st * cellSize * 0.9;
+                p.z = lerp(p.startZ, p.scatterZ, eased);
+                p.scrambleTimer -= 1;
+                if (p.scrambleTimer <= 0) {
+                    p.char = ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)];
+                    p.scrambleTimer = 2 + Math.random() * 3;
+                }
+            } else if (t < DRAW_REFORM) {
+                // Reform into 大吉
+                const st = (t - DRAW_SCATTER) / (DRAW_REFORM - DRAW_SCATTER);
+                const eased = easeInOut(st);
+                p.x = lerp(p.scatterX, p.targetX, eased);
+                p.y = lerp(p.scatterY, p.targetY, eased);
+                p.z = lerp(p.scatterZ, p.targetZ, eased);
+                const wobble = (1 - eased) * cellSize * 0.8;
+                p.x += Math.sin(p.phase + globalTime * 4) * wobble;
+                p.y += Math.cos(p.phase + globalTime * 3) * wobble;
+                p.z += Math.sin(p.phase * 0.7 + globalTime * 3.2) * wobble * 1.4;
+                p.scrambleTimer -= 1;
+                if (p.scrambleTimer <= 0) {
+                    p.char = st > 0.4
+                        ? p.finalChar
+                        : ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)];
+                    p.scrambleTimer = 2 + st * 12;
+                }
+            } else {
+                // Settle
+                const settleT = Math.min(1, (t - DRAW_REFORM) / Math.max(0.001, DRAW_SETTLE - DRAW_REFORM));
+                const eased = easeInOut(settleT);
+                p.x = lerp(p.x, p.targetX, eased);
+                p.y = lerp(p.y, p.targetY, eased);
+                p.z = lerp(p.z, p.targetZ, eased);
+                p.char = p.finalChar;
+            }
+        }
+    }
+
+    // --- Update trail sparks ---
+    for (let i = launchTrail.length - 1; i >= 0; i--) {
+        const s = launchTrail[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.z += s.vz;
+        s.vx *= 0.98;
+        s.vz *= 0.98;
+        s.life -= s.decay;
+        const worldBottom = (rows * 0.5 + 2) * cellSize;
+        if (s.life <= 0 || s.y >= worldBottom) { launchTrail.splice(i, 1); continue; }
+    }
+
+    if (t >= DRAW_SETTLE + 0.3) {
+        const seeded = buildDajiSeedFromMorph();
+        drawToFortuneSeed = seeded.length > 0 ? seeded : null;
+        changeState('fortune');
+    }
+}
+
+function buildDajiSeedFromMorph() {
+    const seeded = [];
+    for (const p of morphParticles) {
+        if (!p.active) continue;
+        const lum = Math.min(1, p.brightness + 0.08);
+        const char = p.finalChar || selectCharByLuminance(lum);
+        if (char === ' ') continue;
+        const color = lerpColor(lum);
+        seeded.push({
+            baseX: p.x,
+            baseY: p.y,
+            origZ: p.z,
+            char,
+            r: color.r,
+            g: color.g,
+            b: color.b,
+            alpha: 0.3 + lum * 0.7,
+            lum,
+            phase: p.phase,
+        });
+    }
+    return seeded;
+}
+
+function renderDrawParticles3D(t) {
+    const glyphs = [];
+
+    for (const s of launchTrail) {
+        glyphs.push({
+            x: s.x,
+            y: s.y,
+            z: s.z,
+            char: s.char,
+            r: 255,
+            g: Math.floor(190 + s.life * 65),
+            b: Math.floor(35 + s.life * 40),
+            alpha: s.life * 0.68,
+            size: 0.72 + s.life * 0.35,
+            glow: 0.9,
+            blur: 0.8,
+        });
+    }
+
+    for (const p of morphParticles) {
+        if (!p.active) continue;
+        const gp = p.brightness;
+        const drawR = 255;
+        const drawG = 180 + gp * 75;
+        const drawB = gp * 50;
+        let r = drawR, g = drawG, b = drawB;
+        let alpha, size = 0.95 + gp * 0.45;
+        if (t < DRAW_SCATTER) {
+            alpha = 0.45 + gp * 0.35;
+        } else if (t < DRAW_REFORM) {
+            alpha = 0.5 + gp * 0.42;
+        } else {
+            const settleSt = Math.min(1, (t - DRAW_REFORM) / (DRAW_SETTLE - DRAW_REFORM));
+            // Blend colors toward seed values (lerpColor) so last frame matches fortune entry
+            const lum = Math.min(1, gp + 0.08);
+            const seed = lerpColor(lum);
+            r = lerp(drawR, seed.r, settleSt);
+            g = lerp(drawG, seed.g, settleSt);
+            b = lerp(drawB, seed.b, settleSt);
+            // Blend alpha toward seed alpha
+            const seedAlpha = 0.3 + lum * 0.7;
+            const pulseAlpha = Math.min(1, (0.5 + gp * 0.5) * (1 + Math.sin(settleSt * Math.PI) * 0.3));
+            alpha = lerp(pulseAlpha, seedAlpha, settleSt);
+            // Blend size toward fortune's baseFontSize ratio (1.1)
+            size = lerp(size, 1.1, settleSt);
+        }
+        glyphs.push({
+            x: p.x,
+            y: p.y,
+            z: p.z,
+            char: p.char,
+            r: Math.round(r),
+            g: Math.round(g),
+            b: Math.round(b),
+            alpha,
+            size,
+            glow: 0.7,
+            blur: 0.65,
+        });
+    }
+
+    renderProjectedGlyphs(glyphs);
 }
 
 function renderDrawOverlay() {
-    // Fade out the calligraphy 福 during scatter phase
-    const scatterEnd = CONFIG.scatterDur / 1000;
-    if (stateTime < scatterEnd) {
-        const fadeOut = 1 - easeInOut(stateTime / scatterEnd);
-        drawCalligraphyFu(fadeOut);
+    const t = stateTime;
+    renderDrawParticles3D(t);
+
+    // Launch: draw 福 rising upward and shrinking
+    if (t < DRAW_LAUNCH) {
+        const riseT = Math.min(1, t / Math.max(0.001, DRAW_RISE));
+        const shrinkT = Math.min(1, t / Math.max(0.001, DRAW_SHRINK));
+        const riseEased = easeInOut(riseT);
+        const shrinkEased = easeInOut(shrinkT);
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        const vmin = Math.min(window.innerWidth, window.innerHeight);
+        const baseSize = vmin * 0.55;
+        const fuSize = baseSize * lerp(1, DRAW_SHRINK_END_SCALE, shrinkEased);
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight * lerp(0.5, 0.2, riseEased);
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `${fuSize}px ${chosenFont}, serif`;
+
+        // Glow intensifies as it rises
+        const intensity = 1 + riseT * 2.5;
+        ctx.globalAlpha = Math.min(1, 0.3 * intensity);
+        ctx.shadowColor = CONFIG.glowGold;
+        ctx.shadowBlur = fuSize * 0.2 * intensity;
+        ctx.fillStyle = CONFIG.glowGold;
+        ctx.fillText('福', cx, cy);
+
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = fuSize * 0.08 * intensity;
+        ctx.fillText('福', cx, cy);
+
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+
+    // Burst flash
+    if (burstFlash > 0) {
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        const bx = window.innerWidth / 2;
+        const by = window.innerHeight * 0.22;
+        const radius = Math.min(window.innerWidth, window.innerHeight) * 0.4 * burstFlash;
+        const gradient = ctx.createRadialGradient(bx, by, 0, bx, by, radius);
+        gradient.addColorStop(0, `rgba(255, 255, 220, ${burstFlash * 0.8})`);
+        gradient.addColorStop(0.4, `rgba(255, 215, 0, ${burstFlash * 0.4})`);
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.restore();
     }
 }
 
@@ -749,17 +1038,30 @@ const BLESSING_CATEGORIES = [
 ];
 
 const fwShells = [];
+const fwTrail = [];
 const fwParticles = [];
 let fwLaunchTimer = 0;
 let fwLaunchCount = 0;
 
 function launchShell() {
     const cat = BLESSING_CATEGORIES[Math.floor(Math.random() * BLESSING_CATEGORIES.length)];
+    const launchCol = cols * (0.15 + Math.random() * 0.7);
+    const targetCol = launchCol + (Math.random() - 0.5) * cols * 0.12;
+    const start = gridToWorld(launchCol, rows + 2);
+    const target = gridToWorld(targetCol, rows * (0.1 + Math.random() * 0.3));
+    const startZ = (Math.random() - 0.5) * cellSize * 8;
     fwShells.push({
-        col: cols * (0.15 + Math.random() * 0.7),
-        row: rows + 2,
-        targetRow: rows * (0.1 + Math.random() * 0.3),
-        vy: -(0.35 + Math.random() * 0.15),
+        x: start.x,
+        y: start.y,
+        z: startZ,
+        startX: start.x,
+        startY: start.y,
+        startZ,
+        targetX: target.x,
+        targetY: target.y,
+        targetZ: (Math.random() - 0.5) * cellSize * 12,
+        launchTime: globalTime,
+        duration: CONFIG.shellRiseDuration * (0.85 + Math.random() * 0.3),
         cat,
     });
     fwLaunchCount++;
@@ -770,16 +1072,17 @@ function burstShell(shell) {
     const { chars, r, g, b } = shell.cat;
     for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-        const speed = 0.12 + Math.random() * 0.22;
+        const speed = cellSize * (0.12 + Math.random() * 0.22);
         fwParticles.push({
-            col: shell.col, row: shell.row,
+            x: shell.x, y: shell.y, z: shell.z,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed - 0.04,
+            vy: Math.sin(angle) * speed - cellSize * 0.04,
+            vz: (Math.random() - 0.5) * speed * 0.7,
             char: chars[Math.floor(Math.random() * chars.length)],
             r, g, b,
-            life: 1.0,
-            decay: 0.004 + Math.random() * 0.007,
-            gravity: 0.0015 + Math.random() * 0.001,
+            life: 0.6 + Math.random() * 0.4,
+            decay: 0.006 + Math.random() * 0.01,
+            gravity: cellSize * (0.0015 + Math.random() * 0.001),
             drag: 0.987,
         });
     }
@@ -787,6 +1090,7 @@ function burstShell(shell) {
 
 function initFireworks() {
     fwShells.length = 0;
+    fwTrail.length = 0;
     fwParticles.length = 0;
     fwLaunchTimer = 0;
     fwLaunchCount = 0;
@@ -806,21 +1110,53 @@ function updateFireworks() {
             : 35 + Math.random() * 55;
     }
 
-    // Shells — rise and burst
+    const halfW = cols * cellSize * 0.5;
+    const halfH = rows * cellSize * 0.5;
+
+    // Shells — rise and burst (time-based with ease-out)
     for (let i = fwShells.length - 1; i >= 0; i--) {
         const s = fwShells[i];
-        s.row += s.vy;
-        s.vy *= 0.995;
-        const sc = Math.floor(s.col), sr = Math.floor(s.row);
-        setCell(sc, sr, 1, '·', s.cat.r, s.cat.g, s.cat.b, 0.7);
-        for (let t = 1; t <= 3; t++) {
-            const tr = sr + t;
-            if (tr < rows) setCell(sc, tr, 2, '·', s.cat.r, s.cat.g, s.cat.b, 0.25 / t);
+        const t = (globalTime - s.launchTime) / s.duration;
+        // Ease-out: fast launch, decelerates toward apex (like a real firework)
+        const eased = 1 - Math.pow(1 - Math.min(t, 1), 2);
+        s.x = lerp(s.startX, s.targetX, eased);
+        s.y = lerp(s.startY, s.targetY, eased);
+        s.z = lerp(s.startZ, s.targetZ, eased);
+
+        // Tail density adapts to speed — denser near launch, lighter near apex
+        const trailSpawn = Math.max(1, Math.floor((1 - eased) * 2.8));
+        for (let j = 0; j < trailSpawn; j++) {
+            fwTrail.push({
+                x: s.x + (Math.random() - 0.5) * cellSize * 0.35,
+                y: s.y + cellSize * (0.12 + Math.random() * 0.32),
+                z: s.z + (Math.random() - 0.5) * cellSize * 0.6,
+                vx: (Math.random() - 0.5) * cellSize * 0.03,
+                vy: cellSize * (0.07 + Math.random() * 0.04),
+                vz: (Math.random() - 0.5) * cellSize * 0.03,
+                char: '·',
+                r: s.cat.r,
+                g: s.cat.g,
+                b: s.cat.b,
+                life: 0.35 + Math.random() * 0.45,
+                decay: 0.03 + Math.random() * 0.04,
+            });
         }
-        if (s.row <= s.targetRow) {
+        if (t >= 1) {
             burstShell(s);
             fwShells.splice(i, 1);
         }
+    }
+
+    // Shell trails — drift and fade
+    for (let i = fwTrail.length - 1; i >= 0; i--) {
+        const t = fwTrail[i];
+        t.x += t.vx;
+        t.y += t.vy;
+        t.z += t.vz;
+        t.vx *= 0.95;
+        t.vz *= 0.95;
+        t.life -= t.decay;
+        if (t.life <= 0 || t.y > halfH + cellSize * 3) fwTrail.splice(i, 1);
     }
 
     // Particles — drift, fade, fall
@@ -828,21 +1164,83 @@ function updateFireworks() {
         const p = fwParticles[i];
         p.vx *= p.drag;
         p.vy *= p.drag;
+        p.vz *= p.drag;
         p.vy += p.gravity;
-        p.col += p.vx;
-        p.row += p.vy;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.z += p.vz;
         p.life -= p.decay;
-        if (p.life <= 0 || p.row >= rows || p.col < -5 || p.col > cols + 5) {
+        if (
+            p.life <= 0
+            || p.y > halfH + cellSize * 6
+            || p.x < -halfW - cellSize * 8
+            || p.x > halfW + cellSize * 8
+            || p.z < -SCENE_FOV * 0.9
+            || p.z > SCENE_FOV * 1.5
+        ) {
             fwParticles.splice(i, 1);
-            continue;
         }
-        const alpha = p.life * p.life; // quadratic fade
-        setCell(Math.floor(p.col), Math.floor(p.row), 0,
-            p.char, p.r, p.g, p.b, Math.max(0.05, alpha));
     }
 }
 
+function renderFireworks3D() {
+    const glyphs = [];
+
+    for (const s of fwShells) {
+        glyphs.push({
+            x: s.x,
+            y: s.y,
+            z: s.z,
+            char: '·',
+            r: s.cat.r,
+            g: s.cat.g,
+            b: s.cat.b,
+            alpha: 0.9,
+            size: 1.0,
+            glow: 1.0,
+            blur: 0.9,
+        });
+    }
+
+    for (const t of fwTrail) {
+        glyphs.push({
+            x: t.x,
+            y: t.y,
+            z: t.z,
+            char: t.char,
+            r: t.r,
+            g: t.g,
+            b: t.b,
+            alpha: t.life * 0.7,
+            size: 0.7 + t.life * 0.3,
+            glow: 0.9,
+            blur: 0.85,
+        });
+    }
+
+    for (const p of fwParticles) {
+        const alpha = Math.max(0.05, p.life * p.life);
+        glyphs.push({
+            x: p.x,
+            y: p.y,
+            z: p.z,
+            char: p.char,
+            r: p.r,
+            g: p.g,
+            b: p.b,
+            alpha,
+            size: 0.92 + alpha * 0.5,
+            glow: 0.65,
+            blur: 0.62,
+        });
+    }
+
+    renderProjectedGlyphs(glyphs);
+}
+
 function renderFireworksOverlay() {
+    renderFireworks3D();
+
     const fadeIn = Math.min(1, stateTime / 1.5);
     drawOverlayText('恭喜发财', 0.08, CONFIG.glowGold, fadeIn * 0.7, cellSize * 2);
     drawOverlayText('Prosperity & Fortune', 0.13, CONFIG.glowGold, fadeIn * 0.4, cellSize * 1);
@@ -932,7 +1330,26 @@ function frame(now) {
         case 'fireworks': updateFireworks(); break;
     }
 
+    // Camera follow during draw launch
+    let camShift = 0;
+    if (state === 'draw') {
+        if (stateTime < DRAW_LAUNCH) {
+            if (stateTime < DRAW_CAMERA_PULLBACK) {
+                const pullbackT = Math.min(1, stateTime / Math.max(0.001, DRAW_CAMERA_PULLBACK));
+                camShift = -easeInOut(pullbackT) * cellSize * 3;
+            } else {
+                camShift = -cellSize * 3;
+            }
+        } else {
+            const returnT = Math.min(1, (stateTime - DRAW_LAUNCH) / Math.max(0.001, DRAW_CAMERA_RETURN));
+            camShift = -(1 - easeInOut(returnT)) * cellSize * 3;
+        }
+        offsetY += camShift;
+    }
+
     renderGrid();
+
+    if (camShift !== 0) offsetY -= camShift;
 
     switch (state) {
         case 'arrival':  renderArrivalOverlay(); break;
