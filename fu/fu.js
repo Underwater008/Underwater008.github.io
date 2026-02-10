@@ -691,9 +691,9 @@ const DRAW_SHRINK = CONFIG.fuShrinkDuration;
 const DRAW_SHRINK_END_SCALE = CONFIG.fuShrinkEndScale;
 const DRAW_CAMERA_PULLBACK = CONFIG.fuCameraPullbackDuration;
 const DRAW_CAMERA_RETURN = CONFIG.fuCameraReturnDuration;
-const DRAW_SCATTER = DRAW_LAUNCH + 0.7;
-const DRAW_REFORM = DRAW_SCATTER + 0.9;
-const DRAW_SETTLE = DRAW_REFORM + 0.25;
+const DRAW_SCATTER = DRAW_LAUNCH + 1.2;
+const DRAW_REFORM = DRAW_SCATTER + 1.1;
+const DRAW_SETTLE = DRAW_REFORM + 0.4;
 
 function initDrawAnimation() {
     morphParticles = [];
@@ -717,8 +717,9 @@ function initDrawAnimation() {
     for (let i = 0; i < dajiTargets.length; i++) {
         const tgt = dajiTargets[i];
         const angle = Math.random() * Math.PI * 2;
-        const scatterRadius = spread * (0.24 + Math.random() * 0.36);
-        const scatterLift = spread * (0.06 + Math.random() * 0.24);
+        // Increase explosion radius and lift for a more dramatic effect
+        const scatterRadius = spread * (0.8 + Math.random() * 1.2);
+        const scatterLift = spread * (0.1 + Math.random() * 0.4);
 
         morphParticles.push({
             x: burstOrigin.x,
@@ -788,7 +789,8 @@ function updateDraw() {
                 const st = (t - DRAW_LAUNCH) / (DRAW_SCATTER - DRAW_LAUNCH);
                 const eased = 1 - Math.pow(1 - st, 2);
                 p.x = lerp(p.startX, p.scatterX, eased);
-                p.y = lerp(p.startY, p.scatterY, eased) + st * st * cellSize * 0.9;
+                // Stronger gravity drop (6.0 * cellSize)
+                p.y = lerp(p.startY, p.scatterY, eased) + st * st * cellSize * 6.0;
                 p.z = lerp(p.startZ, p.scatterZ, eased);
                 p.scrambleTimer -= 1;
                 if (p.scrambleTimer <= 0) {
@@ -800,7 +802,8 @@ function updateDraw() {
                 const st = (t - DRAW_SCATTER) / (DRAW_REFORM - DRAW_SCATTER);
                 const eased = easeInOut(st);
                 p.x = lerp(p.scatterX, p.targetX, eased);
-                p.y = lerp(p.scatterY, p.targetY, eased);
+                // Start reform from the dropped position (scatterY + 6.0 * cellSize)
+                p.y = lerp(p.scatterY + cellSize * 6.0, p.targetY, eased);
                 p.z = lerp(p.scatterZ, p.targetZ, eased);
                 const wobble = (1 - eased) * cellSize * 0.8;
                 p.x += Math.sin(p.phase + globalTime * 4) * wobble;
