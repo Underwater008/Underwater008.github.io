@@ -253,11 +253,11 @@ function render3DDaji() {
     const zInflate = daji3DFromSeed ? 1 : easeInOut(entryT);
     // Blend timer: 0→1 over 0.6s — used to transition from seed look to metallic look
     const blendT = daji3DFromSeed ? Math.min(1, (globalTime - daji3DEntryTime) / 0.6) : 1;
-    // Breathing delays until blend is mostly done, then eases in over 0.8s
-    const breatheDelay = 0.5;
+    // Breathing: if from seed, start full immediately (ramp=1). Else use inflate/delay.
+    const breatheDelay = daji3DFromSeed ? 0 : 0.5;
     const breatheRamp = daji3DFromSeed
-        ? Math.min(1, Math.max(0, (globalTime - daji3DEntryTime - breatheDelay) / 0.8))
-        : zInflate;
+        ? 1
+        : Math.min(1, Math.max(0, (globalTime - daji3DEntryTime - breatheDelay) / 0.8));
     const breatheAmp = spread * 0.06 * breatheRamp;
 
     const projected = [];
@@ -289,13 +289,18 @@ function render3DDaji() {
 
     for (const p of projected) {
         let fontSize = baseFontSize * p.scale;
-        let alpha = p.alpha * Math.max(0.2, p.stableScale * 1.25);
+        // Use p.scale (dynamic) for alpha to match renderDrawParticles3D/renderProjectedGlyphs
+        let alpha = p.alpha * Math.max(0.2, p.scale * 1.25);
+        alpha = Math.min(1, alpha); // CLAMP to 1.0 to match renderProjectedGlyphs behavior
 
         if (p.isHovered) {
             fontSize *= 2.2;
             alpha = 1;
         }
-        if (fontSize < 3) continue;
+        
+        // Match rounding and cutoff from renderProjectedGlyphs for seamless transition
+        fontSize = Math.round(fontSize);
+        if (fontSize < 2) continue;
 
         // Gold metallic gradient based on vertical position
         const yNorm = clusterH > 0 ? (p.screenY - centerY) / clusterH : 0;
@@ -316,11 +321,15 @@ function render3DDaji() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
+        // Shadow blend: Draw state ends with factor ~0.7 (glow=0.7).
+        // Fortune state target is 0.5. Lerp it.
+        const shadowFactor = lerp(0.7, 0.5, blendT);
+
         if (p.isHovered) {
             ctx.shadowColor = '#FFF8DC';
             ctx.shadowBlur = fontSize * 0.9;
         } else if (alpha > 0.3) {
-            ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, ${alpha * 0.5})`;
+            ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, ${alpha * shadowFactor})`;
             ctx.shadowBlur = fontSize * lerp(0.65, 0.4, blendT);
         } else {
             ctx.shadowColor = 'transparent';
@@ -808,6 +817,7 @@ function updateDraw() {
                 // Settle
                 const settleT = Math.min(1, (t - DRAW_REFORM) / Math.max(0.001, DRAW_SETTLE - DRAW_REFORM));
                 const eased = easeInOut(settleT);
+
                 p.x = lerp(p.x, p.targetX, eased);
                 p.y = lerp(p.y, p.targetY, eased);
                 p.z = lerp(p.z, p.targetZ, eased);
@@ -847,7 +857,7 @@ function buildDajiSeedFromMorph() {
         seeded.push({
             baseX: p.x,
             baseY: p.y,
-            origZ: p.z,
+            origZ: p.targetZ, // Use stable targetZ as base, excluding breathing offset
             char,
             r: color.r,
             g: color.g,
@@ -879,6 +889,10 @@ function renderDrawParticles3D(t) {
         });
     }
 
+    // Calculate common breathing params once per frame
+    const spread = Math.min(cols, rows) * 0.40 * cellSize;
+    const breatheAmp = spread * 0.06;
+
     for (const p of morphParticles) {
         if (!p.active) continue;
         const gp = p.brightness;
@@ -887,10 +901,28 @@ function renderDrawParticles3D(t) {
         const drawB = gp * 50;
         let r = drawR, g = drawG, b = drawB;
         let alpha, size = 0.95 + gp * 0.45;
+
+        // Visual effects (Flicker/Wobble/Pulse)
         if (t < DRAW_SCATTER) {
-            alpha = 0.45 + gp * 0.35;
+            // Explosion: Chaotic flicker and size variation
+            // Flicker intensity fades slightly as they scatter
+            const flicker = Math.sin(globalTime * 25 + p.phase * 3) * 0.25;
+            alpha = Math.min(1, Math.max(0.1, (0.55 + gp * 0.3) + flicker));
+            
+            // Size oscillates rapidly
+            const sizeWobble = Math.sin(globalTime * 18 + p.phase * 2) * 0.3;
+            size *= (1 + sizeWobble);
+
         } else if (t < DRAW_REFORM) {
-            alpha = 0.5 + gp * 0.42;
+            // Reformation: Magic pulsing as they assemble
+            // Smooth harmonic pulse
+            const pulse = Math.sin(globalTime * 8 + p.phase) * 0.2;
+            alpha = Math.min(1, Math.max(0.2, (0.6 + gp * 0.3) + pulse));
+
+            // Size breathes rhythmically
+            const breathe = Math.sin(globalTime * 6 + p.phase) * 0.15;
+            size *= (1 + breathe);
+
         } else {
             const settleSt = Math.min(1, (t - DRAW_REFORM) / (DRAW_SETTLE - DRAW_REFORM));
             // Blend colors toward seed values (lerpColor) so last frame matches fortune entry
@@ -906,10 +938,25 @@ function renderDrawParticles3D(t) {
             // Blend size toward fortune's baseFontSize ratio (1.1)
             size = lerp(size, 1.1, settleSt);
         }
+
+        // Apply breathing motion (Ramps up during Reform, Full during Settle)
+        // This ensures visual continuity with render3DDaji
+        let breatheMix = 0;
+        if (t >= DRAW_REFORM) {
+            breatheMix = 1;
+        } else if (t > DRAW_SCATTER) {
+            const reformProgress = (t - DRAW_SCATTER) / (DRAW_REFORM - DRAW_SCATTER);
+            // Ramp up in the second half of reform to blend with fading wobble
+            breatheMix = Math.max(0, reformProgress - 0.5) * 2;
+        }
+        
+        const breathing = Math.sin(globalTime * 1.5 + p.phase) * breatheAmp;
+        const renderZ = p.z + breathing * breatheMix;
+
         glyphs.push({
             x: p.x,
             y: p.y,
-            z: p.z,
+            z: renderZ,
             char: p.char,
             r: Math.round(r),
             g: Math.round(g),
