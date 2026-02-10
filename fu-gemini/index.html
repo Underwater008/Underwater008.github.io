@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fu Cube (Gemini)</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Critical inline styles to prevent FOUC */
+        body { background-color: #0A0A0A; color: #FF2D2D; margin: 0; overflow: hidden; }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        
+        <!-- Screen 1: Arrival -->
+        <div id="screen-arrival" class="screen active">
+            <div class="terminal-text glitch" data-text="A BLESSING AWAITS">A BLESSING AWAITS</div>
+            <div class="sub-text">新年纳福</div>
+            <div class="instruction blink">TAP TO REVEAL</div>
+        </div>
+
+        <!-- Screen 2: Fortune Result -->
+        <div id="screen-fortune" class="screen hidden">
+            <div class="fortune-result" id="fortune-main"></div> <!-- e.g., 大吉 -->
+            <div class="fortune-desc" id="fortune-sub"></div>
+            <button id="btn-fireworks" class="terminal-btn">CELEBRATE</button>
+        </div>
+
+        <!-- Screen 3: Wish -->
+        <div id="screen-wish" class="screen hidden">
+            <div class="terminal-text">WRITE YOUR WISH</div>
+            <div class="sub-text">写下你的新年愿望</div>
+            <textarea id="wish-input" maxlength="140" placeholder="Type here..."></textarea>
+            <button id="btn-seal" class="terminal-btn">SEAL WISH</button>
+        </div>
+
+        <!-- Screen 4: Key Reveal -->
+        <div id="screen-key" class="screen hidden">
+            <div class="terminal-text">WISH SEALED</div>
+            <div class="sub-text">你的心愿已被听见</div>
+            <div class="key-display">
+                <span class="label">PRIVATE KEY:</span>
+                <span id="btc-key" class="code-text">LOADING...</span>
+            </div>
+            <div class="footer-text">Remember your wish, and your blessing remains.</div>
+        </div>
+
+    </div>
+
+    <!-- Audio (Optional placeholder) -->
+    <!-- <audio id="bgm" loop src="..."></audio> -->
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

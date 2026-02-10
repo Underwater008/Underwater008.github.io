@@ -10,6 +10,9 @@ module.exports = {
           fireworks: 'fireworks.html',
           erose: 'erose/erose.html',
           udream: 'udream/udream.html',
+          stellarune: 'stellarune.html',
+          fu: 'fu/index.html',
+          fu_openai: 'fu-openai/index.html',
         }
       }
     },
