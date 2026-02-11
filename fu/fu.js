@@ -2,6 +2,9 @@
 // 福 Cube — 3D ASCII Fortune Experience
 // State machine: arrival → draw → fortune → (fireworks, etc.)
 // ============================================================
+import * as THREE from 'three';
+import vertexShader from './particleVertex.glsl?raw';
+import fragmentShader from './particleFragment.glsl?raw';
 
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -84,6 +87,8 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 function easeInOut(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
 
 // --- 3D Projection ---
+const SCENE_FOV = 500;
+
 function project3D(x, y, z, fov) {
     const scale = fov / (fov + z);
     return {
@@ -92,7 +97,6 @@ function project3D(x, y, z, fov) {
         scale,
     };
 }
-const SCENE_FOV = 500;
 
 function gridToWorld(col, row) {
     return {
@@ -104,6 +108,10 @@ function gridToWorld(col, row) {
 // --- Responsive Grid ---
 let cellSize, cols, rows, gridW, gridH, offsetX, offsetY;
 let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+// Forward-declare Three.js variables so resize() can reference them safely
+let glRenderer, glScene, glCamera, particlesMesh;
+let charToUV = {}; // Map<char, {u, v}>
 
 function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -119,9 +127,137 @@ function resize() {
     gridH = rows * cellSize;
     offsetX = (window.innerWidth - gridW) / 2;
     offsetY = (window.innerHeight - gridH) / 2;
+    
+    if (glRenderer) {
+        glRenderer.setSize(window.innerWidth, window.innerHeight);
+        glRenderer.setPixelRatio(dpr);
+        // Recalculate camera FOV to match the project3D logic
+        // scale = 1 at z=0 (distance SCENE_FOV).
+        // visible height at distance SCENE_FOV should be window.innerHeight
+        const fov = 2 * Math.atan(window.innerHeight / (2 * SCENE_FOV)) * (180 / Math.PI);
+        glCamera.fov = fov;
+        glCamera.aspect = window.innerWidth / window.innerHeight;
+        glCamera.updateProjectionMatrix();
+    }
 }
 window.addEventListener('resize', resize);
 resize();
+
+// --- Three.js Setup (Hybrid Rendering) ---
+const ATLAS_COLS = 16;
+const ATLAS_ROWS = 16; // 256 chars capacity
+const CELL_PX = 64; // Resolution per character
+
+function initThreeJS() {
+    // 1. Renderer
+    glRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+    glRenderer.setSize(window.innerWidth, window.innerHeight);
+    glRenderer.setPixelRatio(dpr);
+    // Note: We don't append glRenderer.domElement to body. We draw it to canvas.
+
+    // 2. Camera — FOV matches the original project3D(x,y,z,SCENE_FOV) projection
+    const fov = 2 * Math.atan(window.innerHeight / (2 * SCENE_FOV)) * (180 / Math.PI);
+    glCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 3000);
+    glCamera.position.set(0, 0, SCENE_FOV);
+    glCamera.lookAt(0, 0, 0);
+
+    // 3. Scene
+    glScene = new THREE.Scene();
+
+    // 4. Texture Atlas
+    const atlasCanvas = document.createElement('canvas');
+    atlasCanvas.width = ATLAS_COLS * CELL_PX;
+    atlasCanvas.height = ATLAS_ROWS * CELL_PX;
+    const actx = atlasCanvas.getContext('2d');
+    
+    // Black background — avoids premultiplication issues, R channel = intensity
+    actx.fillStyle = '#000';
+    actx.fillRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+
+    // Collect all unique characters
+    const uniqueChars = new Set([
+        ...LUCKY_CHARS_BY_DENSITY,
+        ...ALL_LUCKY.split(''),
+        ...Object.keys(CHAR_BLESSINGS),
+        '·'
+    ]);
+    
+    actx.font = `bold ${Math.floor(CELL_PX * 0.7)}px "Courier New", "SF Mono", monospace`;
+    actx.textAlign = 'center';
+    actx.textBaseline = 'middle';
+    actx.fillStyle = '#FFFFFF';
+    
+    // Pre-bake glow? The shader handles tinting.
+    // The texture should be white, so we can tint it.
+    // To get the "glow" look, we can draw with shadowBlur in the atlas.
+    
+    actx.shadowColor = 'white';
+    actx.shadowBlur = CELL_PX * 0.15; // Baked glow
+
+    let idx = 0;
+    uniqueChars.forEach(char => {
+        if (idx >= ATLAS_COLS * ATLAS_ROWS) return;
+        const col = idx % ATLAS_COLS;
+        const row = Math.floor(idx / ATLAS_COLS);
+        const x = col * CELL_PX + CELL_PX / 2;
+        const y = row * CELL_PX + CELL_PX / 2;
+        
+        actx.fillText(char, x, y);
+        
+        // UV coordinates (bottom-left origin in UV space? Three.js uses top-left for CanvasTexture?)
+        // Standard UV: 0,0 is bottom-left. Canvas Y increases downwards.
+        // Three.js flips Y by default for textures unless flipY=false.
+        // Let's assume standard mapping: U = col/COLS, V = 1.0 - (row + 1)/ROWS (if flipping).
+        
+        // Actually simpler: pass cell index or raw UV.
+        // Let's pass the UV of top-left corner.
+        charToUV[char] = {
+            u: col / ATLAS_COLS,
+            v: 1.0 - (row + 1) / ATLAS_ROWS // Flip V to match WebGL standard
+        };
+        idx++;
+    });
+
+    const atlasTexture = new THREE.CanvasTexture(atlasCanvas);
+    atlasTexture.magFilter = THREE.LinearFilter;
+    atlasTexture.minFilter = THREE.LinearFilter;
+    // atlasTexture.flipY = true; // Default
+
+    // 5. InstancedMesh
+    const MAX_PARTICLES = 1500;
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            atlas: { value: atlasTexture },
+            cellSize: { value: new THREE.Vector2(1 / ATLAS_COLS, 1 / ATLAS_ROWS) }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        transparent: true,
+        blending: THREE.AdditiveBlending, // Key for the glow look
+        depthWrite: false,
+        depthTest: false
+    });
+
+    particlesMesh = new THREE.InstancedMesh(geometry, material, MAX_PARTICLES);
+    
+    // Allocate attributes
+    const instanceColor = new Float32Array(MAX_PARTICLES * 3);
+    const instanceAlpha = new Float32Array(MAX_PARTICLES);
+    const instanceUV = new Float32Array(MAX_PARTICLES * 2);
+    const instanceScale = new Float32Array(MAX_PARTICLES);
+
+    particlesMesh.geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(instanceColor, 3));
+    particlesMesh.geometry.setAttribute('instanceAlpha', new THREE.InstancedBufferAttribute(instanceAlpha, 1));
+    particlesMesh.geometry.setAttribute('instanceUV', new THREE.InstancedBufferAttribute(instanceUV, 2));
+    particlesMesh.geometry.setAttribute('instanceScale', new THREE.InstancedBufferAttribute(instanceScale, 1));
+    
+    // Use manual matrix updates for position? Or a custom attribute?
+    // Shader uses `instanceMatrix` (standard) for position. We'll set it in the loop.
+    
+    particlesMesh.frustumCulled = false;
+    glScene.add(particlesMesh);
+}
 
 // --- Grid Buffer (for ASCII elements: bg particles, 大吉, morph) ---
 let grid = [];
@@ -196,8 +332,9 @@ let fontsReady = false;
 // Force-load the chosen font (unicode-range fonts won't load without DOM text)
 document.fonts.load(`64px ${chosenFont}`, '福大吉').then(() => {
     fuShape = sampleCharacterShape('福', 64, chosenFont);
-    dajiShape = sampleCharacterShape('大吉', 32); // Reduced from 48 to 32 for performance with blur
+    dajiShape = sampleCharacterShape('大吉', 32); 
     fontsReady = true;
+    initThreeJS(); // Init Three.js once fonts are ready
 });
 
 // --- 3D Daji Cluster ---
@@ -242,69 +379,52 @@ function initDaji3D(seedParticles) {
     daji3DEntryTime = globalTime;
 }
 
-function render3DDaji() {
-    if (daji3DParticles.length === 0) return;
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.globalCompositeOperation = 'lighter';
+// Replaces render3DDaji with GPU rendering
+function updateDajiToGPU() {
+    if (!particlesMesh) return;
+    if (!daji3DParticles.length) {
+        particlesMesh.count = 0;
+        return;
+    }
 
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
     const entryT = Math.min(1, (globalTime - daji3DEntryTime) / 1.2);
-    // When entering from seed, z is already correct — no inflate animation
     const zInflate = daji3DFromSeed ? 1 : easeInOut(entryT);
-    // Blend timer: 0→1 over 0.6s — used to transition from seed look to metallic look
     const blendT = daji3DFromSeed ? Math.min(1, (globalTime - daji3DEntryTime) / 0.6) : 1;
-    // Breathing: if from seed, start full immediately (ramp=1). Else use inflate/delay.
     const breatheDelay = daji3DFromSeed ? 0 : 0.5;
     const breatheRamp = daji3DFromSeed
         ? 1
         : Math.min(1, Math.max(0, (globalTime - daji3DEntryTime - breatheDelay) / 0.8));
     const breatheAmp = spread * 0.06 * breatheRamp;
 
-    const projected = [];
-    for (let i = 0; i < daji3DParticles.length; i++) {
+    const instColor = particlesMesh.geometry.attributes.instanceColor;
+    const instAlpha = particlesMesh.geometry.attributes.instanceAlpha;
+    const instUV = particlesMesh.geometry.attributes.instanceUV;
+    const instScale = particlesMesh.geometry.attributes.instanceScale;
+
+    const maxCount = instColor.count;
+    const count = Math.min(daji3DParticles.length, maxCount);
+
+    const clusterH = spread * 0.5;
+    const highlightPos = Math.sin(globalTime * 0.8) * 0.3;
+
+    for (let i = 0; i < count; i++) {
         const p = daji3DParticles[i];
         const z = p.origZ * zInflate + Math.sin(globalTime * 1.5 + p.phase) * breatheAmp;
         const isHovered = i === hoveredIdx;
         const hoverPush = isHovered ? -80 : 0;
-        const proj = project3D(p.baseX, p.baseY, z + hoverPush, SCENE_FOV);
-        const stableScale = SCENE_FOV / (SCENE_FOV + p.origZ);
 
-        projected.push({
-            idx: i, z, baseY: p.baseY,
-            screenX: proj.screenX, screenY: proj.screenY, scale: proj.scale,
-            stableScale,
-            char: p.char, alpha: p.alpha, lum: p.lum, isHovered,
-            seedR: p.r, seedG: p.g, seedB: p.b,
-        });
-    }
+        _dummy.position.set(p.baseX, -p.baseY, -(z + hoverPush));
+        _dummy.updateMatrix();
+        particlesMesh.setMatrixAt(i, _dummy.matrix);
 
-    // Sort back to front
-    projected.sort((a, b) => b.z - a.z);
+        // Alpha — boost for additive, clamp for transparency
+        let alpha = p.alpha * Math.max(0.2, 1.25);
+        alpha = Math.min(0.8, alpha);
+        if (isHovered) alpha = 1.0;
 
-    const baseFontSize = cellSize * 1.1;
-    const centerY = window.innerHeight / 2;
-    const clusterH = spread * 0.5;
-    // Moving highlight band for metallic reflection
-    const highlightPos = Math.sin(globalTime * 0.8) * 0.3;
-
-    for (const p of projected) {
-        let fontSize = baseFontSize * p.scale;
-        // Use p.scale (dynamic) for alpha to match renderDrawParticles3D/renderProjectedGlyphs
-        let alpha = p.alpha * Math.max(0.2, p.scale * 1.25);
-        alpha = Math.min(0.8, alpha); // CLAMP to 0.8 for transparency (gemini style)
-
-        if (p.isHovered) {
-            fontSize *= 2.2;
-            alpha = 1;
-        }
-        
-        // Match rounding and cutoff from renderProjectedGlyphs for seamless transition
-        fontSize = Math.round(fontSize);
-        if (fontSize < 2) continue;
-
-        // Gold metallic gradient based on vertical position
-        const yNorm = clusterH > 0 ? (p.screenY - centerY) / clusterH : 0;
+        // Metallic gradient based on world Y position
+        const yNorm = clusterH > 0 ? p.baseY / clusterH : 0;
         const gradT = Math.max(0, Math.min(1, (yNorm + 1) * 0.5));
         const hDist = Math.abs(yNorm - highlightPos);
         const highlight = Math.max(0, 1 - hDist * 3);
@@ -313,40 +433,30 @@ function render3DDaji() {
         const metalG = Math.min(255, Math.floor(lerp(225, 130, gradT) + highlight * 40));
         const metalB = Math.min(255, Math.floor(lerp(50, 10, gradT) + highlight * 50));
 
-        // Blend from seed colors to metallic gradient
-        const gr = Math.round(lerp(p.seedR, metalR, blendT));
-        const gg = Math.round(lerp(p.seedG, metalG, blendT));
-        const gb = Math.round(lerp(p.seedB, metalB, blendT));
+        // Blend from seed colors (particle's original r/g/b) to metallic
+        const gr = lerp(p.r, metalR, blendT) / 255;
+        const gg = lerp(p.g, metalG, blendT) / 255;
+        const gb = lerp(p.b, metalB, blendT) / 255;
 
-        ctx.font = `${fontSize}px "Courier New", "SF Mono", monospace`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        instColor.setXYZ(i, isHovered ? 1.0 : gr, isHovered ? 0.97 : gg, isHovered ? 0.86 : gb);
+        instAlpha.setX(i, alpha);
 
-        // Shadow blend: Draw state ends with factor ~0.7 (glow=0.7).
-        // Fortune state target is 0.8 to keep it glowing.
-        const shadowFactor = lerp(0.7, 0.8, blendT);
+        const uv = charToUV[p.char];
+        if (uv) instUV.setXY(i, uv.u, uv.v);
 
-        if (p.isHovered) {
-            ctx.shadowColor = '#FFF8DC';
-            ctx.shadowBlur = fontSize * 0.9;
-        } else if (alpha > 0.3) {
-            ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, ${alpha * shadowFactor})`;
-            ctx.shadowBlur = fontSize * lerp(0.65, 0.7, blendT);
-        } else {
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-        }
-
-        ctx.globalAlpha = Math.min(1, alpha);
-        ctx.fillStyle = p.isHovered
-            ? '#FFF8DC'
-            : `rgb(${gr}, ${gg}, ${gb})`;
-        ctx.fillText(p.char, p.screenX, p.screenY);
+        let scale = cellSize * 1.1;
+        if (isHovered) scale *= 2.2;
+        instScale.setX(i, scale);
     }
 
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.restore();
+    particlesMesh.count = count;
+    particlesMesh.instanceMatrix.needsUpdate = true;
+    instColor.needsUpdate = true;
+    instAlpha.needsUpdate = true;
+    instUV.needsUpdate = true;
+    instScale.needsUpdate = true;
+
+    renderAndCompositeGL();
 }
 
 // --- Tooltip ---
@@ -574,60 +684,62 @@ function drawOverlayText(text, yFraction, color, alpha, size, fontOverride) {
     ctx.restore();
 }
 
-function renderProjectedGlyphs(glyphs) {
-    if (glyphs.length === 0) return;
-
-    const projected = [];
-    for (const g of glyphs) {
-        const proj = project3D(g.x, g.y, g.z, SCENE_FOV);
-        const fontSize = cellSize * (g.size || 1) * proj.scale;
-        if (fontSize < 2) continue;
-        const alpha = Math.min(1, (g.alpha || 0) * Math.max(0.2, proj.scale * 1.25));
-        if (alpha <= 0.01) continue;
-        projected.push({
-            screenX: proj.screenX,
-            screenY: proj.screenY,
-            z: g.z,
-            char: g.char,
-            r: g.r,
-            g: g.g,
-            b: g.b,
-            alpha,
-            fontSize,
-            glow: g.glow || 0,
-            blur: g.blur || 0.5,
-        });
-    }
-    if (projected.length === 0) return;
-
-    projected.sort((a, b) => b.z - a.z);
-
+// Render Three.js particles and composite onto the Canvas 2D
+function renderAndCompositeGL() {
+    if (!glRenderer || !glScene || !glCamera) return;
+    glRenderer.render(glScene, glCamera);
+    // Composite onto Canvas 2D with additive blending
     ctx.save();
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset to physical pixel coords
     ctx.globalCompositeOperation = 'lighter';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let lastFontSize = 0;
-    for (const p of projected) {
-        const rounded = Math.round(p.fontSize);
-        if (rounded !== lastFontSize) {
-            ctx.font = `${rounded}px "Courier New", "SF Mono", monospace`;
-            lastFontSize = rounded;
-        }
-        if (p.glow > 0 && p.alpha > 0.3) {
-            ctx.shadowColor = `rgba(${p.r}, ${p.g}, ${p.b}, ${Math.min(1, p.alpha * p.glow)})`;
-            ctx.shadowBlur = rounded * p.blur * 1.5; // Restored & boosted blur
-        } else {
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-        }
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = `rgb(${p.r}, ${p.g}, ${p.b})`;
-        ctx.fillText(p.char, p.screenX, p.screenY);
-    }
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
+    ctx.drawImage(glRenderer.domElement, 0, 0);
     ctx.restore();
+}
+
+// Shared dummy object for setMatrixAt (avoid per-frame allocation)
+const _dummy = new THREE.Object3D();
+
+// Updates GPU buffers for generic particle list (Launch, Morph, Fireworks)
+function updateProjectedGlyphsToGPU(glyphs) {
+    if (!particlesMesh) return;
+    if (!glyphs.length) {
+        particlesMesh.count = 0;
+        return;
+    }
+
+    const instColor = particlesMesh.geometry.attributes.instanceColor;
+    const instAlpha = particlesMesh.geometry.attributes.instanceAlpha;
+    const instUV = particlesMesh.geometry.attributes.instanceUV;
+    const instScale = particlesMesh.geometry.attributes.instanceScale;
+
+    const maxCount = particlesMesh.geometry.getAttribute('instanceColor').count;
+    const count = Math.min(glyphs.length, maxCount);
+
+    for (let i = 0; i < count; i++) {
+        const g = glyphs[i];
+
+        // Negate Y (WebGL Y-up) and Z (original z>0 = farther, Three.js z>0 = closer)
+        _dummy.position.set(g.x, -g.y, -g.z);
+        _dummy.updateMatrix();
+        particlesMesh.setMatrixAt(i, _dummy.matrix);
+
+        instColor.setXYZ(i, g.r / 255, g.g / 255, g.b / 255);
+        instAlpha.setX(i, g.alpha);
+
+        const uv = charToUV[g.char];
+        if (uv) instUV.setXY(i, uv.u, uv.v);
+
+        instScale.setX(i, cellSize * (g.size || 1));
+    }
+
+    particlesMesh.count = count;
+    particlesMesh.instanceMatrix.needsUpdate = true;
+    instColor.needsUpdate = true;
+    instAlpha.needsUpdate = true;
+    instUV.needsUpdate = true;
+    instScale.needsUpdate = true;
+
+    renderAndCompositeGL();
 }
 
 // ============================================================
@@ -831,8 +943,10 @@ function updateDraw() {
         }
     }
 
-    // --- Update trail sparks ---
-    for (let i = launchTrail.length - 1; i >= 0; i--) {
+    // --- Update trail sparks (compact-in-place, O(n)) ---
+    const worldBottom = (rows * 0.5 + 2) * cellSize;
+    let tw = 0;
+    for (let i = 0; i < launchTrail.length; i++) {
         const s = launchTrail[i];
         s.x += s.vx;
         s.y += s.vy;
@@ -840,9 +954,9 @@ function updateDraw() {
         s.vx *= 0.98;
         s.vz *= 0.98;
         s.life -= s.decay;
-        const worldBottom = (rows * 0.5 + 2) * cellSize;
-        if (s.life <= 0 || s.y >= worldBottom) { launchTrail.splice(i, 1); continue; }
+        if (s.life > 0 && s.y < worldBottom) launchTrail[tw++] = s;
     }
+    launchTrail.length = tw;
 
     if (t >= DRAW_SETTLE + 0.3) {
         const seeded = buildDajiSeedFromMorph();
@@ -972,8 +1086,9 @@ function renderDrawParticles3D(t) {
             blur: 0.65,
         });
     }
-
-    renderProjectedGlyphs(glyphs);
+    
+    // Send to GPU instead of Canvas 2D
+    updateProjectedGlyphsToGPU(glyphs);
 }
 
 function renderDrawOverlay() {
@@ -1056,8 +1171,8 @@ function updateFortune() {
 }
 
 function renderFortuneOverlay() {
-    // 3D character cluster (rendered directly on canvas, between grid and overlay text)
-    render3DDaji();
+    // 3D character cluster (rendered via GPU)
+    updateDajiToGPU();
 
     const fadeIn = Math.min(1, stateTime / 0.9);
     drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3);
@@ -1165,17 +1280,16 @@ function updateFireworks() {
     const halfW = cols * cellSize * 0.5;
     const halfH = rows * cellSize * 0.5;
 
-    // Shells — rise and burst (time-based with ease-out)
-    for (let i = fwShells.length - 1; i >= 0; i--) {
+    // Shells — rise and burst (compact-in-place)
+    let sw = 0;
+    for (let i = 0; i < fwShells.length; i++) {
         const s = fwShells[i];
         const t = (globalTime - s.launchTime) / s.duration;
-        // Ease-out: fast launch, decelerates toward apex (like a real firework)
         const eased = 1 - Math.pow(1 - Math.min(t, 1), 2);
         s.x = lerp(s.startX, s.targetX, eased);
         s.y = lerp(s.startY, s.targetY, eased);
         s.z = lerp(s.startZ, s.targetZ, eased);
 
-        // Tail density adapts to speed — denser near launch, lighter near apex
         const trailSpawn = Math.max(1, Math.floor((1 - eased) * 2.8));
         for (let j = 0; j < trailSpawn; j++) {
             fwTrail.push({
@@ -1186,21 +1300,22 @@ function updateFireworks() {
                 vy: cellSize * (0.07 + Math.random() * 0.04),
                 vz: (Math.random() - 0.5) * cellSize * 0.03,
                 char: '·',
-                r: s.cat.r,
-                g: s.cat.g,
-                b: s.cat.b,
+                r: s.cat.r, g: s.cat.g, b: s.cat.b,
                 life: 0.35 + Math.random() * 0.45,
                 decay: 0.03 + Math.random() * 0.04,
             });
         }
         if (t >= 1) {
             burstShell(s);
-            fwShells.splice(i, 1);
+        } else {
+            fwShells[sw++] = s;
         }
     }
+    fwShells.length = sw;
 
-    // Shell trails — drift and fade
-    for (let i = fwTrail.length - 1; i >= 0; i--) {
+    // Shell trails — drift and fade (compact-in-place)
+    let trw = 0;
+    for (let i = 0; i < fwTrail.length; i++) {
         const t = fwTrail[i];
         t.x += t.vx;
         t.y += t.vy;
@@ -1208,11 +1323,13 @@ function updateFireworks() {
         t.vx *= 0.95;
         t.vz *= 0.95;
         t.life -= t.decay;
-        if (t.life <= 0 || t.y > halfH + cellSize * 3) fwTrail.splice(i, 1);
+        if (t.life > 0 && t.y <= halfH + cellSize * 3) fwTrail[trw++] = t;
     }
+    fwTrail.length = trw;
 
-    // Particles — drift, fade, fall
-    for (let i = fwParticles.length - 1; i >= 0; i--) {
+    // Particles — drift, fade, fall (compact-in-place)
+    let pw = 0;
+    for (let i = 0; i < fwParticles.length; i++) {
         const p = fwParticles[i];
         p.vx *= p.drag;
         p.vy *= p.drag;
@@ -1223,16 +1340,17 @@ function updateFireworks() {
         p.z += p.vz;
         p.life -= p.decay;
         if (
-            p.life <= 0
-            || p.y > halfH + cellSize * 6
-            || p.x < -halfW - cellSize * 8
-            || p.x > halfW + cellSize * 8
-            || p.z < -SCENE_FOV * 0.9
-            || p.z > SCENE_FOV * 1.5
+            p.life > 0
+            && p.y <= halfH + cellSize * 6
+            && p.x >= -halfW - cellSize * 8
+            && p.x <= halfW + cellSize * 8
+            && p.z >= -SCENE_FOV * 0.9
+            && p.z <= SCENE_FOV * 1.5
         ) {
-            fwParticles.splice(i, 1);
+            fwParticles[pw++] = p;
         }
     }
+    fwParticles.length = pw;
 }
 
 function renderFireworks3D() {
@@ -1287,7 +1405,8 @@ function renderFireworks3D() {
         });
     }
 
-    renderProjectedGlyphs(glyphs);
+    // Send to GPU instead of Canvas 2D
+    updateProjectedGlyphsToGPU(glyphs);
 }
 
 function renderFireworksOverlay() {
@@ -1403,6 +1522,10 @@ function frame(now) {
 
     if (camShift !== 0) offsetY -= camShift;
 
+    // Reset particle count — overlays will set it if they have particles
+    if (particlesMesh) particlesMesh.count = 0;
+
+    // State overlays update GPU data and composite Three.js at the right point
     switch (state) {
         case 'arrival':  renderArrivalOverlay(); break;
         case 'draw':     renderDrawOverlay(); break;
