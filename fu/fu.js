@@ -383,11 +383,11 @@ function initDaji3D(seedParticles) {
 }
 
 // Replaces render3DDaji with GPU rendering
-function updateDajiToGPU() {
-    if (!particlesMesh) return;
+function updateDajiToGPU(skipRender) {
+    if (!particlesMesh) return 0;
     if (!daji3DParticles.length) {
         particlesMesh.count = 0;
-        return;
+        return 0;
     }
 
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
@@ -459,7 +459,8 @@ function updateDajiToGPU() {
     instUV.needsUpdate = true;
     instScale.needsUpdate = true;
 
-    renderAndCompositeGL();
+    if (!skipRender) renderAndCompositeGL();
+    return count;
 }
 
 // --- Tooltip ---
@@ -679,7 +680,7 @@ function drawOverlayText(text, yFraction, color, alpha, size, fontOverride) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = color || CONFIG.glowGreen;
-    ctx.globalAlpha = alpha || 0.6;
+    ctx.globalAlpha = alpha ?? 0.6;
     ctx.shadowColor = color || CONFIG.glowGreen;
     ctx.shadowBlur = fontSize * 0.4;
     ctx.fillText(text, window.innerWidth / 2, window.innerHeight * yFraction);
@@ -766,6 +767,7 @@ function changeState(newState) {
         } else {
             initDaji3D();
         }
+        initFireworks();
     }
     if (newState === 'fireworks') { hoveredIdx = -1; hideTooltip(); initFireworks(); }
 }
@@ -1183,11 +1185,18 @@ function renderDaji(alpha) {
 
 function updateFortune() {
     updateBgParticles(globalTime);
+    updateFireworkPhysics();
 }
 
 function renderFortuneOverlay() {
-    // 3D character cluster (rendered via GPU)
-    updateDajiToGPU();
+    // Combined GPU render: 大吉 cluster + fireworks in one pass
+    const dajiCount = updateDajiToGPU(true);
+
+    if (fwShells.length || fwTrail.length || fwParticles.length) {
+        appendFireworksToGPU(dajiCount);
+    } else {
+        renderAndCompositeGL();
+    }
 
     const fadeIn = Math.min(1, stateTime / 0.9);
     drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3);
@@ -1195,12 +1204,6 @@ function renderFortuneOverlay() {
     const blessFade = Math.min(1, Math.max(0, (stateTime - 0.5) / 0.9));
     drawOverlayText('万事如意 · 心想事成', 0.82, CONFIG.glowRed, blessFade * 0.7, cellSize * 1.5);
     drawOverlayText('May all your wishes come true', 0.87, CONFIG.glowGold, blessFade * 0.5, cellSize * 1);
-
-    if (stateTime > 2.5) {
-        const hintFade = Math.min(1, (stateTime - 2.5) / 0.5);
-        const pulse = 0.3 + Math.sin(globalTime * 3) * 0.2;
-        drawOverlayText('↑  继续  ↑', 0.94, CONFIG.glowGreen, hintFade * pulse, cellSize * 1);
-    }
 }
 
 // ============================================================
@@ -1276,12 +1279,14 @@ function initFireworks() {
     fwParticles.length = 0;
     fwLaunchTimer = 0;
     fwLaunchCount = 0;
+
+    // Launch an initial volley — fresh shells that rise from the bottom
+    for (let i = 0; i < 5; i++) {
+        launchShell();
+    }
 }
 
-function updateFireworks() {
-    updateBgParticles(globalTime);
-    renderDaji(0.15 + Math.sin(globalTime * 0.8) * 0.05);
-
+function updateFireworkPhysics() {
     // Auto-launch on a timer (frames)
     fwLaunchTimer--;
     if (fwLaunchTimer <= 0) {
@@ -1368,6 +1373,12 @@ function updateFireworks() {
     fwParticles.length = pw;
 }
 
+function updateFireworks() {
+    updateBgParticles(globalTime);
+    renderDaji(0.15 + Math.sin(globalTime * 0.8) * 0.05);
+    updateFireworkPhysics();
+}
+
 function renderFireworks3D() {
     const glyphs = [];
 
@@ -1422,6 +1433,68 @@ function renderFireworks3D() {
 
     // Send to GPU instead of Canvas 2D
     updateProjectedGlyphsToGPU(glyphs);
+}
+
+// Append firework particles to the GPU buffer starting at startIdx (after daji particles)
+function appendFireworksToGPU(startIdx) {
+    if (!particlesMesh) return;
+
+    const instColor = particlesMesh.geometry.attributes.instanceColor;
+    const instAlpha = particlesMesh.geometry.attributes.instanceAlpha;
+    const instUV = particlesMesh.geometry.attributes.instanceUV;
+    const instScale = particlesMesh.geometry.attributes.instanceScale;
+    const maxCount = instColor.count;
+
+    let idx = startIdx;
+
+    for (const s of fwShells) {
+        if (idx >= maxCount) break;
+        _dummy.position.set(s.x, -s.y, -s.z);
+        _dummy.updateMatrix();
+        particlesMesh.setMatrixAt(idx, _dummy.matrix);
+        instColor.setXYZ(idx, s.cat.r / 255, s.cat.g / 255, s.cat.b / 255);
+        instAlpha.setX(idx, 0.9);
+        const uv = charToUV['·'];
+        if (uv) instUV.setXY(idx, uv.u, uv.v);
+        instScale.setX(idx, cellSize);
+        idx++;
+    }
+
+    for (const t of fwTrail) {
+        if (idx >= maxCount) break;
+        _dummy.position.set(t.x, -t.y, -t.z);
+        _dummy.updateMatrix();
+        particlesMesh.setMatrixAt(idx, _dummy.matrix);
+        instColor.setXYZ(idx, t.r / 255, t.g / 255, t.b / 255);
+        instAlpha.setX(idx, t.life * 0.7);
+        const uv = charToUV[t.char];
+        if (uv) instUV.setXY(idx, uv.u, uv.v);
+        instScale.setX(idx, cellSize * (0.7 + t.life * 0.3));
+        idx++;
+    }
+
+    for (const p of fwParticles) {
+        if (idx >= maxCount) break;
+        const alpha = Math.max(0.05, p.life * p.life);
+        _dummy.position.set(p.x, -p.y, -p.z);
+        _dummy.updateMatrix();
+        particlesMesh.setMatrixAt(idx, _dummy.matrix);
+        instColor.setXYZ(idx, p.r / 255, p.g / 255, p.b / 255);
+        instAlpha.setX(idx, alpha);
+        const uv = charToUV[p.char];
+        if (uv) instUV.setXY(idx, uv.u, uv.v);
+        instScale.setX(idx, cellSize * (0.92 + alpha * 0.5));
+        idx++;
+    }
+
+    particlesMesh.count = idx;
+    particlesMesh.instanceMatrix.needsUpdate = true;
+    instColor.needsUpdate = true;
+    instAlpha.needsUpdate = true;
+    instUV.needsUpdate = true;
+    instScale.needsUpdate = true;
+
+    renderAndCompositeGL();
 }
 
 function renderFireworksOverlay() {
@@ -1493,8 +1566,6 @@ window.addEventListener('keydown', (e) => {
 function handleSwipeUp() {
     if (state === 'arrival' && fontsReady) {
         changeState('draw');
-    } else if (state === 'fortune') {
-        changeState('fireworks');
     }
 }
 
