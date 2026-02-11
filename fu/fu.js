@@ -587,7 +587,7 @@ function updateBgParticles(time) {
         const col = Math.floor(p.col);
         const row = Math.floor(p.row);
         const flicker = p.alpha + Math.sin(p.phase + time * 1.5) * 0.02;
-        setCell(col, row, 999, p.char, 0, 255, 159, Math.max(0.01, flicker));
+        setCell(col, row, 999, p.char, 255, 215, 0, Math.max(0.01, flicker));
     }
 }
 
@@ -610,7 +610,7 @@ function renderGrid() {
     ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
     const fontSize = cellSize;
-    ctx.font = `${fontSize}px "Courier New", "SF Mono", monospace`;
+    ctx.font = `${fontSize}px ${chosenFont}, "Courier New", "SF Mono", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
