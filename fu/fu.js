@@ -169,8 +169,8 @@ window.addEventListener('resize', resize);
 resize();
 
 // --- Three.js Setup (Hybrid Rendering) ---
-const ATLAS_COLS = 16;
-const ATLAS_ROWS = 16; // 256 chars capacity
+const ATLAS_COLS = 20;
+const ATLAS_ROWS = 20; // 400 chars capacity (extra room for calligraphy font variants)
 const CELL_PX = 64; // Resolution per character
 
 function initThreeJS() {
@@ -242,6 +242,25 @@ function initThreeJS() {
         };
         idx++;
     });
+
+    // Bake calligraphy font variants for cluster characters
+    const clusterChars = LUCKY_CHARS_BY_DENSITY.filter(c => c !== ' ');
+    for (let fi = 0; fi < CALLI_FONTS.length; fi++) {
+        actx.font = `bold ${Math.floor(CELL_PX * 0.7)}px ${CALLI_FONTS[fi]}, "Courier New", monospace`;
+        for (const char of clusterChars) {
+            if (idx >= ATLAS_COLS * ATLAS_ROWS) break;
+            const col = idx % ATLAS_COLS;
+            const row = Math.floor(idx / ATLAS_COLS);
+            const x = col * CELL_PX + CELL_PX / 2;
+            const y = row * CELL_PX + CELL_PX / 2;
+            actx.fillText(char, x, y);
+            charToUV[char + '|' + fi] = {
+                u: col / ATLAS_COLS,
+                v: 1.0 - (row + 1) / ATLAS_ROWS
+            };
+            idx++;
+        }
+    }
 
     const atlasTexture = new THREE.CanvasTexture(atlasCanvas);
     atlasTexture.magFilter = THREE.LinearFilter;
@@ -395,11 +414,18 @@ function initDaji3D(seedParticles) {
         if (char === ' ') continue;
         const color = lerpColor(lum);
 
+        // Randomly assign a calligraphy font or keep monospace
+        const fontRoll = Math.random();
+        const uvKey = fontRoll < 0.7
+            ? char + '|' + Math.floor(Math.random() * CALLI_FONTS.length)
+            : char; // ~30% monospace
+
         daji3DParticles.push({
             baseX: pt.nx * spread * 0.5 * pt.aspect,
             baseY: pt.ny * spread * 0.5,
             origZ: (Math.random() - 0.5) * depth,
             char,
+            uvKey,
             r: color.r, g: color.g, b: color.b,
             alpha: 0.3 + lum * 0.7,
             lum,
@@ -471,7 +497,7 @@ function updateDajiToGPU(skipRender) {
         instColor.setXYZ(i, isHovered ? 1.0 : gr, isHovered ? 0.97 : gg, isHovered ? 0.86 : gb);
         instAlpha.setX(i, alpha);
 
-        const uv = charToUV[p.char];
+        const uv = charToUV[p.uvKey || p.char];
         if (uv) instUV.setXY(i, uv.u, uv.v);
 
         let scale = cellSize * 1.1;
@@ -1019,11 +1045,16 @@ function buildDajiSeedFromMorph() {
         const char = p.finalChar || selectCharByLuminance(lum);
         if (char === ' ') continue;
         const color = lerpColor(lum);
+        const fontRoll = Math.random();
+        const uvKey = fontRoll < 0.7
+            ? char + '|' + Math.floor(Math.random() * CALLI_FONTS.length)
+            : char;
         seeded.push({
             baseX: p.x,
             baseY: p.y,
             origZ: p.targetZ, // Use stable targetZ as base, excluding breathing offset
             char,
+            uvKey,
             r: color.r,
             g: color.g,
             b: color.b,
