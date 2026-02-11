@@ -82,6 +82,18 @@ const CALLI_FONTS = [
 ];
 const chosenFont = CALLI_FONTS[Math.floor(Math.random() * CALLI_FONTS.length)];
 
+// --- Daji title font cycling ---
+let dajiFontIdx = 0;
+let dajiFontTransition = null; // { oldFont, startTime }
+
+function getDajiFont() { return CALLI_FONTS[dajiFontIdx]; }
+
+function cycleDajiFont(dir) {
+    const oldFont = CALLI_FONTS[dajiFontIdx];
+    dajiFontIdx = (dajiFontIdx + dir + CALLI_FONTS.length) % CALLI_FONTS.length;
+    dajiFontTransition = { oldFont, startTime: globalTime };
+}
+
 // --- Math ---
 function lerp(a, b, t) { return a + (b - a) * t; }
 function easeInOut(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
@@ -332,12 +344,14 @@ let fuShape = [];
 let dajiShape = [];
 let fontsReady = false;
 
-// Force-load the chosen font (unicode-range fonts won't load without DOM text)
-document.fonts.load(`64px ${chosenFont}`, '福大吉').then(() => {
+// Force-load all calligraphy fonts (needed for morph transitions between fonts)
+Promise.all(
+    CALLI_FONTS.map(f => document.fonts.load(`64px ${f}`, '福大吉'))
+).then(() => {
     fuShape = sampleCharacterShape('福', 64, chosenFont);
-    dajiShape = sampleCharacterShape('大吉', 32); 
+    dajiShape = sampleCharacterShape('大吉', 32);
     fontsReady = true;
-    initThreeJS(); // Init Three.js once fonts are ready
+    initThreeJS();
 });
 
 // --- 3D Daji Cluster ---
@@ -1188,6 +1202,240 @@ function updateFortune() {
     updateFireworkPhysics();
 }
 
+// --- Fancy 大吉 title morph transitions ---
+
+function drawMorphSparkles(cx, cy, fontSize, t, alpha) {
+    const count = 14;
+    const spread = fontSize * 1.5;
+    for (let i = 0; i < count; i++) {
+        const seed = i * 137.508;
+        const lifePhase = ((t * 2.5 + i / count) % 1);
+        const sparkAlpha = Math.sin(lifePhase * Math.PI) * alpha * 0.6;
+        if (sparkAlpha < 0.02) continue;
+        const angle = seed + globalTime * (1.2 + (i % 3) * 0.4);
+        const r = spread * (0.15 + lifePhase * 0.85);
+        const sx = cx + Math.cos(angle) * r;
+        const sy = cy + Math.sin(angle) * r * 0.3;
+        const size = 1 + (1 - lifePhase) * 2.5;
+        ctx.globalAlpha = sparkAlpha;
+        ctx.fillStyle = CONFIG.glowGold;
+        ctx.shadowColor = CONFIG.glowGold;
+        ctx.shadowBlur = size * 5;
+        ctx.beginPath();
+        ctx.arc(sx, sy, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function renderDajiTitleEntrance(stateT, font) {
+    const fontSize = cellSize * 3;
+    const entranceDur = 1.3;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight * 0.15;
+    const chars = ['大', '吉'];
+
+    if (stateT >= entranceDur) {
+        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, 0.9, fontSize, font);
+        return;
+    }
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.font = `${fontSize}px ${font}, serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const totalW = ctx.measureText('大 吉').width;
+    const w0 = ctx.measureText('大').width;
+    const w1 = ctx.measureText('吉').width;
+    const positions = [cx - totalW / 2 + w0 / 2, cx + totalW / 2 - w1 / 2];
+
+    for (let i = 0; i < chars.length; i++) {
+        const delay = i * 0.2;
+        const dur = entranceDur - delay - 0.1;
+        const charT = Math.max(0, Math.min(1, (stateT - delay) / dur));
+        if (charT <= 0) continue;
+
+        let scale;
+        if (charT < 0.35) {
+            scale = lerp(1.8, 0.93, easeInOut(charT / 0.35));
+        } else if (charT < 0.6) {
+            scale = lerp(0.93, 1.06, easeInOut((charT - 0.35) / 0.25));
+        } else {
+            scale = lerp(1.06, 1.0, easeInOut((charT - 0.6) / 0.4));
+        }
+
+        const alpha = Math.min(0.9, charT * 3);
+        const glowMult = 1 + Math.max(0, 1 - charT * 1.5) * 2.5;
+        const dropY = Math.max(0, 1 - charT * 2.5) * fontSize * 0.1;
+
+        ctx.save();
+        ctx.translate(positions[i], cy + dropY);
+        ctx.scale(scale, scale);
+
+        ctx.globalAlpha = alpha * 0.35 * glowMult;
+        ctx.fillStyle = CONFIG.glowGold;
+        ctx.shadowColor = CONFIG.glowGold;
+        ctx.shadowBlur = fontSize * 0.25 * glowMult;
+        ctx.fillText(chars[i], 0, 0);
+
+        ctx.globalAlpha = alpha;
+        ctx.shadowBlur = fontSize * 0.12;
+        ctx.fillText(chars[i], 0, 0);
+
+        ctx.restore();
+    }
+
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    ctx.restore();
+}
+
+function renderDajiMorph(t, fadeIn, oldFont, newFont) {
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    const fontSize = cellSize * 3;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight * 0.15;
+    const baseAlpha = fadeIn * 0.9;
+    const chars = ['大', '吉'];
+
+    ctx.font = `${fontSize}px ${oldFont}, serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const oldTotalW = ctx.measureText('大 吉').width;
+    const oldW0 = ctx.measureText('大').width;
+    const oldW1 = ctx.measureText('吉').width;
+    const oldPos = [cx - oldTotalW / 2 + oldW0 / 2, cx + oldTotalW / 2 - oldW1 / 2];
+
+    ctx.font = `${fontSize}px ${newFont}, serif`;
+    const newTotalW = ctx.measureText('大 吉').width;
+    const newW0 = ctx.measureText('大').width;
+    const newW1 = ctx.measureText('吉').width;
+    const newPos = [cx - newTotalW / 2 + newW0 / 2, cx + newTotalW / 2 - newW1 / 2];
+
+    const DISSOLVE_END = 0.3;
+    const SCRAMBLE_START = 0.1;
+    const SCRAMBLE_END = 0.7;
+    const FORM_START = 0.45;
+
+    const sparkleEnv = t < 0.15 ? t / 0.15 : (t > 0.85 ? (1 - t) / 0.15 : 1);
+    drawMorphSparkles(cx, cy, fontSize, t, baseAlpha * sparkleEnv);
+
+    if (t < DISSOLVE_END) {
+        const dt = t / DISSOLVE_END;
+        ctx.font = `${fontSize}px ${oldFont}, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < chars.length; i++) {
+            const stagger = i * 0.2;
+            const charT = Math.max(0, Math.min(1, (dt - stagger) / (1 - stagger)));
+            const shakeX = Math.sin(globalTime * 35 + i * 2.7) * charT * fontSize * 0.05;
+            const shakeY = Math.cos(globalTime * 28 + i * 1.9) * charT * fontSize * 0.035;
+            const driftY = -charT * charT * fontSize * 0.1;
+            const alpha = baseAlpha * (1 - charT * charT);
+            const aber = charT * fontSize * 0.025;
+            const px = oldPos[i] + shakeX;
+            const py = cy + shakeY + driftY;
+
+            if (aber > 0.5) {
+                ctx.globalAlpha = alpha * 0.3;
+                ctx.fillStyle = '#FF4444';
+                ctx.shadowColor = '#FF4444';
+                ctx.shadowBlur = fontSize * 0.12;
+                ctx.fillText(chars[i], px - aber, py);
+                ctx.fillStyle = '#FFEE44';
+                ctx.shadowColor = '#FFEE44';
+                ctx.fillText(chars[i], px + aber, py + aber * 0.3);
+            }
+
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = CONFIG.glowGold;
+            ctx.shadowColor = CONFIG.glowGold;
+            ctx.shadowBlur = fontSize * (0.15 + charT * 0.25);
+            ctx.fillText(chars[i], px, py);
+        }
+    }
+
+    if (t >= SCRAMBLE_START && t < SCRAMBLE_END) {
+        const st = (t - SCRAMBLE_START) / (SCRAMBLE_END - SCRAMBLE_START);
+        const speed = lerp(18, 3, st * st);
+        const scrambleIdx = Math.floor(globalTime * speed);
+        const posBlend = easeInOut(st);
+        const envelope = st < 0.15 ? st / 0.15 : (st > 0.7 ? (1 - st) / 0.3 : 1);
+
+        ctx.font = `${fontSize}px ${st < 0.5 ? oldFont : newFont}, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < chars.length; i++) {
+            const scramChar = ALL_LUCKY[(scrambleIdx + i * 13) % ALL_LUCKY.length];
+            const waveY = Math.sin(globalTime * 5 + i * 2.0) * fontSize * 0.035;
+            const waveX = Math.cos(globalTime * 3.5 + i * 2.5) * fontSize * 0.02;
+            const px = lerp(oldPos[i], newPos[i], posBlend) + waveX;
+            const py = cy + waveY;
+            const pulse = 1 + Math.sin(globalTime * 8 + i) * 0.05;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.scale(pulse, pulse);
+            ctx.globalAlpha = baseAlpha * envelope * 0.7;
+            ctx.fillStyle = CONFIG.glowGold;
+            ctx.shadowColor = CONFIG.glowGold;
+            ctx.shadowBlur = fontSize * 0.2;
+            ctx.fillText(scramChar, 0, 0);
+            ctx.restore();
+        }
+    }
+
+    if (t >= FORM_START) {
+        const ft = (t - FORM_START) / (1 - FORM_START);
+        ctx.font = `${fontSize}px ${newFont}, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < chars.length; i++) {
+            const stagger = i * 0.15;
+            const charT = Math.max(0, Math.min(1, (ft - stagger) / (1 - stagger)));
+            const easedT = easeInOut(charT);
+
+            let scale;
+            if (charT < 0.45) {
+                scale = easedT / 0.45 * 1.1;
+            } else if (charT < 0.7) {
+                scale = lerp(1.1, 0.97, easeInOut((charT - 0.45) / 0.25));
+            } else {
+                scale = lerp(0.97, 1.0, easeInOut((charT - 0.7) / 0.3));
+            }
+
+            const riseY = (1 - easedT) * fontSize * 0.12;
+            const glowPulse = 1 + Math.sin(charT * Math.PI) * 0.5;
+
+            ctx.save();
+            ctx.translate(newPos[i], cy + riseY);
+            ctx.scale(scale, scale);
+
+            ctx.globalAlpha = baseAlpha * easedT * 0.35 * glowPulse;
+            ctx.fillStyle = CONFIG.glowGold;
+            ctx.shadowColor = CONFIG.glowGold;
+            ctx.shadowBlur = fontSize * 0.3 * glowPulse;
+            ctx.fillText(chars[i], 0, 0);
+
+            ctx.globalAlpha = baseAlpha * easedT;
+            ctx.shadowBlur = fontSize * 0.12;
+            ctx.fillText(chars[i], 0, 0);
+
+            ctx.restore();
+        }
+    }
+
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    ctx.restore();
+}
+
 function renderFortuneOverlay() {
     // Combined GPU render: 大吉 cluster + fireworks in one pass
     const dajiCount = updateDajiToGPU(true);
@@ -1199,7 +1447,20 @@ function renderFortuneOverlay() {
     }
 
     const fadeIn = Math.min(1, stateTime / 0.9);
-    drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3);
+    if (dajiFontTransition) {
+        const transDur = 1.2;
+        const tt = (globalTime - dajiFontTransition.startTime) / transDur;
+        if (tt >= 1) {
+            dajiFontTransition = null;
+            drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3, getDajiFont());
+        } else {
+            renderDajiMorph(tt, fadeIn, dajiFontTransition.oldFont, getDajiFont());
+        }
+    } else if (stateTime < 1.5) {
+        renderDajiTitleEntrance(stateTime, getDajiFont());
+    } else {
+        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3, getDajiFont());
+    }
 
     const blessFade = Math.min(1, Math.max(0, (stateTime - 0.5) / 0.9));
     drawOverlayText('万事如意 · 心想事成', 0.82, CONFIG.glowRed, blessFade * 0.7, cellSize * 1.5);
@@ -1537,9 +1798,14 @@ canvas.addEventListener('touchmove', (e) => {
 canvas.addEventListener('touchend', (e) => {
     hoveredIdx = -1;
     hideTooltip();
+    const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = touchStartY - e.changedTouches[0].clientY;
     const dt = performance.now() - touchStartTime;
-    if (dy > 50 && dt < 500) handleSwipeUp();
+    if (state === 'fortune' && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
+        cycleDajiFont(dx > 0 ? 1 : -1);
+    } else if (dy > 50 && dt < 500) {
+        handleSwipeUp();
+    }
 }, { passive: true });
 
 // Desktop hover
@@ -1560,6 +1826,10 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
         handleSwipeUp();
+    }
+    if (state === 'fortune') {
+        if (e.code === 'ArrowLeft') { e.preventDefault(); cycleDajiFont(-1); }
+        if (e.code === 'ArrowRight') { e.preventDefault(); cycleDajiFont(1); }
     }
 });
 
