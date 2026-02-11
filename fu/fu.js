@@ -80,11 +80,23 @@ const CALLI_FONTS = [
     '"slideyouran"',                 // 演示悠然小楷 — elegant regular script
     '"峄山碑篆体"',                    // 峄山碑篆体 — seal script
 ];
+const FONT_DISPLAY_NAMES = [
+    '指芒星',
+    '柳建毛草',
+    '马善政',
+    '仓耳周珂正大榜书',
+    '鸿雷行书简体',
+    '千图笔锋手写体',
+    '演示悠然小楷',
+    '峄山碑篆体',
+];
 const chosenFont = CALLI_FONTS[Math.floor(Math.random() * CALLI_FONTS.length)];
 
 // --- Daji title font cycling ---
 let dajiFontIdx = 0;
 let dajiFontTransition = null; // { oldFont, startTime }
+let dajiFontAutoTimer = 0; // globalTime of last cycle
+const DAJI_AUTO_INTERVAL = 4.5; // seconds between auto-cycles
 
 function getDajiFont() { return CALLI_FONTS[dajiFontIdx]; }
 
@@ -92,6 +104,7 @@ function cycleDajiFont(dir) {
     const oldFont = CALLI_FONTS[dajiFontIdx];
     dajiFontIdx = (dajiFontIdx + dir + CALLI_FONTS.length) % CALLI_FONTS.length;
     dajiFontTransition = { oldFont, startTime: globalTime };
+    dajiFontAutoTimer = globalTime;
 }
 
 // --- Math ---
@@ -803,11 +816,18 @@ function renderArrivalOverlay() {
     drawOverlayText('新年纳福', 0.15, CONFIG.glowGold, textFade * 0.8, cellSize * 2);
     drawOverlayText('A Blessing Awaits', 0.20, CONFIG.glowGold, textFade * 0.5, cellSize * 1.1);
 
-    // Swipe hint
+    // Swipe hint with gentle hops then rest
     const hintFade = Math.min(1, Math.max(0, (stateTime - 1.5) / 0.5));
     const pulse = 0.4 + Math.sin(globalTime * 3) * 0.2;
-    drawOverlayText('↑  上滑抽签  ↑', 0.88, CONFIG.glowGreen, hintFade * pulse, cellSize * 1.3);
-    drawOverlayText('Swipe Up to Draw Fortune', 0.92, CONFIG.glowGreen, hintFade * pulse * 0.6, cellSize * 0.9);
+    // 3 gentle sine hops (0.9s) then rest (2.1s), total cycle 3s
+    const hopPhase = globalTime % 3.0;
+    let hopOffset = 0;
+    if (hopPhase < 0.9) {
+        const decay = 1 - hopPhase / 0.9;
+        hopOffset = -Math.abs(Math.sin(hopPhase / 0.9 * Math.PI * 3)) * 0.012 * decay;
+    }
+    drawOverlayText('↑  上滑抽签  ↑', 0.88 + hopOffset, CONFIG.glowGold, hintFade * pulse, cellSize * 1.6);
+    drawOverlayText('Swipe Up to Draw Fortune', 0.92 + hopOffset, CONFIG.glowGold, hintFade * pulse, cellSize * 1.1);
 }
 
 // ============================================================
@@ -1200,6 +1220,11 @@ function renderDaji(alpha) {
 function updateFortune() {
     updateBgParticles(globalTime);
     updateFireworkPhysics();
+    // Auto-cycle font when idle
+    if (!dajiFontTransition && stateTime > 6 && globalTime - dajiFontAutoTimer > DAJI_AUTO_INTERVAL) {
+        dajiFontAutoTimer = globalTime;
+        cycleDajiFont(1);
+    }
 }
 
 // --- Fancy 大吉 title morph transitions ---
@@ -1228,14 +1253,14 @@ function drawMorphSparkles(cx, cy, fontSize, t, alpha) {
 }
 
 function renderDajiTitleEntrance(stateT, font) {
-    const fontSize = cellSize * 3;
+    const fontSize = cellSize * 5;
     const entranceDur = 1.3;
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight * 0.15;
     const chars = ['大', '吉'];
 
     if (stateT >= entranceDur) {
-        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, 0.9, fontSize, font);
+        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, 0.9, cellSize * 5, font);
         return;
     }
 
@@ -1295,7 +1320,7 @@ function renderDajiMorph(t, fadeIn, oldFont, newFont) {
     ctx.save();
     ctx.scale(dpr, dpr);
 
-    const fontSize = cellSize * 3;
+    const fontSize = cellSize * 5;
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight * 0.15;
     const baseAlpha = fadeIn * 0.9;
@@ -1452,14 +1477,14 @@ function renderFortuneOverlay() {
         const tt = (globalTime - dajiFontTransition.startTime) / transDur;
         if (tt >= 1) {
             dajiFontTransition = null;
-            drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3, getDajiFont());
+            drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 5, getDajiFont());
         } else {
             renderDajiMorph(tt, fadeIn, dajiFontTransition.oldFont, getDajiFont());
         }
     } else if (stateTime < 1.5) {
         renderDajiTitleEntrance(stateTime, getDajiFont());
     } else {
-        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 3, getDajiFont());
+        drawOverlayText('大 吉', 0.15, CONFIG.glowGold, fadeIn * 0.9, cellSize * 5, getDajiFont());
     }
 
     const blessFade = Math.min(1, Math.max(0, (stateTime - 0.5) / 0.9));
@@ -1768,7 +1793,7 @@ function renderFireworksOverlay() {
     if (stateTime > 3) {
         const hintFade = Math.min(1, (stateTime - 3) / 0.5);
         const pulse = 0.3 + Math.sin(globalTime * 3) * 0.2;
-        drawOverlayText('↑  继续  ↑', 0.94, CONFIG.glowGreen, hintFade * pulse, cellSize * 1);
+        drawOverlayText('↑  继续  ↑', 0.94, CONFIG.glowGold, hintFade * pulse, cellSize * 1);
     }
 }
 
@@ -1817,10 +1842,25 @@ canvas.addEventListener('mouseleave', () => {
     hideTooltip();
 });
 
-canvas.addEventListener('click', (e) => {
-    if (state === 'fortune' && hoveredIdx >= 0) return;
-    handleSwipeUp();
+// Desktop mouse drag (swipe up)
+let mouseStartY = 0, mouseDown = false;
+canvas.addEventListener('mousedown', (e) => {
+    mouseStartY = e.clientY;
+    mouseDown = true;
 });
+canvas.addEventListener('mouseup', (e) => {
+    if (mouseDown) {
+        const dy = mouseStartY - e.clientY;
+        if (dy > 50) handleSwipeUp();
+        else if (state === 'fortune' && hoveredIdx >= 0) { /* allow hover interaction */ }
+    }
+    mouseDown = false;
+});
+
+// Desktop scroll wheel (swipe up)
+canvas.addEventListener('wheel', (e) => {
+    if (e.deltaY < -30) handleSwipeUp();
+}, { passive: true });
 
 window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
