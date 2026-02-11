@@ -414,18 +414,12 @@ function initDaji3D(seedParticles) {
         if (char === ' ') continue;
         const color = lerpColor(lum);
 
-        // Randomly assign a calligraphy font or keep monospace
-        const fontRoll = Math.random();
-        const uvKey = fontRoll < 0.7
-            ? char + '|' + Math.floor(Math.random() * CALLI_FONTS.length)
-            : char; // ~30% monospace
-
         daji3DParticles.push({
             baseX: pt.nx * spread * 0.5 * pt.aspect,
             baseY: pt.ny * spread * 0.5,
             origZ: (Math.random() - 0.5) * depth,
             char,
-            uvKey,
+            fontIdx: Math.random() < 0.7 ? Math.floor(Math.random() * CALLI_FONTS.length) : null,
             r: color.r, g: color.g, b: color.b,
             alpha: 0.3 + lum * 0.7,
             lum,
@@ -497,7 +491,7 @@ function updateDajiToGPU(skipRender) {
         instColor.setXYZ(i, isHovered ? 1.0 : gr, isHovered ? 0.97 : gg, isHovered ? 0.86 : gb);
         instAlpha.setX(i, alpha);
 
-        const uv = charToUV[p.uvKey || p.char];
+        const uv = (p.fontIdx != null && charToUV[p.char + '|' + p.fontIdx]) || charToUV[p.char];
         if (uv) instUV.setXY(i, uv.u, uv.v);
 
         let scale = cellSize * 1.1;
@@ -783,7 +777,7 @@ function updateProjectedGlyphsToGPU(glyphs) {
         instColor.setXYZ(i, g.r / 255, g.g / 255, g.b / 255);
         instAlpha.setX(i, g.alpha);
 
-        const uv = charToUV[g.char];
+        const uv = (g.fontIdx != null && charToUV[g.char + '|' + g.fontIdx]) || charToUV[g.char];
         if (uv) instUV.setXY(i, uv.u, uv.v);
 
         instScale.setX(i, cellSize * (g.size || 1));
@@ -918,6 +912,7 @@ function initDrawAnimation() {
             finalChar: selectCharByLuminance(tgt.brightness),
             brightness: tgt.brightness,
             phase: Math.random() * Math.PI * 2,
+            fontIdx: Math.random() < 0.7 ? Math.floor(Math.random() * CALLI_FONTS.length) : null,
             active: false,
         });
     }
@@ -1045,16 +1040,12 @@ function buildDajiSeedFromMorph() {
         const char = p.finalChar || selectCharByLuminance(lum);
         if (char === ' ') continue;
         const color = lerpColor(lum);
-        const fontRoll = Math.random();
-        const uvKey = fontRoll < 0.7
-            ? char + '|' + Math.floor(Math.random() * CALLI_FONTS.length)
-            : char;
         seeded.push({
             baseX: p.x,
             baseY: p.y,
             origZ: p.targetZ, // Use stable targetZ as base, excluding breathing offset
             char,
-            uvKey,
+            fontIdx: p.fontIdx,
             r: color.r,
             g: color.g,
             b: color.b,
@@ -1159,6 +1150,7 @@ function renderDrawParticles3D(t) {
             y: p.y,
             z: renderZ,
             char: p.char,
+            fontIdx: p.fontIdx,
             r: Math.round(r),
             g: Math.round(g),
             b: Math.round(b),
