@@ -8,7 +8,7 @@ const ctx = canvas.getContext('2d');
 
 // --- Configuration ---
 const CONFIG = {
-    bg: '#CC0000',
+    bg: '#990000', // Crimson
     glowRed: '#FF2D2D',
     glowGold: '#FFD700',
     glowGreen: '#00FF9F',
@@ -196,7 +196,7 @@ let fontsReady = false;
 // Force-load the chosen font (unicode-range fonts won't load without DOM text)
 document.fonts.load(`64px ${chosenFont}`, '福大吉').then(() => {
     fuShape = sampleCharacterShape('福', 64, chosenFont);
-    dajiShape = sampleCharacterShape('大吉', 48);
+    dajiShape = sampleCharacterShape('大吉', 32); // Reduced from 48 to 32 for performance with blur
     fontsReady = true;
 });
 
@@ -246,6 +246,7 @@ function render3DDaji() {
     if (daji3DParticles.length === 0) return;
     ctx.save();
     ctx.scale(dpr, dpr);
+    ctx.globalCompositeOperation = 'lighter';
 
     const spread = Math.min(cols, rows) * 0.40 * cellSize;
     const entryT = Math.min(1, (globalTime - daji3DEntryTime) / 1.2);
@@ -291,7 +292,7 @@ function render3DDaji() {
         let fontSize = baseFontSize * p.scale;
         // Use p.scale (dynamic) for alpha to match renderDrawParticles3D/renderProjectedGlyphs
         let alpha = p.alpha * Math.max(0.2, p.scale * 1.25);
-        alpha = Math.min(1, alpha); // CLAMP to 1.0 to match renderProjectedGlyphs behavior
+        alpha = Math.min(0.8, alpha); // CLAMP to 0.8 for transparency (gemini style)
 
         if (p.isHovered) {
             fontSize *= 2.2;
@@ -322,15 +323,15 @@ function render3DDaji() {
         ctx.textBaseline = 'middle';
 
         // Shadow blend: Draw state ends with factor ~0.7 (glow=0.7).
-        // Fortune state target is 0.5. Lerp it.
-        const shadowFactor = lerp(0.7, 0.5, blendT);
+        // Fortune state target is 0.8 to keep it glowing.
+        const shadowFactor = lerp(0.7, 0.8, blendT);
 
         if (p.isHovered) {
             ctx.shadowColor = '#FFF8DC';
             ctx.shadowBlur = fontSize * 0.9;
         } else if (alpha > 0.3) {
             ctx.shadowColor = `rgba(${gr}, ${gg}, ${gb}, ${alpha * shadowFactor})`;
-            ctx.shadowBlur = fontSize * lerp(0.65, 0.4, blendT);
+            ctx.shadowBlur = fontSize * lerp(0.65, 0.7, blendT);
         } else {
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
@@ -603,6 +604,7 @@ function renderProjectedGlyphs(glyphs) {
 
     ctx.save();
     ctx.scale(dpr, dpr);
+    ctx.globalCompositeOperation = 'lighter';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     let lastFontSize = 0;
@@ -614,7 +616,7 @@ function renderProjectedGlyphs(glyphs) {
         }
         if (p.glow > 0 && p.alpha > 0.3) {
             ctx.shadowColor = `rgba(${p.r}, ${p.g}, ${p.b}, ${Math.min(1, p.alpha * p.glow)})`;
-            ctx.shadowBlur = rounded * p.blur;
+            ctx.shadowBlur = rounded * p.blur * 1.5; // Restored & boosted blur
         } else {
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
