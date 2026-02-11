@@ -906,9 +906,16 @@ function updateDraw() {
                 const st = (t - DRAW_LAUNCH) / (DRAW_SCATTER - DRAW_LAUNCH);
                 const eased = 1 - Math.pow(1 - st, 2);
                 p.x = lerp(p.startX, p.scatterX, eased);
-                // Stronger gravity drop (6.0 * cellSize)
-                p.y = lerp(p.startY, p.scatterY, eased) + st * st * cellSize * 6.0;
+                // Gravity drop with ease-out to avoid velocity jump at end
+                p.y = lerp(p.startY, p.scatterY, eased) + eased * cellSize * 6.0;
                 p.z = lerp(p.startZ, p.scatterZ, eased);
+                
+                // Ramp up wobble to match the start of Reform phase (seamless transition)
+                const wobble = st * cellSize * 0.8;
+                p.x += Math.sin(p.phase + globalTime * 4) * wobble;
+                p.y += Math.cos(p.phase + globalTime * 3) * wobble;
+                p.z += Math.sin(p.phase * 0.7 + globalTime * 3.2) * wobble * 1.4;
+
                 p.scrambleTimer -= 1;
                 if (p.scrambleTimer <= 0) {
                     p.char = ALL_LUCKY[Math.floor(Math.random() * ALL_LUCKY.length)];
@@ -1027,22 +1034,27 @@ function renderDrawParticles3D(t) {
         // Visual effects (Flicker/Wobble/Pulse)
         if (t < DRAW_SCATTER) {
             // Explosion: Chaotic flicker and size variation
-            // Flicker intensity fades slightly as they scatter
-            const flicker = Math.sin(globalTime * 25 + p.phase * 3) * 0.25;
-            alpha = Math.min(1, Math.max(0.1, (0.55 + gp * 0.3) + flicker));
+            const st = (t - DRAW_LAUNCH) / (DRAW_SCATTER - DRAW_LAUNCH);
+            const fade = 1 - st; // Fade out chaos to zero
+
+            const flicker = Math.sin(globalTime * 25 + p.phase * 3) * 0.25 * fade;
+            alpha = Math.min(1, Math.max(0.1, (0.6 + gp * 0.3) + flicker));
             
             // Size oscillates rapidly
-            const sizeWobble = Math.sin(globalTime * 18 + p.phase * 2) * 0.3;
+            const sizeWobble = Math.sin(globalTime * 18 + p.phase * 2) * 0.3 * fade;
             size *= (1 + sizeWobble);
 
         } else if (t < DRAW_REFORM) {
             // Reformation: Magic pulsing as they assemble
+            const st = (t - DRAW_SCATTER) / (DRAW_REFORM - DRAW_SCATTER);
+            const fade = st; // Fade in order from zero
+
             // Smooth harmonic pulse
-            const pulse = Math.sin(globalTime * 8 + p.phase) * 0.2;
+            const pulse = Math.sin(globalTime * 8 + p.phase) * 0.2 * fade;
             alpha = Math.min(1, Math.max(0.2, (0.6 + gp * 0.3) + pulse));
 
             // Size breathes rhythmically
-            const breathe = Math.sin(globalTime * 6 + p.phase) * 0.15;
+            const breathe = Math.sin(globalTime * 6 + p.phase) * 0.15 * fade;
             size *= (1 + breathe);
 
         } else {
