@@ -192,7 +192,7 @@ function initThreeJS() {
     // To get the "glow" look, we can draw with shadowBlur in the atlas.
     
     actx.shadowColor = 'white';
-    actx.shadowBlur = CELL_PX * 0.15; // Baked glow
+    actx.shadowBlur = CELL_PX * 0.12; // Baked glow (must fade to zero within cell)
 
     let idx = 0;
     uniqueChars.forEach(char => {
@@ -234,7 +234,10 @@ function initThreeJS() {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         transparent: true,
-        blending: THREE.AdditiveBlending, // Key for the glow look
+        blending: THREE.CustomBlending,
+        blendSrc: THREE.OneFactor,
+        blendDst: THREE.OneFactor,
+        blendEquation: THREE.AddEquation,
         depthWrite: false,
         depthTest: false
     });
