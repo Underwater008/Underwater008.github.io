@@ -100,7 +100,9 @@ function getDajiFont() { return CALLI_FONTS[dajiFontIdx]; }
 
 function cycleDajiFont(dir) {
     const oldFont = CALLI_FONTS[dajiFontIdx];
-    dajiFontIdx = (dajiFontIdx + dir + CALLI_FONTS.length) % CALLI_FONTS.length;
+    let newIdx;
+    do { newIdx = Math.floor(Math.random() * CALLI_FONTS.length); } while (newIdx === dajiFontIdx && CALLI_FONTS.length > 1);
+    dajiFontIdx = newIdx;
     dajiFontTransition = { oldFont, startTime: globalTime };
     dajiFontAutoTimer = globalTime;
 }
