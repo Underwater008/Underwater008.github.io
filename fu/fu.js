@@ -77,7 +77,6 @@ const CALLI_FONTS = [
     '"TsangerZhoukeZhengdabangshu"', // 仓耳周珂正大榜书 — banner calligraphy
     '"hongleixingshu"',              // 鸿雷行书简体 — running script
     '"qiantubifengshouxieti"',       // 千图笔锋手写体 — brush stroke
-    '"slideyouran"',                 // 演示悠然小楷 — elegant regular script
     '"峄山碑篆体"',                    // 峄山碑篆体 — seal script
 ];
 const FONT_DISPLAY_NAMES = [
@@ -87,7 +86,6 @@ const FONT_DISPLAY_NAMES = [
     '仓耳周珂正大榜书',
     '鸿雷行书简体',
     '千图笔锋手写体',
-    '演示悠然小楷',
     '峄山碑篆体',
 ];
 const chosenFont = CALLI_FONTS[Math.floor(Math.random() * CALLI_FONTS.length)];
@@ -249,7 +247,7 @@ function initThreeJS() {
     // atlasTexture.flipY = true; // Default
 
     // 5. InstancedMesh
-    const MAX_PARTICLES = 1500;
+    const MAX_PARTICLES = 4000;
     const geometry = new THREE.PlaneGeometry(1, 1);
     const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -362,7 +360,7 @@ Promise.all(
     CALLI_FONTS.map(f => document.fonts.load(`64px ${f}`, '福大吉'))
 ).then(() => {
     fuShape = sampleCharacterShape('福', 64, chosenFont);
-    dajiShape = sampleCharacterShape('大吉', 32);
+    dajiShape = sampleCharacterShape('大吉', 64);
     fontsReady = true;
     initThreeJS();
 });
@@ -1543,18 +1541,20 @@ function burstShell(shell) {
     const { chars, r, g, b } = shell.cat;
     for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-        const speed = cellSize * (0.12 + Math.random() * 0.22);
+        const speed = cellSize * (0.06 + Math.random() * 0.10);
         fwParticles.push({
             x: shell.x, y: shell.y, z: shell.z,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed - cellSize * 0.04,
-            vz: (Math.random() - 0.5) * speed * 0.7,
+            vy: Math.sin(angle) * speed - cellSize * 0.06,
+            vz: (Math.random() - 0.5) * speed * 0.5,
             char: chars[Math.floor(Math.random() * chars.length)],
             r, g, b,
-            life: 0.6 + Math.random() * 0.4,
-            decay: 0.006 + Math.random() * 0.01,
-            gravity: cellSize * (0.0015 + Math.random() * 0.001),
-            drag: 0.987,
+            life: 0.6 + Math.random() * 0.3,
+            decay: 0.008 + Math.random() * 0.008,
+            gravity: cellSize * (0.001 + Math.random() * 0.001),
+            drag: 0.985,
+            trailSegs: [],
+            lastTrailTime: globalTime,
         });
     }
 }
@@ -1567,7 +1567,7 @@ function initFireworks() {
     fwLaunchCount = 0;
 
     // Launch an initial volley — fresh shells that rise from the bottom
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 2; i++) {
         launchShell();
     }
 }
@@ -1576,11 +1576,10 @@ function updateFireworkPhysics() {
     // Auto-launch on a timer (frames)
     fwLaunchTimer--;
     if (fwLaunchTimer <= 0) {
-        const burst = fwLaunchCount < 3 ? 1 : (Math.random() < 0.3 ? 2 : 1);
-        for (let i = 0; i < burst; i++) launchShell();
+        launchShell();
         fwLaunchTimer = fwLaunchCount < 3
-            ? 15 + Math.random() * 20
-            : 35 + Math.random() * 55;
+            ? 40 + Math.random() * 30
+            : 70 + Math.random() * 80;
     }
 
     const halfW = cols * cellSize * 0.5;
@@ -1634,6 +1633,9 @@ function updateFireworkPhysics() {
     fwTrail.length = trw;
 
     // Particles — drift, fade, fall (compact-in-place)
+    // Trail spawns position-only snapshots; alpha computed at render time from parent life
+    const FW_TRAIL_INTERVAL = 0.06; // seconds between trail spawns
+    const FW_MAX_TRAIL_SEGS = 14;
     let pw = 0;
     for (let i = 0; i < fwParticles.length; i++) {
         const p = fwParticles[i];
@@ -1645,6 +1647,14 @@ function updateFireworkPhysics() {
         p.y += p.vy;
         p.z += p.vz;
         p.life -= p.decay;
+
+        // Spawn trailing tail segments (position snapshots only, like fireworks.html)
+        if (globalTime - p.lastTrailTime >= FW_TRAIL_INTERVAL && p.life > 0.05) {
+            p.trailSegs.push({ x: p.x, y: p.y, z: p.z });
+            p.lastTrailTime = globalTime;
+            if (p.trailSegs.length > FW_MAX_TRAIL_SEGS) p.trailSegs.shift();
+        }
+
         if (
             p.life > 0
             && p.y <= halfH + cellSize * 6
@@ -1715,6 +1725,27 @@ function renderFireworks3D() {
             glow: 0.65,
             blur: 0.62,
         });
+
+        // Trailing tail segments — same char as parent, oldest=dimmest
+        const segCount = p.trailSegs.length;
+        for (let ti = 0; ti < segCount; ti++) {
+            const seg = p.trailSegs[ti];
+            const ageFrac = segCount > 1 ? ti / (segCount - 1) : 1;
+            const segAlpha = alpha * (0.2 + ageFrac * 0.6);
+            glyphs.push({
+                x: seg.x,
+                y: seg.y,
+                z: seg.z,
+                char: p.char,
+                r: p.r,
+                g: p.g,
+                b: p.b,
+                alpha: segAlpha,
+                size: 0.6 + ageFrac * 0.35,
+                glow: 0.5,
+                blur: 0.5,
+            });
+        }
     }
 
     // Send to GPU instead of Canvas 2D
@@ -1771,6 +1802,24 @@ function appendFireworksToGPU(startIdx) {
         if (uv) instUV.setXY(idx, uv.u, uv.v);
         instScale.setX(idx, cellSize * (0.92 + alpha * 0.5));
         idx++;
+
+        // Render trailing tail segments — same char as parent, oldest=dimmest
+        const segCount = p.trailSegs.length;
+        for (let ti = 0; ti < segCount; ti++) {
+            if (idx >= maxCount) break;
+            const seg = p.trailSegs[ti];
+            const ageFrac = segCount > 1 ? ti / (segCount - 1) : 1;
+            const segAlpha = alpha * (0.2 + ageFrac * 0.6);
+            const segScale = cellSize * (0.6 + ageFrac * 0.35);
+            _dummy.position.set(seg.x, -seg.y, -seg.z);
+            _dummy.updateMatrix();
+            particlesMesh.setMatrixAt(idx, _dummy.matrix);
+            instColor.setXYZ(idx, p.r / 255, p.g / 255, p.b / 255);
+            instAlpha.setX(idx, segAlpha);
+            if (uv) instUV.setXY(idx, uv.u, uv.v);
+            instScale.setX(idx, segScale);
+            idx++;
+        }
     }
 
     particlesMesh.count = idx;
