@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/hlxsjt@3.0.0/dist/%E9%B8%BF%E9%9B%B7%E8%A1%8C%E4%B9%A6%E7%AE%80%E4%BD%93/result.css">
     <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/qtbfsxt@3.0.0/dist/%E5%8D%83%E5%9B%BE%E7%AC%94%E9%94%8B%E6%89%8B%E5%86%99%E4%BD%93/result.css">
 
-    <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/ysbzt@3.0.0/dist/%E5%B3%84%E5%B1%B1%E7%A2%91%E7%AF%86%E4%BD%93/result.css">
+    <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/ysbzt@3.0.0/dist/%E5%B3%84%E5%B1%B1%E7%A2%91%E7%AF%86%E4%BD%93/result.css">
     <style>
         * {
             margin: 0;
@@ -34,11 +34,62 @@
             height: 100vh;
         }
     </style>
-  <script type="module" crossorigin src="/assets/fu-CKLDExin.js"></script>
+  <script type="module" crossorigin src="/assets/fu-C174af6e.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/assets/three.module-aEEDt9MZ.js">
+  <link rel="stylesheet" crossorigin href="/assets/fu-C5UyEw6i.css">
 </head>
 <body>
-    <canvas id="c"></canvas>
+    <canvas id="c"></canvas>
+
+    <!-- Red Envelope UI Overlay -->
+    <div id="envelope-overlay">
+        
+        <!-- Panel 1: Start / Open -->
+        <div id="panel-start" class="envelope-panel">
+            <h1>福</h1>
+            <h2>DIGITAL RED ENVELOPE</h2>
+            <div style="margin-bottom: 1.5rem; font-size: 0.9rem; opacity: 0.8;">
+                You have received a blessing.
+                <br>Scan the chip to unlock.
+            </div>
+            <button id="btn-open">OPEN ENVELOPE</button>
+            
+            <div style="margin-top: 2rem; border-top: 1px solid rgba(255,215,0,0.3); padding-top: 1rem;">
+                <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 0.5rem;">PREVIOUS OWNERS</div>
+                <div id="history-list" class="history-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Make a Wish -->
+        <div id="panel-wish" class="envelope-panel">
+            <h1>Make a Wish</h1>
+            <p style="margin-bottom: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                Leave your hope here to claim your fortune.
+            </p>
+            <textarea id="wish-input" rows="3" placeholder="I wish for..."></textarea>
+            <button id="btn-submit-wish">SEAL WISH</button>
+        </div>
+
+        <!-- Panel 3: Result / Pass On -->
+        <div id="panel-result" class="envelope-panel">
+            <h1>Wish Sealed</h1>
+            <div id="btc-display" class="btc-reward">
+                <div class="btc-icon">₿</div>
+                <span>Asset Value: 1.00 BTC</span>
+            </div>
+            <div style="margin: 1.5rem 0; font-style: italic; color: #fff;">
+                "<span id="final-wish"></span>"
+            </div>
+            <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1.5rem;">
+                Your wish is now encoded in this artifact's history.
+            </p>
+            <button id="btn-reset">UNSEAL & PASS ON</button>
+        </div>
+
+    </div>
+
 </body>
 </html>
