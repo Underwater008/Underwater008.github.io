@@ -97,6 +97,9 @@
   const particleCtx = particleCanvas.getContext('2d');
 
   const prefixLeftRatio = 0.15;
+  function isMobileLayout() {
+    return window.innerWidth < 768;
+  }
   const titles = ['HELLO WORLD', 'I am a GAMER', 'I am a DEVELOPER', 'I am Homo Ludens', 'I am XIAO'];
   let currentTitleIndex = 0;
   let currentPrefixText = '';
@@ -254,9 +257,12 @@
   function createPrefixParticles(prefix) {
     currentPrefixText = prefix;
 
-    const centerY = particleCanvas.height / 2;
-    const baseLeft = Math.max(40, particleCanvas.width * prefixLeftRatio);
+    const mobile = isMobileLayout();
     const fontSize = Math.min(window.innerWidth / 8, 80);
+    const centerY = mobile && prefix
+      ? particleCanvas.height / 2 - fontSize * 0.75
+      : particleCanvas.height / 2;
+    let baseLeft = Math.max(40, particleCanvas.width * prefixLeftRatio);
     particleCtx.font = `bold ${fontSize}px "Courier New", monospace`;
 
     if (!prefix) {
@@ -278,6 +284,11 @@
       const widthIWithSpace = particleCtx.measureText('I ').width;
       const spaceWidth = Math.max(0, widthIWithSpace - widthI);
       const desiredSpacing = spaceWidth * 0.75;
+
+      if (mobile) {
+        const totalPrefixWidth = widthI + desiredSpacing + widthAm;
+        baseLeft = (particleCanvas.width - totalPrefixWidth) / 2;
+      }
 
       const iPositions = getTextParticles('I', {
         centerX: baseLeft + widthI / 2,
@@ -386,7 +397,10 @@
       return;
     }
 
-    const centerY = particleCanvas.height / 2;
+    const fontSize = Math.min(window.innerWidth / 8, 80);
+    const centerY = isMobileLayout()
+      ? particleCanvas.height / 2 - fontSize * 0.75
+      : particleCanvas.height / 2;
     const positions = getTextParticles('a', { centerX: particleCanvas.width / 2, centerY });
 
     if (positions.length === 0) {
@@ -396,7 +410,6 @@
     }
 
     const minX = Math.min(...positions.map((pos) => pos.x));
-    const fontSize = Math.min(window.innerWidth / 8, 80);
     const spacing = articleSpacing > 0 ? articleSpacing : fontSize * 0.2;
     const targetLeft = prefixRightEdge + spacing;
     const shift = targetLeft - minX;
@@ -483,10 +496,17 @@
       ? fullText.slice(sliceLength).trimStart()
       : fullText;
 
+    const fontSize = Math.min(window.innerWidth / 8, 80);
+    const mobile = isMobileLayout();
+    const suffixCenterY = (prefixText === 'I am' && mobile)
+      ? particleCanvas.height / 2 + fontSize * 0.75
+      : particleCanvas.height / 2;
+
     const targetParticles = getTextParticles(suffixText, {
       centerX: particleCanvas.width / 2,
-      centerY: particleCanvas.height / 2
+      centerY: suffixCenterY
     });
+
     const newParticles = [];
 
     for (let i = 0; i < targetParticles.length; i += 1) {
