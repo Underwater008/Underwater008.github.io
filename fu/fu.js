@@ -54,7 +54,7 @@ function handleSwipeUp() {
         }
     } else if (S.state === 'fireworks') {
         if (S.envelopeManager) {
-            S.envelopeManager.showPanel('result');
+            S.envelopeManager.showPanel('sealed');
         }
     }
 }
@@ -79,6 +79,11 @@ Promise.all(
             changeState('fireworks');
         }
     });
+
+    // --- Dev tool (load with ?dev=1) ---
+    if (new URLSearchParams(window.location.search).has('dev')) {
+        import('./dev.js').then(m => m.initDevTool({ changeState }));
+    }
 });
 
 // ============================================================

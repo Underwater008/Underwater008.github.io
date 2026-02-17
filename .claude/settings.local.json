@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(gh repo view:*)",
+      "Bash(where:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(start \"https://underwater008.github.io/fu/\")",
+      "Bash(npx supabase --version)",
+      "Bash(supabase --version:*)",
+      "Bash(npm install:*)",
+      "Bash(bun install:*)",
+      "Bash(export PATH=\"$PATH:/c/Users/XIAO/.bun/bin\")",
+      "Bash(bunx supabase:*)",
+      "Bash(winget install:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(export PATH=\"$PATH:/c/Users/XIAO/.local/bin\")",
+      "Bash(supabase projects:*)",
+      "Bash(supabase link:*)",
+      "Bash(supabase db dump:*)",
+      "Bash(supabase db execute:*)",
+      "Bash(/c/Users/XIAO/.local/bin/supabase:*)",
+      "Bash(supabase init:*)",
+      "Bash(supabase migration new:*)",
+      "Bash(supabase db push:*)",
+      "Bash(supabase migration list:*)",
+      "Bash(supabase migration repair:*)",
+      "Bash(supabase inspect:*)",
+      "Bash(grep:*)",
+      "Bash(start:*)",
+      "Bash(npx serve:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(bun serve:*)",
+      "Bash(bun --help:*)",
+      "Bash(bunx serve:*)",
+      "Bash(bunx vite:*)",
+      "Bash(bun add:*)"
+    ]
+  }
+}
