@@ -12,7 +12,6 @@ module.exports = {
           udream: 'udream/udream.html',
           stellarune: 'stellarune.html',
           fu: 'fu/index.html',
-          fu_openai: 'fu-openai/index.html',
           fu_gemini: 'fu-gemini/index.html',
         }
       }
