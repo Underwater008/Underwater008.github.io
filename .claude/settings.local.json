@@ -34,7 +34,9 @@
       "Bash(bun --help:*)",
       "Bash(bunx serve:*)",
       "Bash(bunx vite:*)",
-      "Bash(bun add:*)"
+      "Bash(bun add:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
