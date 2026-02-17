@@ -25,18 +25,15 @@ export function initDevTool({ changeState }) {
                     <button data-s="arrival">arrival</button>
                     <button data-s="draw">draw</button>
                     <button data-s="fortune">fortune</button>
-                    <button data-s="fireworks">fireworks</button>
                 </div>
             </fieldset>
 
             <fieldset>
-                <legend>Panels</legend>
+                <legend>Panel</legend>
                 <div class="dr">
-                    <button data-p="timeline">timeline</button>
-                    <button data-p="wish">wish</button>
-                    <button data-p="sealed">sealed</button>
-                    <button data-p="unseal">unseal</button>
-                    <button data-p="hide">✕</button>
+                    <button id="dev-show-panel">show</button>
+                    <button id="dev-hide-panel">hide</button>
+                    <label><input type="checkbox" id="dev-wished"> wished</label>
                 </div>
             </fieldset>
 
@@ -153,13 +150,22 @@ export function initDevTool({ changeState }) {
         refreshEnvLabel();
     }
 
-    // --- Panel buttons ---
-    panel.querySelectorAll('[data-p]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!S.envelopeManager) return;
-            if (btn.dataset.p === 'hide') S.envelopeManager.hideAll();
-            else S.envelopeManager.showPanel(btn.dataset.p);
-        });
+    // --- Panel show/hide ---
+    document.getElementById('dev-show-panel').addEventListener('click', () => {
+        if (!S.envelopeManager) return;
+        S.envelopeManager.show();
+    });
+    document.getElementById('dev-hide-panel').addEventListener('click', () => {
+        if (!S.envelopeManager) return;
+        S.envelopeManager.hide();
+    });
+    document.getElementById('dev-wished').addEventListener('change', (e) => {
+        if (!S.envelopeManager) return;
+        const em = S.envelopeManager;
+        em.state.wished = e.target.checked;
+        em.state.sealed = e.target.checked;
+        em._updateSections();
+        refreshEnvLabel();
     });
 
     // --- NFC sim ---
@@ -180,9 +186,9 @@ export function initDevTool({ changeState }) {
         em.state.currentWishText = null;
 
         em._renderPieceBadge();
-        em._updateTimelineControls();
+        em._updateSections();
         em._loadWishHistory();
-        em.showPanel('timeline');
+        em.show();
         refreshEnvLabel();
         console.log(`[Dev] NFC tap: piece=${pid} type=${em.state.pieceType} sealed=${sealed}`);
     });
@@ -197,9 +203,9 @@ export function initDevTool({ changeState }) {
         em.state.sessionToken = null;
 
         em._renderPieceBadge();
-        em._updateTimelineControls();
+        em._updateSections();
         em._loadWishHistory();
-        em.showPanel('timeline');
+        em.show();
         refreshEnvLabel();
         console.log(`[Dev] URL visit: piece=${em.state.pieceId}`);
     });
@@ -209,7 +215,7 @@ export function initDevTool({ changeState }) {
         const em = S.envelopeManager;
         em.state.pieceId = null;
         em.state.isNfcTap = false;
-        em.state.validated = false;
+        em.state.validated = true;
         em.state.sealed = false;
         em.state.btcAddress = null;
         em.state.sessionToken = null;
@@ -217,8 +223,8 @@ export function initDevTool({ changeState }) {
         em.state.currentWishText = null;
 
         em._renderPieceBadge();
-        em._updateTimelineControls();
-        em.hideAll();
+        em._updateSections();
+        em.hide();
         refreshEnvLabel();
         console.log('[Dev] State reset');
     });

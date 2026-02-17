@@ -172,11 +172,7 @@ export function updateDraw(changeState) {
         const seeded = buildDajiSeedFromMorph();
         S.drawToFortuneSeed = seeded.length > 0 ? seeded : null;
 
-        if (S.envelopeManager && S.envelopeManager.state.wished) {
-            changeState('fireworks');
-        } else {
-            changeState('fortune');
-        }
+        changeState('fortune');
     }
 }
 

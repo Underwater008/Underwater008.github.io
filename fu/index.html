@@ -6,7 +6,7 @@
     <title>福</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&text=%E7%A6%8F%E5%A4%A7%E5%90%89&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap">
     <!-- Chinese Webfont Project — calligraphy fonts (subset on demand via unicode-range) -->
     <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/cezkzdbs@3.0.0/dist/%E4%BB%93%E8%80%B3%E5%91%A8%E7%8F%82%E6%AD%A3%E5%A4%A7%E6%A6%9C%E4%B9%A6/result.css">
     <link rel="stylesheet" href="https://unpkg.com/@chinese-fonts/hlxsjt@3.0.0/dist/%E9%B8%BF%E9%9B%B7%E8%A1%8C%E4%B9%A6%E7%AE%80%E4%BD%93/result.css">
@@ -41,77 +41,52 @@
 
     <!-- Red Envelope UI Overlay -->
     <div id="envelope-overlay">
+        <div id="envelope-panel" class="envelope-panel">
 
-        <!-- Panel 1: Timeline / Landing (everyone sees this) -->
-        <div id="panel-timeline" class="envelope-panel">
+            <!-- Header -->
             <h1>福</h1>
             <h2>DIGITAL RED ENVELOPE</h2>
             <div id="piece-badge-slot"></div>
 
+            <!-- Wish history -->
             <div class="wish-timeline">
                 <div class="wish-timeline-title">WISH HISTORY</div>
-                <div id="wish-timeline-list">
-                    <!-- Populated by JS -->
+                <div id="wish-timeline-list"></div>
+            </div>
+
+            <!-- Wish input (shown when not sealed) -->
+            <div id="section-wish" class="panel-section">
+                <textarea id="wish-input" rows="3" placeholder="I wish for..."></textarea>
+                <button id="btn-submit-wish">SEAL WISH</button>
+            </div>
+
+            <!-- Sealed info (shown after sealing) -->
+            <div id="section-sealed" class="panel-section" style="display:none">
+                <div class="section-divider"></div>
+                <div class="btc-reward">
+                    <div class="btc-icon">₿</div>
+                    <span id="btc-value">This envelope holds Bitcoin</span>
+                </div>
+                <div class="btc-address-label">WALLET ADDRESS</div>
+                <div id="btc-address" class="btc-address" title="Tap to copy"></div>
+
+                <button id="btn-golden-finger" class="golden-finger-btn" style="display:none;">
+                    金手指 — CLAIM FORTUNE DRAWS
+                </button>
+
+                <button id="btn-unseal">UNSEAL &amp; PASS ON</button>
+
+                <!-- Inline unseal form (expands on click) -->
+                <div id="unseal-area" style="display:none">
+                    <div class="unseal-section">
+                        <input id="unseal-input" type="text" placeholder="Re-enter your wish to unseal..." />
+                        <div id="unseal-error" class="unseal-error"></div>
+                    </div>
+                    <button id="btn-confirm-unseal">CONFIRM</button>
                 </div>
             </div>
 
-            <!-- NFC tapper on unsealed piece sees this button -->
-            <button id="btn-make-wish" style="display:none;">MAKE A WISH</button>
-
-            <!-- Read-only notice for URL visitors or sealed pieces -->
-            <div id="read-only-notice" class="read-only-notice" style="display:none;">
-                Scan the physical piece to interact.
-            </div>
         </div>
-
-        <!-- Panel 2: Make a Wish (NFC tapper, piece unsealed) -->
-        <div id="panel-wish" class="envelope-panel">
-            <h1>Make a Wish</h1>
-            <p style="margin-bottom: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                Your wish will be sealed into this piece.
-                <br>Only you will know the words.
-            </p>
-            <textarea id="wish-input" rows="3" placeholder="I wish for..."></textarea>
-            <button id="btn-submit-wish">SEAL WISH</button>
-        </div>
-
-        <!-- Panel 3: Wish Sealed (after writing, NFC only) -->
-        <div id="panel-sealed" class="envelope-panel">
-            <h1>Wish Sealed</h1>
-            <p style="margin-bottom: 1rem; opacity: 0.7; font-size: 0.85rem;">
-                Your wish is now sealed into this piece's history.
-            </p>
-
-            <div id="btc-display" class="btc-reward">
-                <div class="btc-icon">₿</div>
-                <span id="btc-value">This envelope holds Bitcoin</span>
-            </div>
-            <div class="btc-address-label">WALLET ADDRESS</div>
-            <div id="btc-address" class="btc-address" title="Tap to copy"></div>
-
-            <!-- 金手指 button (gold pieces only) -->
-            <button id="btn-golden-finger" class="golden-finger-btn" style="display:none;">
-                金手指 — CLAIM FORTUNE DRAWS
-            </button>
-
-            <button id="btn-unseal">UNSEAL &amp; PASS ON</button>
-        </div>
-
-        <!-- Panel 4: Unseal verification -->
-        <div id="panel-unseal" class="envelope-panel">
-            <h1>Unseal</h1>
-            <p style="margin-bottom: 1rem; opacity: 0.8; font-size: 0.85rem;">
-                Re-enter your wish to unseal this piece
-                <br>and pass it to the next person.
-            </p>
-            <div class="unseal-section">
-                <input id="unseal-input" type="text" placeholder="Enter your wish..." />
-                <div id="unseal-error" class="unseal-error"></div>
-            </div>
-            <button id="btn-confirm-unseal">CONFIRM UNSEAL</button>
-            <button id="btn-back-sealed" style="margin-top: 0.5rem; opacity: 0.5; font-size: 0.75rem;">BACK</button>
-        </div>
-
     </div>
 
     <script type="module" src="./fu.js"></script>

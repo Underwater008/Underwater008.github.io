@@ -1,6 +1,10 @@
 // ============================================================
-// Envelope Manager — NFC validation, wish seal/unseal, panels
+// Envelope Manager — NFC validation, wish seal/unseal, single panel
 // ============================================================
+import { SUPABASE_URL, SUPABASE_ANON_KEY, FUNCTIONS_URL } from './supabase-config.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- URL Params ---
 const params = new URLSearchParams(window.location.search);
@@ -17,58 +21,53 @@ if (NFC_UID || NFC_CTR) {
     window.history.replaceState(null, '', cleanURL);
 }
 
-// --- Supabase stub (replace with real calls when Edge Functions are ready) ---
+// --- Supabase API ---
+async function callEdgeFunction(name, body) {
+    const res = await fetch(`${FUNCTIONS_URL}/${name}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(body),
+    });
+    return res.json();
+}
+
 const API = {
     async validateTap(pieceId, uid, ctr) {
-        // TODO: POST to Supabase Edge Function validate-tap
-        // Returns: { valid, piece_type, sealed, btc_address, session_token }
-        console.log('[API] validateTap', { pieceId, uid, ctr });
-        return {
-            valid: true,
-            piece_type: pieceId <= '04' ? 'gold' : 'regular',
-            sealed: false,
-            btc_address: 'bc1q' + 'x'.repeat(38),
-            session_token: 'mock-session-token',
-        };
+        return callEdgeFunction('validate-tap', { pieceId, uid, ctr });
     },
 
     async getWishHistory(pieceId) {
-        // TODO: Supabase query — select from wishes where piece_id = pieceId
-        console.log('[API] getWishHistory', pieceId);
-        return [
-            { id: '1', wish_text: 'Health and happiness for my family', sealed: false, display_type: 'regular', created_at: '2026-01-15T10:00:00Z' },
-            { id: '2', wish_text: 'World peace and kindness', sealed: false, display_type: 'regular', created_at: '2026-01-28T14:30:00Z' },
-            { id: '3', wish_text: null, sealed: true, display_type: 'regular', created_at: '2026-02-10T09:15:00Z' },
-        ];
+        const { data, error } = await supabase
+            .from('wishes')
+            .select('id, wish_text, sealed, display_type, created_at')
+            .eq('piece_id', pieceId)
+            .order('created_at', { ascending: false });
+        if (error) { console.error('[API] getWishHistory error:', error); return []; }
+        return data;
     },
 
     async getAllWishHistory() {
-        // TODO: Supabase query — select from wishes (all pieces)
-        console.log('[API] getAllWishHistory');
-        return [
-            { id: '1', piece_id: '01', wish_text: 'Health and happiness', sealed: false, display_type: 'gold', created_at: '2026-01-15T10:00:00Z' },
-            { id: '2', piece_id: '05', wish_text: 'Success in my studies', sealed: false, display_type: 'regular', created_at: '2026-01-20T08:00:00Z' },
-            { id: '3', piece_id: '03', wish_text: null, sealed: true, display_type: 'gold', created_at: '2026-02-10T09:15:00Z' },
-        ];
+        const { data, error } = await supabase
+            .from('wishes')
+            .select('id, piece_id, wish_text, sealed, display_type, created_at')
+            .order('created_at', { ascending: false });
+        if (error) { console.error('[API] getAllWishHistory error:', error); return []; }
+        return data;
     },
 
     async sealWish(pieceId, wishText, sessionToken) {
-        // TODO: POST to Supabase Edge Function seal-wish
-        console.log('[API] sealWish', { pieceId, wishText: '***' });
-        return { success: true };
+        return callEdgeFunction('seal-wish', { pieceId, wishText, sessionToken });
     },
 
     async unseal(pieceId, wishText, sessionToken) {
-        // TODO: POST to Supabase Edge Function unseal
-        console.log('[API] unseal', { pieceId, wishText: '***' });
-        // Stub: accept any input for now
-        return { success: true };
+        return callEdgeFunction('unseal', { pieceId, wishText, sessionToken });
     },
 
     async claimGoldenFinger(pieceId, sessionToken) {
-        // TODO: POST to Supabase Edge Function claim-golden-finger
-        console.log('[API] claimGoldenFinger', { pieceId });
-        return { token: 'mock-golden-token', redirect_url: 'https://fu-mocha.vercel.app' };
+        return callEdgeFunction('claim-golden-finger', { pieceId, sessionToken });
     },
 };
 
@@ -85,7 +84,7 @@ export class EnvelopeManager {
             pieceId: PIECE_ID,
             isNfcTap: IS_NFC_TAP,
             validated: false,
-            pieceType: 'regular',  // 'regular' | 'gold'
+            pieceType: 'regular',
             sealed: false,
             btcAddress: null,
             sessionToken: null,
@@ -93,12 +92,7 @@ export class EnvelopeManager {
             currentWishText: null,
         };
 
-        this.panels = {
-            timeline: document.getElementById('panel-timeline'),
-            wish: document.getElementById('panel-wish'),
-            sealed: document.getElementById('panel-sealed'),
-            unseal: document.getElementById('panel-unseal'),
-        };
+        this.panel = document.getElementById('envelope-panel');
 
         this._bindEvents();
         this._init();
@@ -107,7 +101,6 @@ export class EnvelopeManager {
     // --- Initialization ---
 
     async _init() {
-        // If NFC tap, validate first
         if (IS_NFC_TAP) {
             try {
                 const result = await API.validateTap(PIECE_ID, NFC_UID, NFC_CTR);
@@ -122,59 +115,47 @@ export class EnvelopeManager {
                 console.error('[Envelope] Validation failed:', err);
             }
         }
+        // URL-only visitors: validated stays false → read-only view
 
-        // Load wish history
         await this._loadWishHistory();
-
-        // Set up piece badge
         this._renderPieceBadge();
-
-        // Show appropriate controls
-        this._updateTimelineControls();
+        this._updateSections();
     }
 
     // --- Event Binding ---
 
     _bindEvents() {
-        // Make a Wish button (on timeline panel)
-        const btnMakeWish = document.getElementById('btn-make-wish');
-        if (btnMakeWish) {
-            btnMakeWish.addEventListener('click', () => {
-                this.showPanel('wish');
-                if (this.onOpen) this.onOpen();
-            });
-        }
-
         // Seal Wish button
         const btnSubmit = document.getElementById('btn-submit-wish');
         if (btnSubmit) {
             btnSubmit.addEventListener('click', () => this._handleSealWish());
         }
 
-        // Click outside any panel to dismiss
+        // Click outside panel to dismiss
         const overlay = document.getElementById('envelope-overlay');
         if (overlay) {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) this.hideAll();
+                if (e.target === overlay) this.hide();
             });
         }
 
-        // Unseal button (on sealed panel)
+        // Unseal button — toggles inline unseal form
         const btnUnseal = document.getElementById('btn-unseal');
         if (btnUnseal) {
-            btnUnseal.addEventListener('click', () => this.showPanel('unseal'));
+            btnUnseal.addEventListener('click', () => {
+                const area = document.getElementById('unseal-area');
+                if (area) {
+                    const showing = area.style.display !== 'none';
+                    area.style.display = showing ? 'none' : '';
+                    btnUnseal.style.display = showing ? '' : 'none';
+                }
+            });
         }
 
         // Confirm Unseal button
         const btnConfirmUnseal = document.getElementById('btn-confirm-unseal');
         if (btnConfirmUnseal) {
             btnConfirmUnseal.addEventListener('click', () => this._handleUnseal());
-        }
-
-        // Back button (unseal → sealed)
-        const btnBack = document.getElementById('btn-back-sealed');
-        if (btnBack) {
-            btnBack.addEventListener('click', () => this.showPanel('sealed'));
         }
 
         // 金手指 button
@@ -205,37 +186,66 @@ export class EnvelopeManager {
         }
     }
 
-    // --- Panel Management ---
+    // --- Panel Show / Hide ---
 
-    showPanel(name) {
+    show() {
         const overlay = document.getElementById('envelope-overlay');
-        // Clear any dismissing panels instantly
-        Object.values(this.panels).forEach(p => {
-            p.classList.remove('active', 'dismissing');
-        });
-        if (this.panels[name]) {
-            this.panels[name].classList.add('active');
+        if (this.panel) {
+            this.panel.classList.remove('dismissing');
+            this.panel.classList.add('active');
             if (overlay) overlay.style.pointerEvents = 'auto';
+        }
+        this._updateSections();
+    }
+
+    hide() {
+        const overlay = document.getElementById('envelope-overlay');
+        if (overlay) overlay.style.pointerEvents = 'none';
+        if (this.panel && this.panel.classList.contains('active')) {
+            this.panel.classList.remove('active');
+            this.panel.classList.add('dismissing');
+            this.panel.addEventListener('animationend', () => {
+                this.panel.classList.remove('dismissing');
+            }, { once: true });
         }
     }
 
-    hideAll() {
-        const overlay = document.getElementById('envelope-overlay');
-        if (overlay) overlay.style.pointerEvents = 'none';
-        Object.values(this.panels).forEach(p => {
-            if (p.classList.contains('active')) {
-                p.classList.remove('active');
-                p.classList.add('dismissing');
-                p.addEventListener('animationend', () => {
-                    p.classList.remove('dismissing');
-                }, { once: true });
-            }
-        });
-    }
+    // Keep backward-compat for any callers
+    showPanel() { this.show(); }
+    hideAll() { this.hide(); }
 
-    showWishInput() {
-        if (!this.state.sealed) {
-            this.showPanel('wish');
+    // --- Section Visibility ---
+
+    _updateSections() {
+        const sectionWish = document.getElementById('section-wish');
+        const sectionSealed = document.getElementById('section-sealed');
+
+        if (!this.state.validated) {
+            // URL visitor — read-only, just history
+            if (sectionWish) sectionWish.style.display = 'none';
+            if (sectionSealed) sectionSealed.style.display = 'none';
+        } else if (this.state.sealed || this.state.wished) {
+            if (sectionWish) sectionWish.style.display = 'none';
+            if (sectionSealed) sectionSealed.style.display = '';
+        } else {
+            if (sectionWish) sectionWish.style.display = '';
+            if (sectionSealed) sectionSealed.style.display = 'none';
+        }
+
+        // Reset unseal area
+        const unsealArea = document.getElementById('unseal-area');
+        const btnUnseal = document.getElementById('btn-unseal');
+        if (unsealArea) unsealArea.style.display = 'none';
+        if (btnUnseal) btnUnseal.style.display = '';
+
+        // BTC address
+        const btcAddr = document.getElementById('btc-address');
+        if (btcAddr) btcAddr.textContent = this.state.btcAddress || '';
+
+        // 金手指 for gold pieces
+        const btnGolden = document.getElementById('btn-golden-finger');
+        if (btnGolden) {
+            btnGolden.style.display = (this.state.pieceType === 'gold' && this.state.wished) ? '' : 'none';
         }
     }
 
@@ -261,7 +271,6 @@ export class EnvelopeManager {
             return;
         }
 
-        // Show newest first
         const sorted = [...wishes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         for (const wish of sorted) {
@@ -311,33 +320,6 @@ export class EnvelopeManager {
         }
     }
 
-    // --- Timeline Controls ---
-
-    _updateTimelineControls() {
-        const btnMakeWish = document.getElementById('btn-make-wish');
-        const readOnlyNotice = document.getElementById('read-only-notice');
-
-        if (this.state.validated && !this.state.sealed) {
-            // NFC tapper, piece is unsealed → show "Make a Wish" button
-            if (btnMakeWish) btnMakeWish.style.display = 'block';
-            if (readOnlyNotice) readOnlyNotice.style.display = 'none';
-        } else if (this.state.validated && this.state.sealed) {
-            // NFC tapper, piece is sealed → read-only
-            if (btnMakeWish) btnMakeWish.style.display = 'none';
-            if (readOnlyNotice) {
-                readOnlyNotice.style.display = 'block';
-                readOnlyNotice.textContent = 'This piece is sealed. Only the wish-writer can unseal it.';
-            }
-        } else {
-            // URL visitor (no NFC) → read-only
-            if (btnMakeWish) btnMakeWish.style.display = 'none';
-            if (readOnlyNotice) {
-                readOnlyNotice.style.display = 'block';
-                readOnlyNotice.textContent = 'Scan the physical piece to interact.';
-            }
-        }
-    }
-
     // --- Seal Wish ---
 
     async _handleSealWish() {
@@ -355,24 +337,16 @@ export class EnvelopeManager {
                 this.state.wished = true;
                 this.state.currentWishText = wishText;
 
-                // Update BTC display
-                const btcAddr = document.getElementById('btc-address');
-                if (btcAddr) btcAddr.textContent = this.state.btcAddress || '';
-
-                // Show 金手指 for gold pieces
-                const btnGolden = document.getElementById('btn-golden-finger');
-                if (btnGolden && this.state.pieceType === 'gold') {
-                    btnGolden.style.display = 'block';
-                }
-
-                // Clear textarea
                 if (textarea) textarea.value = '';
 
                 // Trigger fireworks
                 if (this.onWish) this.onWish();
 
-                // Show sealed panel
-                this.showPanel('sealed');
+                // Update sections to show sealed info
+                this._updateSections();
+
+                // Reload history
+                await this._loadWishHistory();
             }
         } catch (err) {
             console.error('[Envelope] Seal failed:', err);
@@ -401,17 +375,13 @@ export class EnvelopeManager {
             const result = await API.unseal(this.state.pieceId, enteredText, this.state.sessionToken);
             if (result.success) {
                 this.state.sealed = false;
+                this.state.wished = false;
                 this.state.currentWishText = null;
 
-                // Clear input
                 if (input) input.value = '';
 
-                // Reload wish history (the unsealed wish now shows text)
                 await this._loadWishHistory();
-                this._updateTimelineControls();
-
-                // Go back to timeline
-                this.showPanel('timeline');
+                this._updateSections();
             } else {
                 if (errorEl) errorEl.textContent = 'Wish does not match. Try again.';
             }

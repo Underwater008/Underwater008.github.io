@@ -295,12 +295,17 @@ export function renderFortuneOverlay() {
     drawOverlayText('万事如意 · 心想事成', 0.82, CONFIG.glowRed, blessFade * 0.7, S.cellSize * 1.5);
     drawOverlayText('May all your wishes come true', 0.87, CONFIG.glowGold, blessFade * 0.5, S.cellSize * 1);
 
-    // Hint to swipe up for wish
+    // Hint to swipe up
     const isPanelActive = document.querySelector('.envelope-panel.active');
-    if (!isPanelActive && S.stateTime > 2.5 && S.envelopeManager && !S.envelopeManager.state.wished) {
+    if (!isPanelActive && S.stateTime > 2.5 && S.envelopeManager) {
         const hintFade = Math.min(1, (S.stateTime - 2.5) / 0.5);
         const pulse = 0.4 + Math.sin(S.globalTime * 3) * 0.2;
-        drawOverlayText('↑  上滑许愿  ↑', 0.94, CONFIG.glowGold, hintFade * pulse, S.cellSize * 1.2);
-        drawOverlayText('Swipe Up to Make a Wish', 0.97, CONFIG.glowGold, hintFade * pulse, S.cellSize * 0.9);
+        if (S.envelopeManager.state.wished) {
+            drawOverlayText('↑  查看详情  ↑', 0.94, CONFIG.glowGold, hintFade * pulse, S.cellSize * 1);
+            drawOverlayText('Swipe Up to View Status', 0.97, CONFIG.glowGold, hintFade * pulse, S.cellSize * 0.8);
+        } else {
+            drawOverlayText('↑  上滑许愿  ↑', 0.94, CONFIG.glowGold, hintFade * pulse, S.cellSize * 1.2);
+            drawOverlayText('Swipe Up to Make a Wish', 0.97, CONFIG.glowGold, hintFade * pulse, S.cellSize * 0.9);
+        }
     }
 }
