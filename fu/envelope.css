@@ -485,7 +485,7 @@
 .piece-badge {
     display: inline-block;
     padding: 0.2rem 0.6rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     font-size: 0.65rem;
     font-family: var(--font-system);
     letter-spacing: 0.1em;

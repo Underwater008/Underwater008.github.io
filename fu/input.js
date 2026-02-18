@@ -88,8 +88,9 @@ export function initInput(handleSwipeUp) {
 
     window.addEventListener('keydown', (e) => {
         // Skip game shortcuts when user is typing in a form field
-        const tag = e.target.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+        const el = document.activeElement;
+        const tag = el ? el.tagName : '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (el && el.isContentEditable)) return;
 
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault();
