@@ -20,7 +20,9 @@ Deno.serve(async (req) => {
       return jsonResp({ valid: false, error: 'Missing params' }, 400);
     }
 
-    const uidHash = await sha256Hex(uid.toUpperCase());
+    // Sanitize: trim whitespace, strip null bytes, normalize to uppercase
+    const cleanUid = uid.trim().replace(/[\0\r\n]/g, '').toUpperCase();
+    const uidHash = await sha256Hex(cleanUid);
     const db = createServiceClient();
 
     // Look up piece
@@ -36,14 +38,7 @@ Deno.serve(async (req) => {
 
     // Compare UID hash
     if (piece.uid_hash !== uidHash) {
-      return jsonResp({
-        valid: false,
-        error: 'UID mismatch',
-        debug_uid_len: uid.length,
-        debug_uid_upper: uid.toUpperCase().slice(0, 8),
-        debug_hash_prefix: uidHash.slice(0, 8),
-        debug_expected_prefix: piece.uid_hash.slice(0, 8),
-      }, 403);
+      return jsonResp({ valid: false, error: 'UID mismatch' }, 403);
     }
 
     // Record scan timestamp (counter check disabled — NTAG213 mirror unreliable on iOS)
