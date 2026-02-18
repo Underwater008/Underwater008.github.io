@@ -1,4 +1,4 @@
-import{S as t}from"./fu-CX3JbVCM.js";import"./modulepreload-polyfill-B5Qt9EMX.js";import"./three.module-CAwrvc93.js";import"https://esm.sh/@supabase/supabase-js@2";function h({changeState:v}){let l=!1,s=null;const d=document.createElement("div");d.id="dev-panel",d.innerHTML=`
+import{S as t}from"./fu-BY8Th4-J.js";import"./modulepreload-polyfill-B5Qt9EMX.js";import"./three.module-CAwrvc93.js";import"https://esm.sh/@supabase/supabase-js@2";function h({changeState:v}){let l=!1,s=null;const d=document.createElement("div");d.id="dev-panel",d.innerHTML=`
         <div id="dev-bar">
             <span>DEV</span>
             <span id="dev-cur" style="margin-left:auto;font-size:11px;opacity:0.6">arrival</span>
