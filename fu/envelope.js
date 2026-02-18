@@ -131,7 +131,7 @@ export class EnvelopeManager {
             try {
                 const result = await API.validateTap(PIECE_ID, NFC_UID, NFC_CTR);
                 // DEBUG — remove after testing
-                alert(`API: valid=${result.valid} type=${result.piece_type} err=${result.error||'none'}`);
+                alert(JSON.stringify(result));
                 if (result.valid) {
                     this.state.validated = true;
                     this.state.pieceType = result.piece_type;
