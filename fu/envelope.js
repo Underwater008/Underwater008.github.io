@@ -124,9 +124,22 @@ export class EnvelopeManager {
     // --- Initialization ---
 
     async _init() {
+        const dbg = (msg) => {
+            let el = document.getElementById('_dbg');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = '_dbg';
+                el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.85);color:#0f0;font:11px monospace;padding:6px;max-height:30vh;overflow:auto;';
+                document.body.appendChild(el);
+            }
+            el.textContent += msg + '\n';
+        };
+        dbg(`NFC_TAP=${IS_NFC_TAP} p=${PIECE_ID} uid=${NFC_UID}`);
         if (IS_NFC_TAP) {
             try {
+                dbg('calling validate-tap...');
                 const result = await API.validateTap(PIECE_ID, NFC_UID, NFC_CTR);
+                dbg(`result: ${JSON.stringify(result)}`);
                 if (result.valid) {
                     this.state.validated = true;
                     this.state.pieceType = result.piece_type;
@@ -135,9 +148,11 @@ export class EnvelopeManager {
                     this.state.sessionToken = result.session_token;
                 }
             } catch (err) {
+                dbg(`ERROR: ${err.message}`);
                 console.error('[Envelope] Validation failed:', err);
             }
         }
+        dbg(`validated=${this.state.validated} type=${this.state.pieceType}`);
         // URL-only visitors: validated stays false → read-only view
 
         await this._loadWishHistory();
