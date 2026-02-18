@@ -11,7 +11,7 @@ const params = new URLSearchParams(window.location.search);
 const PIECE_ID = params.get('p');
 const NFC_UID = params.get('uid');
 const NFC_CTR = params.get('ctr');
-const IS_NFC_TAP = !!(PIECE_ID && NFC_UID && NFC_CTR);
+const IS_NFC_TAP = !!(PIECE_ID && NFC_UID);
 
 // Clean URL immediately — strip uid and ctr from address bar
 if (NFC_UID || NFC_CTR) {

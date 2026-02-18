@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
 
   try {
     const { pieceId, uid, ctr } = await req.json();
-    if (!pieceId || !uid || ctr === undefined) {
+    if (!pieceId || !uid) {
       return jsonResp({ valid: false, error: 'Missing params' }, 400);
     }
 
@@ -39,22 +39,10 @@ Deno.serve(async (req) => {
       return jsonResp({ valid: false, error: 'UID mismatch' }, 403);
     }
 
-    // Check counter (anti-replay) — NFC counter is hex in URL
-    const counter = parseInt(ctr, 16);
-    const { data: scan } = await db
-      .from('scans')
-      .select('last_counter')
-      .eq('piece_id', pieceId)
-      .single();
-
-    if (scan && counter <= scan.last_counter) {
-      return jsonResp({ valid: false, error: 'Replay detected' }, 403);
-    }
-
-    // Update scan counter
+    // Record scan timestamp (counter check disabled — NTAG213 mirror unreliable on iOS)
     await db.from('scans').upsert({
       piece_id: pieceId,
-      last_counter: counter,
+      last_counter: ctr ? parseInt(ctr, 16) : 0,
       last_scanned_at: new Date().toISOString(),
     });
 
