@@ -43,7 +43,11 @@
       "Bash(node -e:*)",
       "Bash(git rm:*)",
       "Bash(git show-ref:*)",
-      "Bash(git -C /Users/xiao/Documents/GitHub/Underwater008.github.io ls-files:*)"
+      "Bash(git -C /Users/xiao/Documents/GitHub/Underwater008.github.io ls-files:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run:*)",
+      "Bash(chmod:*)"
     ]
   }
 }
