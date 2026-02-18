@@ -44,23 +44,20 @@
         <div id="envelope-panel" class="envelope-panel">
 
             <!-- Header -->
-            <div id="piece-badge-slot"></div>
             <h1>福</h1>
-            <h2 class="panel-subtitle">
-                <span class="subtitle-cn">数字红包</span>
-                <span class="subtitle-en">Digital Red Envelope</span>
-            </h2>
+            <div id="piece-badge-slot"></div>
 
             <!-- Wish history -->
             <div class="wish-timeline">
-                <div class="wish-timeline-title">祈愿录 <span class="timeline-title-en">Wishes</span></div>
+                <div class="wish-timeline-title">Wishes <span class="timeline-title-cn">祈愿录</span></div>
                 <div id="wish-timeline-list"></div>
             </div>
 
             <!-- Wish input (shown when not sealed) -->
             <div id="section-wish" class="panel-section">
+                <div class="section-divider"></div>
                 <textarea id="wish-input" rows="3" placeholder="Write your wish..."></textarea>
-                <button id="btn-submit-wish">
+                <button id="btn-submit-wish" class="ceremonial-btn">
                     <span class="btn-seal-icon">印</span>
                     <span class="btn-seal-text">Seal Wish</span>
                 </button>
@@ -75,7 +72,7 @@
                     <input id="challenge-input" type="text" placeholder="Enter the sealed wish..." />
                     <div id="challenge-error" class="unseal-error"></div>
                 </div>
-                <button id="btn-challenge-submit">
+                <button id="btn-challenge-submit" class="ceremonial-btn">
                     <span class="btn-seal-icon">解</span>
                     <span class="btn-seal-text">Verify &amp; Unseal</span>
                 </button>
@@ -99,7 +96,10 @@
                     金手指 — CLAIM FORTUNE DRAWS
                 </button>
 
-                <button id="btn-unseal">UNSEAL &amp; PASS ON</button>
+                <button id="btn-unseal" class="ceremonial-btn">
+                    <span class="btn-seal-icon">启</span>
+                    <span class="btn-seal-text">Unseal &amp; Pass On</span>
+                </button>
 
                 <!-- Inline unseal form (expands on click) -->
                 <div id="unseal-area" style="display:none">
@@ -107,7 +107,10 @@
                         <input id="unseal-input" type="text" placeholder="Re-enter your wish to unseal..." />
                         <div id="unseal-error" class="unseal-error"></div>
                     </div>
-                    <button id="btn-confirm-unseal">CONFIRM</button>
+                    <button id="btn-confirm-unseal" class="ceremonial-btn">
+                        <span class="btn-seal-icon">启</span>
+                        <span class="btn-seal-text">Confirm Unseal</span>
+                    </button>
                 </div>
             </div>
 

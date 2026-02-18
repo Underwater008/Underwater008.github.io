@@ -104,7 +104,7 @@
     font-weight: 400;
     color: var(--antique-gold);
     text-shadow: 0 0 16px rgba(212, 160, 23, 0.25);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.8rem;
     letter-spacing: 0.05em;
 }
 
@@ -183,41 +183,74 @@
     cursor: not-allowed;
 }
 
-/* --- Seal Wish Button (ceremonial) --- */
+/* --- Ceremonial Buttons (shared) --- */
 
-#btn-submit-wish {
+.ceremonial-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 1.8rem;
-    background: rgba(180, 40, 30, 0.1);
+    justify-content: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.85rem 2rem;
+    background: rgba(180, 40, 30, 0.08);
     border: 1px solid rgba(180, 40, 30, 0.25);
+    border-radius: 8px;
     color: var(--rice-paper);
     font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: none;
-    border-radius: 8px;
+    cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-#btn-submit-wish:hover {
-    background: rgba(180, 40, 30, 0.18);
+.ceremonial-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 30%,
+        rgba(180, 40, 30, 0.06) 50%,
+        transparent 70%
+    );
+    animation: ceremonialShimmer 3s ease-in-out infinite;
+}
+
+@keyframes ceremonialShimmer {
+    0%, 100% { transform: translateX(-120%); }
+    50% { transform: translateX(120%); }
+}
+
+.ceremonial-btn:hover {
+    background: rgba(180, 40, 30, 0.15);
     border-color: rgba(180, 40, 30, 0.4);
-    color: var(--rice-paper);
+    box-shadow: 0 0 20px rgba(180, 40, 30, 0.1);
+}
+
+.ceremonial-btn:active {
+    transform: scale(0.98);
 }
 
 .btn-seal-icon {
     font-family: var(--font-calli);
     font-size: 1.6rem;
-    color: var(--rice-paper);
-    text-shadow: 0 0 10px rgba(180, 40, 30, 0.5);
+    color: var(--antique-gold);
+    text-shadow:
+        0 0 6px rgba(212, 160, 23, 0.4),
+        0 0 16px rgba(212, 160, 23, 0.2);
     line-height: 1;
+    position: relative;
 }
 
 .btn-seal-text {
     font-family: var(--font-body);
+    position: relative;
+    color: var(--rice-paper);
+    text-shadow: 0 0 8px rgba(240, 230, 211, 0.15);
 }
 
 /* --- Wish Input --- */
@@ -266,8 +299,9 @@
 }
 
 .wish-timeline-title {
-    font-family: var(--font-calli);
+    font-family: var(--font-body);
     font-size: 1.05rem;
+    font-style: italic;
     color: var(--rice-paper-muted);
     letter-spacing: 0.05em;
     text-transform: none;
@@ -277,10 +311,10 @@
     font-weight: 400;
 }
 
-.timeline-title-en {
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-style: italic;
+.timeline-title-cn {
+    font-family: var(--font-calli);
+    font-size: 0.95rem;
+    font-style: normal;
     color: var(--rice-paper-muted);
     margin-left: 0.5rem;
 }
@@ -580,29 +614,7 @@
     color: var(--rice-paper-dim);
 }
 
-#btn-challenge-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7rem;
-    width: 100%;
-    padding: 0.9rem 2rem;
-    background: rgba(180, 40, 30, 0.1);
-    border: 1px solid rgba(180, 40, 30, 0.25);
-    color: var(--rice-paper);
-    font-family: var(--font-body);
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-#btn-challenge-submit:hover {
-    background: rgba(180, 40, 30, 0.18);
-    border-color: rgba(180, 40, 30, 0.4);
-}
+/* btn-challenge-submit uses .ceremonial-btn */
 
 /* --- Scrollbar (hidden, scroll still works) --- */
 
