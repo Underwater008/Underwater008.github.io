@@ -124,9 +124,14 @@ export class EnvelopeManager {
     // --- Initialization ---
 
     async _init() {
+        // DEBUG — remove after testing
+        alert(`NFC_TAP=${IS_NFC_TAP} p=${PIECE_ID} uid=${NFC_UID?.slice(0,6)}…`);
+
         if (IS_NFC_TAP) {
             try {
                 const result = await API.validateTap(PIECE_ID, NFC_UID, NFC_CTR);
+                // DEBUG — remove after testing
+                alert(`API: valid=${result.valid} type=${result.piece_type} err=${result.error||'none'}`);
                 if (result.valid) {
                     this.state.validated = true;
                     this.state.pieceType = result.piece_type;
@@ -135,6 +140,7 @@ export class EnvelopeManager {
                     this.state.sessionToken = result.session_token;
                 }
             } catch (err) {
+                alert(`CATCH: ${err.message}`);
                 console.error('[Envelope] Validation failed:', err);
             }
         }

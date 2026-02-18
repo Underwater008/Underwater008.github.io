@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       return jsonResp({ valid: false, error: 'Missing params' }, 400);
     }
 
-    const uidHash = await sha256Hex(uid);
+    const uidHash = await sha256Hex(uid.toUpperCase());
     const db = createServiceClient();
 
     // Look up piece
