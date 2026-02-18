@@ -11,10 +11,10 @@ TRUNCATE golden_claims, wishes, scans, pieces CASCADE;
 
 -- 18 pieces: 4 gold (01-04) + 14 regular (05-18)
 INSERT INTO pieces (id, uid_hash, type, name, btc_address) VALUES
-  ('01', 'e4a7e4190dda498898de88b3f8ea7e01a69a72798a62e02e11b3a75e8d580263', 'gold',    'Dragon',     'bc1qdragon01placeholder'),
-  ('02', '31fb0fc0730ea20f1a52a3bbe8e0891eb6dd58b89f64cd32acbe7aab4c763534', 'gold',    'Phoenix',    'bc1qphoenix02placeholder'),
-  ('03', '94f41e75fc5e3e6e48ad4e0a61a06f64f43b4e1ebc0c92d24fac5e45e73ee8b5', 'gold',    'Qilin',      'bc1qqilin03placeholder'),
-  ('04', 'f49c60a5c33e24ab3f2fbb34a9e6b7ae04a64a33f6e58fc5dc3a22cb7aa9b5a0', 'gold',    'Crane',      'bc1qcrane04placeholder'),
+  ('01', 'e4a7e4190dda498898de88b3f8ea7e01a69a72798a62e02e11b3a75e8d580263', 'gold',    '青龙',       'bc1qdragon01placeholder'),
+  ('02', '31fb0fc0730ea20f1a52a3bbe8e0891eb6dd58b89f64cd32acbe7aab4c763534', 'gold',    '白虎',       'bc1qphoenix02placeholder'),
+  ('03', '94f41e75fc5e3e6e48ad4e0a61a06f64f43b4e1ebc0c92d24fac5e45e73ee8b5', 'gold',    '朱雀',       'bc1qqilin03placeholder'),
+  ('04', 'f49c60a5c33e24ab3f2fbb34a9e6b7ae04a64a33f6e58fc5dc3a22cb7aa9b5a0', 'gold',    '玄武',       'bc1qcrane04placeholder'),
   ('05', '1f85d4a56a39db59e12e53f3a38c89b5c507fd3a22b71b04b20c9e8b35d5a6c8', 'regular', 'Peace',      'bc1qpeace05placeholder'),
   ('06', 'a8bdc3f2e5d94a7b60c1f83e29d5b6a4170e8f9c2d3b5a6478c1e0f9d2b3a4e5', 'regular', 'Fortune',    'bc1qfortune06placeholder'),
   ('07', 'b9ced4a3f6e05b8c71d2a94f30e6c7b5281f9a0d3e4c6b7589d2f1a0e3c4b5f6', 'regular', 'Harmony',    'bc1qharmony07placeholder'),

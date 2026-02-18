@@ -45,30 +45,55 @@
 
             <!-- Header -->
             <h1>福</h1>
-            <h2>DIGITAL RED ENVELOPE</h2>
+            <h2 class="panel-subtitle">
+                <span class="subtitle-cn">数字红包</span>
+                <span class="subtitle-en">Digital Red Envelope</span>
+            </h2>
             <div id="piece-badge-slot"></div>
 
             <!-- Wish history -->
             <div class="wish-timeline">
-                <div class="wish-timeline-title">WISH HISTORY</div>
+                <div class="wish-timeline-title">祈愿录 <span class="timeline-title-en">Wishes</span></div>
                 <div id="wish-timeline-list"></div>
             </div>
 
             <!-- Wish input (shown when not sealed) -->
             <div id="section-wish" class="panel-section">
-                <textarea id="wish-input" rows="3" placeholder="I wish for..."></textarea>
-                <button id="btn-submit-wish">SEAL WISH</button>
+                <textarea id="wish-input" rows="3" placeholder="Write your wish..."></textarea>
+                <button id="btn-submit-wish">
+                    <span class="btn-seal-icon">印</span>
+                    <span class="btn-seal-text">Seal Wish</span>
+                </button>
+                <div id="seal-error" class="unseal-error"></div>
+            </div>
+
+            <!-- Challenge gate (shown when piece is sealed by someone else) -->
+            <div id="section-challenge" class="panel-section" style="display:none">
+                <div class="section-divider"></div>
+                <p class="challenge-prompt">This wish is sealed. Enter it to unlock.</p>
+                <div class="challenge-section">
+                    <input id="challenge-input" type="text" placeholder="Enter the sealed wish..." />
+                    <div id="challenge-error" class="unseal-error"></div>
+                </div>
+                <button id="btn-challenge-submit">
+                    <span class="btn-seal-icon">解</span>
+                    <span class="btn-seal-text">Verify &amp; Unseal</span>
+                </button>
             </div>
 
             <!-- Sealed info (shown after sealing) -->
             <div id="section-sealed" class="panel-section" style="display:none">
                 <div class="section-divider"></div>
-                <div class="btc-reward">
-                    <div class="btc-icon">₿</div>
-                    <span id="btc-value">This envelope holds Bitcoin</span>
+                <div id="btc-button" class="btc-button" title="Tap to reveal address">
+                    <div class="btc-button-front">
+                        <div class="btc-icon">₿</div>
+                        <span>This envelope holds Bitcoin</span>
+                    </div>
+                    <div class="btc-button-back">
+                        <div class="btc-address-label">WALLET ADDRESS</div>
+                        <div id="btc-address" class="btc-address"></div>
+                    </div>
                 </div>
-                <div class="btc-address-label">WALLET ADDRESS</div>
-                <div id="btc-address" class="btc-address" title="Tap to copy"></div>
 
                 <button id="btn-golden-finger" class="golden-finger-btn" style="display:none;">
                     金手指 — CLAIM FORTUNE DRAWS

@@ -36,7 +36,12 @@
       "Bash(bunx vite:*)",
       "Bash(bun add:*)",
       "Bash(gh api:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx --yes playwright:*)",
+      "Bash(npx --yes puppeteer --version)",
+      "Bash(node capture-fireworks.mjs:*)",
+      "Bash(node -e:*)",
+      "Bash(git rm:*)"
     ]
   }
 }

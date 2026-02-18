@@ -90,12 +90,31 @@ export class EnvelopeManager {
             sessionToken: null,
             wished: false,
             currentWishText: null,
+            challengePassed: false,
         };
+
+        this._devMode = false;
+        this._mockWishes = [];
 
         this.panel = document.getElementById('envelope-panel');
 
         this._bindEvents();
         this._init();
+    }
+
+    // --- Dev Mode (offline mock) ---
+
+    enableDevMode() {
+        this._devMode = true;
+        // Seed with sample wishes for all 3 types
+        this._mockWishes = [
+            { id: 'd1', wish_text: 'World peace and kindness for all', sealed: false, display_type: 'regular', created_at: '2026-01-28T10:00:00Z' },
+            { id: 'd2', wish_text: null, sealed: true, display_type: 'gold', created_at: '2026-02-10T12:00:00Z' },
+            { id: 'd3', wish_text: 'Success in all my studies this year', sealed: false, display_type: 'regular', created_at: '2026-01-20T08:00:00Z' },
+            { id: 'd4', wish_text: null, sealed: true, display_type: 'regular', created_at: '2026-02-05T15:00:00Z' },
+            { id: 'd5', wish_text: 'Health and happiness for my family', sealed: false, display_type: 'regular', created_at: '2026-01-15T09:00:00Z' },
+        ];
+        console.log('[Envelope] Dev mode enabled — API calls mocked');
     }
 
     // --- Initialization ---
@@ -164,16 +183,23 @@ export class EnvelopeManager {
             btnGolden.addEventListener('click', () => this._handleGoldenFinger());
         }
 
-        // BTC address copy
-        const btcAddr = document.getElementById('btc-address');
-        if (btcAddr) {
-            btcAddr.addEventListener('click', () => {
-                navigator.clipboard.writeText(btcAddr.textContent).then(() => {
-                    btcAddr.textContent = 'Copied!';
-                    setTimeout(() => {
-                        btcAddr.textContent = this.state.btcAddress || '';
-                    }, 1500);
-                });
+        // BTC button — tap to reveal address, tap address to copy
+        const btcButton = document.getElementById('btc-button');
+        if (btcButton) {
+            btcButton.addEventListener('click', (e) => {
+                if (!btcButton.classList.contains('revealed')) {
+                    btcButton.classList.add('revealed');
+                    return;
+                }
+                // If already revealed and clicking the address area, copy
+                const btcAddr = document.getElementById('btc-address');
+                if (btcAddr && btcAddr.textContent) {
+                    navigator.clipboard.writeText(btcAddr.textContent).then(() => {
+                        const original = btcAddr.textContent;
+                        btcAddr.textContent = 'Copied!';
+                        setTimeout(() => { btcAddr.textContent = original; }, 1500);
+                    });
+                }
             });
         }
 
@@ -182,6 +208,20 @@ export class EnvelopeManager {
         if (unsealInput) {
             unsealInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') this._handleUnseal();
+            });
+        }
+
+        // Challenge submit button
+        const btnChallenge = document.getElementById('btn-challenge-submit');
+        if (btnChallenge) {
+            btnChallenge.addEventListener('click', () => this._handleChallenge());
+        }
+
+        // Enter key for challenge input
+        const challengeInput = document.getElementById('challenge-input');
+        if (challengeInput) {
+            challengeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') this._handleChallenge();
             });
         }
     }
@@ -219,39 +259,65 @@ export class EnvelopeManager {
     _updateSections() {
         const sectionWish = document.getElementById('section-wish');
         const sectionSealed = document.getElementById('section-sealed');
+        const sectionChallenge = document.getElementById('section-challenge');
+
+        // Hide all by default
+        if (sectionWish) sectionWish.style.display = 'none';
+        if (sectionSealed) sectionSealed.style.display = 'none';
+        if (sectionChallenge) sectionChallenge.style.display = 'none';
 
         if (!this.state.validated) {
             // URL visitor — read-only, just history
-            if (sectionWish) sectionWish.style.display = 'none';
-            if (sectionSealed) sectionSealed.style.display = 'none';
-        } else if (this.state.sealed || this.state.wished) {
-            if (sectionWish) sectionWish.style.display = 'none';
+        } else if (this.state.sealed && !this.state.wished) {
+            // Sealed by someone else — challenge gate
+            if (sectionChallenge) sectionChallenge.style.display = '';
+        } else if (this.state.wished || this.state.challengePassed) {
+            // Own seal OR passed challenge — show rewards
             if (sectionSealed) sectionSealed.style.display = '';
+            // After challenge pass, also show wish textarea for next wish
+            if (this.state.challengePassed && !this.state.sealed) {
+                if (sectionWish) sectionWish.style.display = '';
+            }
         } else {
+            // Fresh piece — write wish
             if (sectionWish) sectionWish.style.display = '';
-            if (sectionSealed) sectionSealed.style.display = 'none';
         }
+
+        // Reset challenge input
+        const challengeError = document.getElementById('challenge-error');
+        if (challengeError) challengeError.textContent = '';
 
         // Reset unseal area
         const unsealArea = document.getElementById('unseal-area');
         const btnUnseal = document.getElementById('btn-unseal');
         if (unsealArea) unsealArea.style.display = 'none';
-        if (btnUnseal) btnUnseal.style.display = '';
+        // Unseal button only when piece is sealed (own seal, can undo)
+        if (btnUnseal) btnUnseal.style.display = this.state.sealed ? '' : 'none';
 
-        // BTC address
+        // BTC address + reset revealed state
         const btcAddr = document.getElementById('btc-address');
         if (btcAddr) btcAddr.textContent = this.state.btcAddress || '';
+        const btcButton = document.getElementById('btc-button');
+        if (btcButton) btcButton.classList.remove('revealed');
 
         // 金手指 for gold pieces
         const btnGolden = document.getElementById('btn-golden-finger');
         if (btnGolden) {
             btnGolden.style.display = (this.state.pieceType === 'gold' && this.state.wished) ? '' : 'none';
         }
+
+        // Reset seal error
+        const sealError = document.getElementById('seal-error');
+        if (sealError) sealError.textContent = '';
     }
 
     // --- Wish History ---
 
     async _loadWishHistory() {
+        if (this._devMode) {
+            this._renderWishTimeline(this._mockWishes);
+            return;
+        }
         let wishes;
         if (PIECE_ID) {
             wishes = await API.getWishHistory(PIECE_ID);
@@ -277,27 +343,27 @@ export class EnvelopeManager {
             const entry = document.createElement('div');
             entry.className = 'wish-entry';
 
+            const textDiv = document.createElement('div');
+            textDiv.className = 'wish-text';
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'wish-date';
+            dateDiv.textContent = this._formatDate(wish.created_at);
+
+            const isGold = wish.display_type === 'gold';
+            if (isGold) entry.classList.add('gold');
+
             if (wish.sealed) {
                 entry.classList.add('sealed');
-                if (wish.display_type === 'gold') entry.classList.add('gold');
-
-                const icon = wish.display_type === 'gold' ? '★' : '✦';
-                const label = wish.display_type === 'gold'
+                if (!isGold) entry.classList.add('regular');
+                textDiv.textContent = isGold
                     ? 'A golden wish has been sealed'
-                    : 'A sacred wish has been sealed';
-
-                entry.innerHTML = `
-                    <div class="wish-text">
-                        <span class="wish-icon">${icon}</span>${label}
-                    </div>
-                    <div class="wish-date">${this._formatDate(wish.created_at)}</div>
-                `;
+                    : 'A wish has been sealed';
             } else {
-                entry.innerHTML = `
-                    <div class="wish-text">"${wish.wish_text}"</div>
-                    <div class="wish-date">${this._formatDate(wish.created_at)}</div>
-                `;
+                textDiv.textContent = `"${wish.wish_text || ''}"`;
             }
+
+            entry.appendChild(textDiv);
+            entry.appendChild(dateDiv);
 
             container.appendChild(entry);
         }
@@ -316,7 +382,10 @@ export class EnvelopeManager {
 
         if (PIECE_ID) {
             const type = this.state.pieceType;
-            slot.innerHTML = `<span class="piece-badge ${type}">Piece #${PIECE_ID} · ${type === 'gold' ? 'GOLD' : 'REGULAR'}</span>`;
+            const span = document.createElement('span');
+            span.className = `piece-badge ${type}`;
+            span.textContent = `Piece #${PIECE_ID} · ${type === 'gold' ? 'GOLD' : 'REGULAR'}`;
+            slot.replaceChildren(span);
         }
     }
 
@@ -331,10 +400,31 @@ export class EnvelopeManager {
         if (btn) btn.disabled = true;
 
         try {
+            if (this._devMode) {
+                // Mock: add wish to local list
+                this._mockWishes.unshift({
+                    id: 'dev-' + Date.now(),
+                    wish_text: null,
+                    sealed: true,
+                    display_type: this.state.pieceType === 'gold' ? 'gold' : 'regular',
+                    created_at: new Date().toISOString(),
+                });
+                this.state.sealed = true;
+                this.state.wished = true;
+                this.state.challengePassed = false;
+                this.state.currentWishText = wishText;
+                if (textarea) textarea.value = '';
+                if (this.onWish) this.onWish();
+                this._updateSections();
+                this._renderWishTimeline(this._mockWishes);
+                return;
+            }
+
             const result = await API.sealWish(this.state.pieceId, wishText, this.state.sessionToken);
             if (result.success) {
                 this.state.sealed = true;
                 this.state.wished = true;
+                this.state.challengePassed = false;
                 this.state.currentWishText = wishText;
 
                 if (textarea) textarea.value = '';
@@ -347,9 +437,18 @@ export class EnvelopeManager {
 
                 // Reload history
                 await this._loadWishHistory();
+            } else {
+                const sealError = document.getElementById('seal-error');
+                if (sealError) {
+                    sealError.textContent = result.error === 'Already sealed'
+                        ? 'Someone just sealed this piece! Tap the NFC again to try the challenge.'
+                        : (result.error || 'Something went wrong. Try again.');
+                }
             }
         } catch (err) {
             console.error('[Envelope] Seal failed:', err);
+            const sealError = document.getElementById('seal-error');
+            if (sealError) sealError.textContent = 'Something went wrong. Try again.';
         } finally {
             if (btn) btn.disabled = false;
         }
@@ -372,10 +471,28 @@ export class EnvelopeManager {
         if (errorEl) errorEl.textContent = '';
 
         try {
+            if (this._devMode) {
+                // Mock: unseal most recent sealed wish, reveal text
+                const sealed = this._mockWishes.find(w => w.sealed);
+                if (sealed) {
+                    sealed.sealed = false;
+                    sealed.wish_text = enteredText;
+                }
+                this.state.sealed = false;
+                this.state.wished = false;
+                this.state.challengePassed = false;
+                this.state.currentWishText = null;
+                if (input) input.value = '';
+                this._renderWishTimeline(this._mockWishes);
+                this._updateSections();
+                return;
+            }
+
             const result = await API.unseal(this.state.pieceId, enteredText, this.state.sessionToken);
             if (result.success) {
                 this.state.sealed = false;
                 this.state.wished = false;
+                this.state.challengePassed = false;
                 this.state.currentWishText = null;
 
                 if (input) input.value = '';
@@ -387,6 +504,65 @@ export class EnvelopeManager {
             }
         } catch (err) {
             console.error('[Envelope] Unseal failed:', err);
+            if (errorEl) errorEl.textContent = 'Something went wrong. Try again.';
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    // --- Challenge Gate (sealed by someone else) ---
+
+    async _handleChallenge() {
+        const input = document.getElementById('challenge-input');
+        const errorEl = document.getElementById('challenge-error');
+        const enteredText = (input?.value || '').trim();
+
+        if (!enteredText) {
+            if (errorEl) errorEl.textContent = 'Please enter the wish.';
+            return;
+        }
+
+        const btn = document.getElementById('btn-challenge-submit');
+        if (btn) btn.disabled = true;
+        if (errorEl) errorEl.textContent = '';
+
+        try {
+            if (this._devMode) {
+                const sealed = this._mockWishes.find(w => w.sealed);
+                if (sealed) {
+                    sealed.sealed = false;
+                    sealed.wish_text = enteredText;
+                }
+                // Go to public view — wish is now visible in timeline
+                this.state.validated = false;
+                this.state.sealed = false;
+                this.state.wished = false;
+                this.state.challengePassed = false;
+                this.state.currentWishText = null;
+                if (input) input.value = '';
+                if (this.onWish) this.onWish();
+                this._renderWishTimeline(this._mockWishes);
+                this._updateSections();
+                return;
+            }
+
+            const result = await API.unseal(this.state.pieceId, enteredText, this.state.sessionToken);
+            if (result.success) {
+                // Go to public view — wish is now visible in timeline
+                this.state.validated = false;
+                this.state.sealed = false;
+                this.state.wished = false;
+                this.state.challengePassed = false;
+                this.state.currentWishText = null;
+                if (input) input.value = '';
+                if (this.onWish) this.onWish();
+                await this._loadWishHistory();
+                this._updateSections();
+            } else {
+                if (errorEl) errorEl.textContent = 'Wish does not match. Try again.';
+            }
+        } catch (err) {
+            console.error('[Envelope] Challenge failed:', err);
             if (errorEl) errorEl.textContent = 'Something went wrong. Try again.';
         } finally {
             if (btn) btn.disabled = false;

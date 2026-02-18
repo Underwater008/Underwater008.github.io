@@ -47,6 +47,7 @@ export function initDevTool({ changeState }) {
                         }).join('')}
                     </select>
                     <label><input type="checkbox" id="dev-sealed"> sealed</label>
+                    <label><input type="checkbox" id="dev-foreign"> foreign</label>
                 </div>
                 <div class="dr" style="margin-top:4px">
                     <button id="dev-nfc">Tap NFC</button>
@@ -150,6 +151,12 @@ export function initDevTool({ changeState }) {
         refreshEnvLabel();
     }
 
+    // --- Enable dev mode (mock API) ---
+    if (S.envelopeManager) {
+        S.envelopeManager.enableDevMode();
+        S.envelopeManager._loadWishHistory();
+    }
+
     // --- Panel show/hide ---
     document.getElementById('dev-show-panel').addEventListener('click', () => {
         if (!S.envelopeManager) return;
@@ -164,6 +171,7 @@ export function initDevTool({ changeState }) {
         const em = S.envelopeManager;
         em.state.wished = e.target.checked;
         em.state.sealed = e.target.checked;
+        em.state.challengePassed = false;
         em._updateSections();
         refreshEnvLabel();
     });
@@ -174,6 +182,7 @@ export function initDevTool({ changeState }) {
         const em = S.envelopeManager;
         const pid = document.getElementById('dev-piece').value;
         const sealed = document.getElementById('dev-sealed').checked;
+        const foreign = document.getElementById('dev-foreign').checked;
 
         em.state.pieceId = pid;
         em.state.isNfcTap = true;
@@ -182,7 +191,8 @@ export function initDevTool({ changeState }) {
         em.state.sealed = sealed;
         em.state.btcAddress = 'bc1q' + 'x'.repeat(38);
         em.state.sessionToken = 'dev-session';
-        em.state.wished = false;
+        em.state.wished = sealed && !foreign;
+        em.state.challengePassed = false;
         em.state.currentWishText = null;
 
         em._renderPieceBadge();
@@ -220,6 +230,7 @@ export function initDevTool({ changeState }) {
         em.state.btcAddress = null;
         em.state.sessionToken = null;
         em.state.wished = false;
+        em.state.challengePassed = false;
         em.state.currentWishText = null;
 
         em._renderPieceBadge();
@@ -234,7 +245,7 @@ export function initDevTool({ changeState }) {
     function refreshEnvLabel() {
         if (!S.envelopeManager) { envLabel.textContent = 'no envelope'; return; }
         const es = S.envelopeManager.state;
-        envLabel.textContent = `p=${es.pieceId||'—'} ${es.pieceType} nfc=${es.isNfcTap} valid=${es.validated} sealed=${es.sealed} wished=${es.wished}`;
+        envLabel.textContent = `p=${es.pieceId||'—'} ${es.pieceType} nfc=${es.isNfcTap} valid=${es.validated} sealed=${es.sealed} wished=${es.wished} chal=${es.challengePassed}`;
     }
 
     // --- Periodic refresh ---
