@@ -66,6 +66,10 @@ const API = {
         return callEdgeFunction('unseal', { pieceId, wishText, sessionToken });
     },
 
+    async verifyChallenge(pieceId, wishText, sessionToken) {
+        return callEdgeFunction('verify-challenge', { pieceId, wishText, sessionToken });
+    },
+
     async claimGoldenFinger(pieceId, sessionToken) {
         return callEdgeFunction('claim-golden-finger', { pieceId, sessionToken });
     },
@@ -108,11 +112,11 @@ export class EnvelopeManager {
         this._devMode = true;
         // Seed with sample wishes for all 3 types
         this._mockWishes = [
-            { id: 'd1', wish_text: 'World peace and kindness for all', sealed: false, display_type: 'regular', created_at: '2026-01-28T10:00:00Z' },
-            { id: 'd2', wish_text: null, sealed: true, display_type: 'gold', created_at: '2026-02-10T12:00:00Z' },
-            { id: 'd3', wish_text: 'Success in all my studies this year', sealed: false, display_type: 'regular', created_at: '2026-01-20T08:00:00Z' },
-            { id: 'd4', wish_text: null, sealed: true, display_type: 'regular', created_at: '2026-02-05T15:00:00Z' },
-            { id: 'd5', wish_text: 'Health and happiness for my family', sealed: false, display_type: 'regular', created_at: '2026-01-15T09:00:00Z' },
+            { id: 'd1', piece_id: '03', wish_text: 'World peace and kindness for all', sealed: false, display_type: 'regular', created_at: '2026-01-28T10:00:00Z' },
+            { id: 'd2', piece_id: '01', wish_text: null, sealed: true, display_type: 'gold', created_at: '2026-02-10T12:00:00Z' },
+            { id: 'd3', piece_id: '07', wish_text: 'Success in all my studies this year', sealed: false, display_type: 'regular', created_at: '2026-01-20T08:00:00Z' },
+            { id: 'd4', piece_id: '12', wish_text: null, sealed: true, display_type: 'regular', created_at: '2026-02-05T15:00:00Z' },
+            { id: 'd5', piece_id: '05', wish_text: 'Health and happiness for my family', sealed: false, display_type: 'regular', created_at: '2026-01-15T09:00:00Z' },
         ];
         console.log('[Envelope] Dev mode enabled — API calls mocked');
     }
@@ -268,7 +272,7 @@ export class EnvelopeManager {
 
         if (!this.state.validated) {
             // URL visitor — read-only, just history
-        } else if (this.state.sealed && !this.state.wished) {
+        } else if (this.state.sealed && !this.state.wished && !this.state.challengePassed) {
             // Sealed by someone else — challenge gate
             if (sectionChallenge) sectionChallenge.style.display = '';
         } else if (this.state.wished || this.state.challengePassed) {
@@ -303,7 +307,7 @@ export class EnvelopeManager {
         // 金手指 for gold pieces
         const btnGolden = document.getElementById('btn-golden-finger');
         if (btnGolden) {
-            btnGolden.style.display = (this.state.pieceType === 'gold' && this.state.wished) ? '' : 'none';
+            btnGolden.style.display = this.state.pieceType === 'gold' ? '' : 'none';
         }
 
         // Reset seal error
@@ -347,7 +351,8 @@ export class EnvelopeManager {
             textDiv.className = 'wish-text';
             const dateDiv = document.createElement('div');
             dateDiv.className = 'wish-date';
-            dateDiv.textContent = this._formatDate(wish.created_at);
+            const pieceLabel = wish.piece_id ? `Piece #${wish.piece_id}  ·  ` : '';
+            dateDiv.textContent = pieceLabel + this._formatDate(wish.created_at);
 
             const isGold = wish.display_type === 'gold';
             if (isGold) entry.classList.add('gold');
@@ -528,35 +533,18 @@ export class EnvelopeManager {
 
         try {
             if (this._devMode) {
-                const sealed = this._mockWishes.find(w => w.sealed);
-                if (sealed) {
-                    sealed.sealed = false;
-                    sealed.wish_text = enteredText;
-                }
-                // Go to public view — wish is now visible in timeline
-                this.state.validated = false;
-                this.state.sealed = false;
-                this.state.wished = false;
-                this.state.challengePassed = false;
-                this.state.currentWishText = null;
+                // Verify only — piece stays sealed, show 启 panel
+                this.state.challengePassed = true;
                 if (input) input.value = '';
-                if (this.onWish) this.onWish();
-                this._renderWishTimeline(this._mockWishes);
                 this._updateSections();
                 return;
             }
 
-            const result = await API.unseal(this.state.pieceId, enteredText, this.state.sessionToken);
+            const result = await API.verifyChallenge(this.state.pieceId, enteredText, this.state.sessionToken);
             if (result.success) {
-                // Go to public view — wish is now visible in timeline
-                this.state.validated = false;
-                this.state.sealed = false;
-                this.state.wished = false;
-                this.state.challengePassed = false;
-                this.state.currentWishText = null;
+                // Verify only — piece stays sealed, show 启 panel
+                this.state.challengePassed = true;
                 if (input) input.value = '';
-                if (this.onWish) this.onWish();
-                await this._loadWishHistory();
                 this._updateSections();
             } else {
                 if (errorEl) errorEl.textContent = 'Wish does not match. Try again.';
