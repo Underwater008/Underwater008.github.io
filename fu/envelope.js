@@ -125,7 +125,7 @@ export class EnvelopeManager {
 
     async _init() {
         // DEBUG — remove after testing
-        alert(`NFC_TAP=${IS_NFC_TAP} p=${PIECE_ID} uid=${NFC_UID?.slice(0,6)}…`);
+        alert(`NFC_TAP=${IS_NFC_TAP} p=${PIECE_ID} uid=${NFC_UID}`);
 
         if (IS_NFC_TAP) {
             try {
