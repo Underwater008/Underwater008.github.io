@@ -47,7 +47,32 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(gh run:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(shasum:*)",
+      "Read(//Users/xiao/Documents/GitHub/Underwater008.github.io/**)",
+      "Bash(python3:*)",
+      "WebFetch(domain:www.wakdev.com)",
+      "Bash(supabase:*)",
+      "Bash(npx supabase functions deploy:*)",
+      "Bash(npx supabase db execute:*)",
+      "Bash(npx supabase:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git stash:*)",
+      "Bash(git stash pop:*)",
+      "Bash(gh run watch:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(open \"http://localhost:5188/?p=01&dev=1\")",
+      "Bash(SUPA_URL=\"https://eakkajhgtmjrpylntbgl.supabase.co\")",
+      "Bash(SUPA_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVha2thamhndG1qcnB5bG50YmdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMjk1MzgsImV4cCI6MjA4NjYwNTUzOH0.dcCJqpNavukOe53dlunmT4COfVwFNGhAgBUCqaJ5eSk\":*)",
+      "Bash(export SUPA_URL:*)",
+      "Bash(export:*)",
+      "WebFetch(domain:underwater008.github.io)",
+      "Bash(git ls-files:*)"
     ]
   }
 }
