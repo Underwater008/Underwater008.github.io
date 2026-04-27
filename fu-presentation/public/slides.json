@@ -1,0 +1,369 @@
+{
+  "slide_width_in": 10.0,
+  "slide_height_in": 5.625,
+  "slides": [
+    {
+      "index": 1,
+      "layout": "TITLE",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;54;p13",
+          "left_pct": -3.571,
+          "top_pct": 0.0,
+          "width_pct": 107.143,
+          "height_pct": 100.0,
+          "src": "slide1_img0.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;59;p14",
+          "left_pct": 35.223,
+          "top_pct": 35.223,
+          "width_pct": 29.554,
+          "height_pct": 29.554,
+          "src": "slide2_img0.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;60;p14",
+          "left_pct": 2.394,
+          "top_pct": 35.223,
+          "width_pct": 31.596,
+          "height_pct": 29.554,
+          "src": "slide2_img1.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;61;p14",
+          "left_pct": 9.335,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "July 4th, 2023",
+          "type": "text"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;62;p14",
+          "left_pct": 41.143,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "December 31st, 2024",
+          "type": "text"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;63;p14",
+          "left_pct": 66.011,
+          "top_pct": 35.223,
+          "width_pct": 29.554,
+          "height_pct": 29.554,
+          "src": "slide2_img4.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;64;p14",
+          "left_pct": 71.931,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "February 17th, 2026",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;69;p15",
+          "left_pct": 3.434,
+          "top_pct": 7.2,
+          "width_pct": 22.116,
+          "height_pct": 84.942,
+          "src": "slide3_img0.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;70;p15",
+          "left_pct": 27.106,
+          "top_pct": 7.119,
+          "width_pct": 22.116,
+          "height_pct": 85.105,
+          "src": "slide3_img1.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;71;p15",
+          "left_pct": 50.778,
+          "top_pct": 7.488,
+          "width_pct": 22.116,
+          "height_pct": 85.105,
+          "src": "slide3_img2.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;72;p15",
+          "left_pct": 74.451,
+          "top_pct": 7.2,
+          "width_pct": 22.116,
+          "height_pct": 85.681,
+          "src": "slide3_img3.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;77;p16",
+          "left_pct": 2.854,
+          "top_pct": 5.316,
+          "width_pct": 23.334,
+          "height_pct": 41.482,
+          "src": "slide4_img0.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;78;p16",
+          "left_pct": 2.854,
+          "top_pct": 50.932,
+          "width_pct": 23.334,
+          "height_pct": 41.482,
+          "src": "slide4_img1.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;79;p16",
+          "left_pct": 28.565,
+          "top_pct": 5.316,
+          "width_pct": 23.334,
+          "height_pct": 41.482,
+          "src": "slide4_img2.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;80;p16",
+          "left_pct": 28.566,
+          "top_pct": 50.932,
+          "width_pct": 23.334,
+          "height_pct": 41.482,
+          "src": "slide4_img3.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;81;p16",
+          "left_pct": 54.277,
+          "top_pct": 4.79,
+          "width_pct": 42.869,
+          "height_pct": 42.534,
+          "src": "slide4_img4.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;82;p16",
+          "left_pct": 54.277,
+          "top_pct": 50.932,
+          "width_pct": 42.869,
+          "height_pct": 42.534,
+          "src": "slide4_img5.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;87;p17",
+          "left_pct": 1.759,
+          "top_pct": 4.569,
+          "width_pct": 22.457,
+          "height_pct": 89.947,
+          "src": "slide5_img0.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;88;p17",
+          "left_pct": 25.568,
+          "top_pct": 4.569,
+          "width_pct": 22.457,
+          "height_pct": 89.947,
+          "src": "slide5_img1.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;89;p17",
+          "left_pct": 75.382,
+          "top_pct": 4.793,
+          "width_pct": 23.251,
+          "height_pct": 89.947,
+          "src": "slide5_img2.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;90;p17",
+          "left_pct": 49.378,
+          "top_pct": 4.798,
+          "width_pct": 24.651,
+          "height_pct": 89.947,
+          "src": "slide5_img3.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;95;p18",
+          "left_pct": 10.643,
+          "top_pct": 30.02,
+          "width_pct": 40.274,
+          "height_pct": 39.959,
+          "src": "slide6_img0.png",
+          "type": "image",
+          "ext": "png"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;96;p18",
+          "left_pct": 61.804,
+          "top_pct": 4.802,
+          "width_pct": 23.251,
+          "height_pct": 90.395,
+          "src": "slide6_img1.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;101;p19",
+          "left_pct": 5.274,
+          "top_pct": 5.501,
+          "width_pct": 29.088,
+          "height_pct": 42.788,
+          "src": "slide7_img0.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;102;p19",
+          "left_pct": 66.567,
+          "top_pct": 5.501,
+          "width_pct": 28.159,
+          "height_pct": 88.998,
+          "src": "slide7_img1.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;103;p19",
+          "left_pct": 36.333,
+          "top_pct": 51.711,
+          "width_pct": 28.263,
+          "height_pct": 42.788,
+          "src": "slide7_img2.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;104;p19",
+          "left_pct": 5.274,
+          "top_pct": 51.711,
+          "width_pct": 29.088,
+          "height_pct": 42.788,
+          "src": "slide7_img3.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;105;p19",
+          "left_pct": 36.333,
+          "top_pct": 5.501,
+          "width_pct": 28.263,
+          "height_pct": 42.788,
+          "src": "slide7_img4.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;110;p20",
+          "left_pct": 25.317,
+          "top_pct": 41.77,
+          "width_pct": 49.367,
+          "height_pct": 16.46,
+          "text": "Happy New Year",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

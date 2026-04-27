@@ -1,0 +1,167 @@
+:root {
+  /* Native deck size = 720pt × 405pt scaled to 1920×1080 (factor 2.667). */
+  --slide-w: 1920px;
+  --slide-h: 1080px;
+  --slide-bg: #990000;
+  --gold: #F1C232;
+  --gold-warm: #E69138;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #6f0d09 0%, #3a0604 100%);
+  color: var(--gold);
+  font-family: Cambria, 'Hoefler Text', 'Times New Roman', serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#deck {
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  transform-origin: center center;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background: var(--slide-bg);
+  opacity: 0;
+  transition: opacity 600ms ease;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide.cover {
+  background: #000;
+}
+
+.shape {
+  position: absolute;
+  overflow: hidden;
+}
+
+.shape.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shape.text {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: Cambria, 'Hoefler Text', 'Times New Roman', serif;
+  line-height: 1.1;
+}
+
+/* Date labels: 10pt @ 720pt slide ≈ 26.67px @ 1920px deck */
+.date-label {
+  font-size: 26.67px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.01em;
+}
+
+/* Finale: "Happy New Year" — 43pt ≈ 114.67px */
+.finale .shape.text {
+  color: var(--gold-warm);
+}
+
+.finale .happy {
+  font-size: 114.67px;
+  font-weight: 400;
+  color: var(--gold-warm);
+  letter-spacing: 0.02em;
+}
+
+/* Image polish — keep crisp, no rounded corners since the source is photographic */
+.shape.image {
+  background: transparent;
+}
+
+.cover .shape.image img {
+  object-fit: cover;
+}
+
+/* HUD: small side arrows, faint counter at bottom */
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(241, 194, 50, 0.3);
+  color: var(--gold);
+  font-size: 16px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 200ms ease, background 150ms ease, border-color 150ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0;
+}
+
+#stage:hover #hud button {
+  opacity: 0.55;
+}
+
+#hud button:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.55);
+  border-color: var(--gold);
+}
+
+#prev { left: 16px; }
+#next { right: 16px; }
+
+#counter {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(241, 194, 50, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+#stage:hover #counter {
+  opacity: 1;
+}
