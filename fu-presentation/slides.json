@@ -1,0 +1,226 @@
+{
+  "slide_width_in": 10.0,
+  "slide_height_in": 5.625,
+  "slides": [
+    {
+      "index": 1,
+      "layout": "TITLE",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide1_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;59;p14",
+          "left_pct": 35.223,
+          "top_pct": 35.223,
+          "width_pct": 29.554,
+          "height_pct": 29.554,
+          "src": "slide2_img0.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;60;p14",
+          "left_pct": 2.394,
+          "top_pct": 35.223,
+          "width_pct": 31.596,
+          "height_pct": 29.554,
+          "src": "slide2_img1.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;61;p14",
+          "left_pct": 9.335,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "July 4th, 2023",
+          "type": "text"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;62;p14",
+          "left_pct": 41.143,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "December 31st, 2024",
+          "type": "text"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;63;p14",
+          "left_pct": 66.011,
+          "top_pct": 35.223,
+          "width_pct": 29.554,
+          "height_pct": 29.554,
+          "src": "slide2_img4.gif",
+          "type": "image",
+          "ext": "gif"
+        },
+        {
+          "kind": "TEXT_BOX (17)",
+          "name": "Google Shape;64;p14",
+          "left_pct": 71.931,
+          "top_pct": 26.713,
+          "width_pct": 17.713,
+          "height_pct": 6.585,
+          "text": "February 17th, 2026",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide3_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide4_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide5_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide6_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;101;p19",
+          "left_pct": 5.274,
+          "top_pct": 5.501,
+          "width_pct": 29.088,
+          "height_pct": 42.788,
+          "src": "slide7_img0.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;102;p19",
+          "left_pct": 66.567,
+          "top_pct": 5.501,
+          "width_pct": 28.159,
+          "height_pct": 88.998,
+          "src": "slide7_img1.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;103;p19",
+          "left_pct": 36.333,
+          "top_pct": 51.711,
+          "width_pct": 28.263,
+          "height_pct": 42.788,
+          "src": "slide7_img2.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;104;p19",
+          "left_pct": 5.274,
+          "top_pct": 51.711,
+          "width_pct": 29.088,
+          "height_pct": 42.788,
+          "src": "slide7_img3.jpg",
+          "type": "image",
+          "ext": "jpg"
+        },
+        {
+          "kind": "PICTURE (13)",
+          "name": "Google Shape;105;p19",
+          "left_pct": 36.333,
+          "top_pct": 5.501,
+          "width_pct": 28.263,
+          "height_pct": 42.788,
+          "src": "slide7_img4.png",
+          "type": "image",
+          "ext": "png"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "layout": "TITLE_AND_BODY",
+      "shapes": [
+        {
+          "kind": "COMPOSITE",
+          "type": "image",
+          "src": "slide8_composite.jpg",
+          "left_pct": 0,
+          "top_pct": 0,
+          "width_pct": 100,
+          "height_pct": 100
+        }
+      ]
+    }
+  ]
+}
