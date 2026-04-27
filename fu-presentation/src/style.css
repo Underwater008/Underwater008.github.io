@@ -13,7 +13,7 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background: radial-gradient(ellipse at center, #6f0d09 0%, #3a0604 100%);
+  background: var(--slide-bg);
   color: var(--gold);
   font-family: Cambria, 'Hoefler Text', 'Times New Roman', serif;
   overflow: hidden;
@@ -60,7 +60,8 @@ html, body {
   overflow: hidden;
 }
 
-.shape.image img {
+.shape.image img,
+.shape.video video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -104,7 +105,7 @@ html, body {
   object-fit: cover;
 }
 
-/* HUD: small side arrows, faint counter at bottom */
+/* HUD: bare arrow glyphs in the bottom corners. */
 #hud {
   position: fixed;
   inset: 0;
@@ -114,42 +115,31 @@ html, body {
 
 #hud button {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(241, 194, 50, 0.3);
+  bottom: 16px;
+  background: transparent;
+  border: 0;
+  padding: 8px 12px;
   color: var(--gold);
-  font-size: 16px;
+  font-size: 28px;
   line-height: 1;
-  display: grid;
-  place-items: center;
   cursor: pointer;
   pointer-events: auto;
-  opacity: 0;
-  transition: opacity 200ms ease, background 150ms ease, border-color 150ms ease;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  padding: 0;
-}
-
-#stage:hover #hud button {
-  opacity: 0.55;
+  opacity: 0.5;
+  transition: opacity 150ms ease, transform 150ms ease;
+  font-family: Cambria, 'Hoefler Text', 'Times New Roman', serif;
 }
 
 #hud button:hover {
-  opacity: 1 !important;
-  background: rgba(0, 0, 0, 0.55);
-  border-color: var(--gold);
+  opacity: 1;
+  transform: scale(1.15);
 }
 
-#prev { left: 16px; }
-#next { right: 16px; }
+#prev { left: 8px; }
+#next { right: 8px; }
 
 #counter {
   position: absolute;
-  bottom: 14px;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   color: rgba(241, 194, 50, 0.45);
@@ -158,10 +148,4 @@ html, body {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.12em;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-
-#stage:hover #counter {
-  opacity: 1;
 }

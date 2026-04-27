@@ -1,8 +1,10 @@
-// Photo-collage slideshow generated from /public/slides.json
+// Photo-collage slideshow generated from ./slides.json
 // Layout positions are encoded as percentages of the slide rect (10in × 5.625in).
+// Paths are relative to index.html so this works both standalone and as a sub-entry
+// of the parent multi-page Vite build.
 
-const SLIDES_URL = `${import.meta.env.BASE_URL}slides.json`;
-const MEDIA_BASE = `${import.meta.env.BASE_URL}media/`;
+const SLIDES_URL = './slides.json';
+const MEDIA_BASE = './media/';
 
 const deck = document.getElementById('deck');
 const counter = document.getElementById('counter');
@@ -26,6 +28,14 @@ function makeShape(shape) {
     img.alt = '';
     img.loading = 'lazy';
     el.appendChild(img);
+  } else if (shape.type === 'video') {
+    const v = document.createElement('video');
+    v.src = `${MEDIA_BASE}${shape.src}`;
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = true;
+    v.preload = 'auto';
+    el.appendChild(v);
   } else if (shape.type === 'text') {
     const span = document.createElement('span');
     span.textContent = shape.text;
@@ -61,6 +71,11 @@ function go(target) {
   slides[next].classList.add('active');
   current = next;
   counter.textContent = `${current + 1} / ${total}`;
+
+  // Pause every video, then play the one inside the active slide (if any).
+  deck.querySelectorAll('video').forEach((v) => { v.pause(); v.currentTime = 0; });
+  const activeVideo = slides[next].querySelector('video');
+  if (activeVideo) activeVideo.play().catch(() => {});
 }
 
 function fitDeck() {
@@ -82,6 +97,24 @@ async function init() {
 
   // Drop slide 7 (the 5-photo collage); keep cover, dates, app screens, and finale.
   const slides = data.slides.filter((s) => s.index !== 7);
+
+  // Insert the walkthrough video as a full-bleed slide right before the Happy New Year finale.
+  const walkthroughSlide = {
+    index: 'walkthrough',
+    layout: 'TITLE',
+    shapes: [
+      {
+        type: 'video',
+        kind: 'VIDEO',
+        src: 'walkthrough.mp4',
+        left_pct: 0,
+        top_pct: 0,
+        width_pct: 100,
+        height_pct: 100,
+      },
+    ],
+  };
+  slides.splice(slides.length - 1, 0, walkthroughSlide);
 
   total = slides.length;
 
