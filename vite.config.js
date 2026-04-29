@@ -19,6 +19,18 @@ const copyFuPresentationAssets = {
   },
 };
 
+const copyUncreditedAssets = {
+  name: 'copy-uncredited-assets',
+  apply: 'build',
+  closeBundle() {
+    const src = resolve(__dirname, 'uncredited');
+    const dst = resolve(__dirname, 'dist/uncredited');
+    if (existsSync(src)) {
+      cpSync(src, dst, { recursive: true });
+    }
+  },
+};
+
 module.exports = {
     build: {
       rollupOptions: {
@@ -38,5 +50,6 @@ module.exports = {
     plugins: [
       vitePluginString(),
       copyFuPresentationAssets,
+      copyUncreditedAssets,
     ]
   };
