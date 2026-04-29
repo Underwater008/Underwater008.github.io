@@ -43,6 +43,7 @@ module.exports = {
           fu: 'fu/index.html',
           fu_gemini: 'fu-gemini/index.html',
           fu_presentation: 'fu-presentation/index.html',
+          uncreditd: 'uncreditd/index.html',
         }
       }
     },
