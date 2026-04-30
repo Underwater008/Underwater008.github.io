@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uncredited Presentation</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --slide-w: 1920px;
+        --slide-h: 1080px;
+        --ink: #f4efe5;
+        --ink-dim: #b9b0a1;
+        --ink-faint: #756f64;
+        --paper: #070a0d;
+        --paper-2: #10141a;
+        --paper-light: #f2eee5;
+        --ink-on-light: #080a0d;
+        --warm: #ffd18b;
+        --ember: #ff7a3c;
+        --sea: #062128;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #000;
+        overflow: hidden;
+      }
+
+      body {
+        color: var(--ink);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #stage {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        cursor: pointer;
+        background:
+          radial-gradient(circle at 50% 115%, rgba(23, 82, 94, 0.28), transparent 34%),
+          #000;
+      }
+
+      #deck {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: var(--slide-w);
+        height: var(--slide-h);
+        transform-origin: center center;
+        background: var(--paper);
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 520ms ease;
+        background: var(--paper);
+      }
+
+      .slide.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .slide.darker {
+        background: #05070a;
+      }
+
+      .slide.dark {
+        background:
+          radial-gradient(70% 72% at 50% 110%, rgba(16, 63, 78, 0.36), transparent 68%),
+          var(--paper);
+      }
+
+      .slide.light {
+        background: var(--paper-light);
+        color: var(--ink-on-light);
+      }
+
+      .media {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 40%),
+          #070a0d;
+      }
+
+      .media img,
+      .media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .media.contain img {
+        object-fit: contain;
+      }
+
+      .study-grid {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        top: 92px;
+        bottom: 268px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 24px;
+      }
+
+      .study-card {
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+        background: #e9e8e3;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+      }
+
+      .study-card:first-child {
+        grid-row: 1 / span 2;
+      }
+
+      .study-card video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .study-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.22), transparent 32%),
+          linear-gradient(to top, rgba(0, 0, 0, 0.28), transparent 36%);
+      }
+
+      .study-label {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 1;
+        padding: 7px 9px;
+        background: rgba(5, 7, 10, 0.68);
+        color: rgba(244, 239, 229, 0.78);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 17px;
+        text-transform: uppercase;
+      }
+
+      .study-copy {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        bottom: 118px;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: end;
+        gap: 54px;
+      }
+
+      .era-2023 {
+        background:
+          radial-gradient(52% 62% at 68% 48%, rgba(255, 209, 139, 0.16), transparent 62%),
+          #05070a;
+      }
+
+      .sketch-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: #05070a;
+      }
+
+      .sketch-bg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        filter: invert(1) brightness(0.48) contrast(1.35);
+        opacity: 0.42;
+        mix-blend-mode: screen;
+      }
+
+      .newdream-frame {
+        position: absolute;
+        left: 612px;
+        right: 100px;
+        top: 112px;
+        bottom: 246px;
+        overflow: hidden;
+        background: #010203;
+        border: 1px solid rgba(255, 209, 139, 0.24);
+        box-shadow:
+          0 34px 90px rgba(0, 0, 0, 0.54),
+          0 0 70px rgba(255, 122, 60, 0.12);
+      }
+
+      .newdream-frame video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .newdream-frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(70% 70% at 70% 22%, transparent 38%, rgba(0, 0, 0, 0.38) 100%),
+          linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent 34%);
+      }
+
+      .era-2023 .year-copy {
+        max-width: 520px;
+      }
+
+      .top-fade,
+      .bottom-fade,
+      .vignette {
+        position: absolute;
+        left: 0;
+        right: 0;
+        pointer-events: none;
+      }
+
+      .top-fade {
+        top: 0;
+        height: 250px;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.74), transparent);
+      }
+
+      .bottom-fade {
+        bottom: 0;
+        height: 390px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+      }
+
+      .vignette {
+        inset: 0;
+        background:
+          radial-gradient(80% 62% at 50% 52%, transparent 34%, rgba(0, 0, 0, 0.72) 100%),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.42), transparent 26%, transparent 72%, rgba(0, 0, 0, 0.34));
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.18;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 22px 22px;
+        mix-blend-mode: overlay;
+      }
+
+      .mono {
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        letter-spacing: 0;
+      }
+
+      .kicker {
+        margin: 0 0 36px;
+        color: var(--warm);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 26px;
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .title-xl,
+      .title-l,
+      .title-m,
+      .body-l,
+      .body {
+        margin: 0;
+        font-weight: 300;
+      }
+
+      .title-xl {
+        font-size: 278px;
+        line-height: 0.92;
+        font-style: italic;
+      }
+
+      .title-l {
+        font-size: 142px;
+        line-height: 1;
+      }
+
+      .title-m {
+        font-size: 94px;
+        line-height: 1.06;
+      }
+
+      .body-l {
+        font-size: 50px;
+        line-height: 1.24;
+      }
+
+      .body {
+        font-size: 37px;
+        line-height: 1.38;
+      }
+
+      .mono-s {
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+
+      .mono-m {
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 30px;
+        letter-spacing: 0;
+      }
+
+      .cover-copy {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        top: 37%;
+        transform: translateY(-50%);
+      }
+
+      .cover-note {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        bottom: 172px;
+      }
+
+      .quote-block {
+        position: absolute;
+        left: 140px;
+        right: 140px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .quote-mark {
+        height: 132px;
+        color: #3b352d;
+        font-size: 282px;
+        font-style: italic;
+        font-weight: 300;
+        line-height: 0.6;
+      }
+
+      .rule {
+        width: 240px;
+        height: 1px;
+        margin: 80px 0 24px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .manifesto {
+        position: absolute;
+        left: 160px;
+        right: 160px;
+        top: 74px;
+        bottom: 94px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 30px;
+      }
+
+      .manifesto p {
+        max-width: 1600px;
+        margin: 0;
+        color: var(--ink);
+        font-size: 34px;
+        font-weight: 300;
+        line-height: 1.43;
+      }
+
+      em {
+        font-style: italic;
+      }
+
+      .year-copy {
+        position: absolute;
+        left: 100px;
+        bottom: 132px;
+        max-width: 940px;
+      }
+
+      .year {
+        color: var(--warm);
+        font-size: 220px;
+        font-weight: 300;
+        line-height: 0.86;
+      }
+
+      .breakdown-media {
+        position: absolute;
+        inset: 0;
+        background: #020506;
+      }
+
+      .breakdown-media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .breakdown-media::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.36), transparent 24%),
+          linear-gradient(to right, rgba(0, 0, 0, 0.16), transparent 34%),
+          radial-gradient(70% 76% at 50% 52%, transparent 56%, rgba(0, 0, 0, 0.44) 100%);
+      }
+
+      .breakdown-chip {
+        position: absolute;
+        right: 74px;
+        top: 70px;
+        z-index: 2;
+        color: rgba(244, 239, 229, 0.72);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 20px;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .list-wrap {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        top: 190px;
+      }
+
+      .frag {
+        list-style: none;
+        margin: 42px 0 0;
+        padding: 0;
+      }
+
+      .frag li {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 40px;
+        padding: 18px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+      }
+
+      .frag .l {
+        font-size: 48px;
+        font-weight: 300;
+      }
+
+      .frag .r {
+        color: var(--ink-faint);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 24px;
+        text-transform: uppercase;
+      }
+
+      .note-slide {
+        position: absolute;
+        left: 160px;
+        right: 160px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .note-box {
+        margin-top: 120px;
+        max-width: 1500px;
+      }
+
+      .glow {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--warm);
+        box-shadow:
+          0 0 24px 4px rgba(255, 209, 139, 0.7),
+          0 0 62px 8px rgba(255, 209, 139, 0.32);
+        vertical-align: middle;
+      }
+
+      .thanks {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 118px;
+        z-index: 2;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .credits-stage {
+        position: absolute;
+        inset: 280px 0 0;
+        overflow: hidden;
+      }
+
+      .credits-col {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 1100px;
+        transform: translateX(-50%);
+        color: var(--ink);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 30px;
+        line-height: 2;
+        text-align: center;
+        animation: scrollUp 120s linear infinite;
+      }
+
+      .credits-col .role {
+        margin: 36px 0 8px;
+        color: var(--ink-faint);
+        font-size: 24px;
+        text-transform: uppercase;
+      }
+
+      .credits-col .name.warm {
+        color: var(--warm);
+      }
+
+      .scroll-mask {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(to bottom, #05070a 0%, transparent 18%, transparent 82%, #05070a 100%);
+      }
+
+      @keyframes scrollUp {
+        from {
+          transform: translate(-50%, 0);
+        }
+        to {
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      #hud {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      #hud button {
+        position: absolute;
+        bottom: 16px;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: rgba(244, 239, 229, 0.52);
+        cursor: pointer;
+        font-family: Georgia, serif;
+        font-size: 38px;
+        line-height: 1;
+        pointer-events: auto;
+        transition: color 150ms ease, transform 150ms ease;
+      }
+
+      #hud button:hover {
+        color: var(--ink);
+        transform: scale(1.12);
+      }
+
+      #prev {
+        left: 8px;
+      }
+
+      #next {
+        right: 8px;
+      }
+
+      #counter {
+        position: absolute;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        color: rgba(244, 239, 229, 0.48);
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="stage" aria-label="Uncredited presentation">
+      <div id="deck">
+        <section class="slide darker active" data-label="Manifesto">
+          <div class="media">
+            <img src="./assets/2026-progress-2.jpg" alt="" />
+          </div>
+          <div class="vignette"></div>
+          <div class="top-fade"></div>
+          <div class="bottom-fade"></div>
+          <div class="grain"></div>
+          <div class="cover-copy">
+            <div class="kicker">Manifesto</div>
+            <h1 class="title-xl">Uncredited.</h1>
+          </div>
+          <div class="cover-note">
+            <p class="body-l" style="max-width: 1580px; color: var(--ink-dim); font-style: italic; margin-bottom: 34px;">&ldquo;Every masterpiece is a theft, so distributed people think it is individual genius.&rdquo;</p>
+            <p class="mono-m" style="color: var(--ink-faint); text-transform: uppercase;">Zhixuan Xiao</p>
+          </div>
+        </section>
+
+        <section class="slide darker" data-label="Quote">
+          <div class="quote-block">
+            <div class="quote-mark">&ldquo;</div>
+            <p class="title-l" style="max-width: 1500px; margin-top: 40px; font-style: italic;">Good artists copy, great artists steal.</p>
+            <div class="rule"></div>
+            <p class="mono-s" style="color: var(--ink-faint); text-transform: uppercase;">Pablo Picasso</p>
+          </div>
+        </section>
+
+        <section class="slide dark" data-label="The idea">
+          <div class="manifesto">
+            <p>This begins with the death of the solitary author.</p>
+            <p>Before my name, there were parents, teachers, rivals, tools, roads, images, strangers: every hand that left something behind for me to carry. <em>I did not make this alone. I was made through contact.</em></p>
+            <p>No one credits the chemist who ground the pigment, the forester who pulped the paper, the alphabet, the electricity, the rival they envied at sixteen, the stranger whose face they keep redrawing without knowing it. We pretend the work begins at the signature. It never does.</p>
+            <p>When a tool arrives that admits it was trained on everyone, the rage is not about theft. <em style="color: var(--warm);">It is about the lie of the singular self, finally exposed.</em></p>
+            <p>For humans, repetition is a form of keeping. We sing the song again to keep the dead alive. We trace the master's line to keep their hand in ours. The machine repeats us back to ourselves, and we call it stealing, because we never had a word for the thing we have always done.</p>
+            <p>Play is the only honest answer: to enter what others have left, change it by carrying it, and leave it changed for someone else.</p>
+          </div>
+        </section>
+
+        <section class="slide darker" data-label="2021">
+          <div class="study-grid">
+            <div class="study-card">
+              <video src="./media/2021-study-1.mp4" poster="./media/2021-study-1.jpg" muted playsinline preload="metadata"></video>
+              <span class="study-label">Quill capture 01</span>
+            </div>
+            <div class="study-card">
+              <video src="./media/2021-study-2.mp4" poster="./media/2021-study-2.jpg" data-start="4" muted playsinline preload="metadata"></video>
+              <span class="study-label">Gesture trace 02</span>
+            </div>
+            <div class="study-card">
+              <video src="./media/2021-study-3.mp4" poster="./media/2021-study-3.jpg" muted playsinline preload="metadata"></video>
+              <span class="study-label">Heart study 03</span>
+            </div>
+          </div>
+          <div class="bottom-fade"></div>
+          <div class="study-copy">
+            <div class="year" style="color: var(--ink);">2021</div>
+            <p class="body" style="max-width: 1120px; color: var(--ink-dim);">The first version. Drawn by hand in VR with Quill, every wave, every stroke. A quiet ocean, no boat yet.</p>
+          </div>
+        </section>
+
+        <section class="slide darker era-2023" data-label="2023">
+          <div class="sketch-bg">
+            <img src="./assets/2023-navBG.gif" alt="" />
+          </div>
+          <div class="newdream-frame">
+            <video src="./media/2023-newdream.mp4" poster="./media/2023-newdream.jpg" muted playsinline preload="metadata"></video>
+          </div>
+          <div class="top-fade"></div>
+          <div class="bottom-fade"></div>
+          <div class="year-copy">
+            <div class="year">2023</div>
+            <p class="body" style="max-width: 820px; color: var(--ink); margin-top: 22px;">Two years later, the same scene rebuilt in Blender. A glowing heart on the horizon, a paper boat catching the light. Same feeling, more pixels.</p>
+          </div>
+        </section>
+
+        <section class="slide darker" data-label="2026">
+          <div class="media">
+            <video src="./media/2026-site-capture-slow48.mp4" poster="./media/2026-site-capture.jpg" muted playsinline preload="metadata" loop></video>
+          </div>
+          <div class="top-fade"></div>
+          <div class="bottom-fade" style="height: 430px;"></div>
+          <div class="year-copy" style="max-width: 1120px;">
+            <div class="year">2026</div>
+            <p class="body" style="max-width: 1000px; color: var(--ink); margin-top: 22px;">Now you can sail it. Real-time water, real wind, a boat that listens to your hand. The same ocean I have been drawing for five years, finally something you can touch.</p>
+          </div>
+        </section>
+
+        <section class="slide darker" data-label="VFX breakdown">
+          <div class="breakdown-media">
+            <video src="./media/ocean-breakdown-sky-wire-gray-slow48.mp4" poster="./media/ocean-breakdown-sky-wire-gray.jpg" muted playsinline preload="metadata" loop></video>
+          </div>
+          <div class="breakdown-chip">2026 / process plates</div>
+        </section>
+
+        <section class="slide dark" data-label="Your name">
+          <div class="note-slide">
+            <p class="title-m" style="max-width: 1700px; font-style: italic;">When the credits roll, you can add your own name if you think you have inspired or influenced me in any way at all.</p>
+            <div class="note-box">
+              <p class="mono-s" style="color: var(--ink-faint); text-transform: uppercase; margin: 0 0 18px;">A note</p>
+              <p class="body" style="max-width: 1500px; color: var(--ink-dim);">This is an important piece of my manifesto, but I did not get the chance to talk about it in class on April 29th. Mark cut me off before I could finish. So I am saying it here.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide darker" data-label="Credits">
+          <div class="thanks">
+            <span class="glow"></span>
+            <p class="mono-s" style="margin: 24px 0 0; color: var(--warm); text-transform: uppercase;">Thank you</p>
+          </div>
+          <div class="credits-stage">
+            <div class="credits-col" id="credits-col"></div>
+            <div class="scroll-mask"></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="hud">
+        <button id="prev" aria-label="Previous slide" type="button">&lsaquo;</button>
+        <button id="next" aria-label="Next slide" type="button">&rsaquo;</button>
+        <span id="counter">1 / 9</span>
+      </div>
+    </main>
+
+    <script>
+      const stage = document.getElementById("stage");
+      const deck = document.getElementById("deck");
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const counter = document.getElementById("counter");
+      const prev = document.getElementById("prev");
+      const next = document.getElementById("next");
+      const videos = Array.from(document.querySelectorAll("video"));
+      let current = 0;
+
+      function fitDeck() {
+        const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        deck.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      }
+
+      function go(target) {
+        const nextIndex = ((target % slides.length) + slides.length) % slides.length;
+        slides[current].classList.remove("active");
+        slides[nextIndex].classList.add("active");
+        current = nextIndex;
+        counter.textContent = `${current + 1} / ${slides.length}`;
+        syncVideos();
+      }
+
+      function syncVideos() {
+        slides.forEach((slide) => {
+          slide.querySelectorAll("video").forEach((video) => {
+            applyVideoRate(video);
+            if (slide.classList.contains("active")) {
+              seekToStart(video);
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+              seekToStart(video);
+            }
+          });
+        });
+      }
+
+      function getVideoStart(video) {
+        return Number(video.dataset.start || 0);
+      }
+
+      function getVideoRate(video) {
+        const rate = Number(video.dataset.rate || 1);
+        return Number.isFinite(rate) && rate > 0 ? rate : 1;
+      }
+
+      function applyVideoRate(video) {
+        video.playbackRate = getVideoRate(video);
+      }
+
+      function seekToStart(video) {
+        const start = getVideoStart(video);
+        if (!Number.isFinite(start)) return;
+        if (video.readyState === 0) {
+          video.addEventListener("loadedmetadata", () => seekToStart(video), { once: true });
+          return;
+        }
+        if (video.ended || video.currentTime < start || video.currentTime < 0.15) {
+          video.currentTime = Math.min(start, Math.max(0, video.duration - 0.1));
+        }
+      }
+
+      const groups = [
+        ["Tools", ["Quill (Goro Fujita and team)", "Blender Foundation", "Three.js contributors", "WebGL working group", "Visual Studio Code", "Git", "GitHub", "Chromium", "macOS", "Unreal Engine", "Epic Games", "Unity Technologies"]],
+        ["Papers and ideas", ["Jerry Tessendorf, FFT ocean waves", "JONSWAP, Hasselmann et al.", "Phillips spectrum", "Pierson-Moskowitz", "Subsurface scattering, Jensen, d'Eon, others", "Schlick approximation", "Trowbridge-Reitz GGX", "Henyey-Greenstein phase function"]],
+        ["Teachers on YouTube", ["Acerola", "Inigo Quilez", "SimonDev", "Sebastian Lague", "Freya Holmer", "The Cherno", "Code Parade", "Nature of Code, Daniel Shiffman"]],
+        ["GitHub repos I read", ["github.com/jbouny/ocean", "github.com/tw1ddle/Ocean", "github.com/mrdoob/three.js", "github.com/JulianGarnier/anime", "github.com/pmndrs/drei"]],
+        ["Infrastructure", ["Tim Berners-Lee", "Linus Torvalds", "Ada Lovelace", "Alan Turing", "Grace Hopper", "Margaret Hamilton", "Dennis Ritchie", "Ken Thompson", "Brendan Eich", "every Wikipedia editor"]],
+        ["Materials", ["Cai Lun (paper)", "Whoever first held fire", "Edison's lab", "The Knoll brothers (Photoshop)", "The Adobe team", "Pixar's RenderMan team", "SIGGRAPH, every year"]],
+        ["People I know", ["My family", "My friends who watched early versions", "The stranger on the train who said it was beautiful", "The teacher who told me to keep going", "Everyone who clicked the link"]],
+        ["Models and machines", ["Claude", "GPT", "Stable Diffusion", "every dataset annotator", "every GPU farm operator", "every electrical grid worker"]],
+        ["And", ["the wind", "the tide", "the night", "the morning after"]]
+      ];
+
+      function buildCredits(target) {
+        const rows = [];
+        groups.forEach(([role, names]) => {
+          rows.push(`<div class="role">${role}</div>`);
+          names.forEach((name, index) => {
+            rows.push(`<div class="name${index === 0 ? " warm" : ""}">${name}</div>`);
+          });
+        });
+        target.innerHTML = rows.join("") + rows.join("");
+      }
+
+      buildCredits(document.getElementById("credits-col"));
+      videos.forEach((video) => {
+        video.addEventListener("ended", () => {
+          if (!video.closest(".slide")?.classList.contains("active")) return;
+          seekToStart(video);
+          video.play().catch(() => {});
+        });
+      });
+      fitDeck();
+      syncVideos();
+      window.addEventListener("resize", fitDeck);
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") {
+          event.preventDefault();
+          go(current + 1);
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          event.preventDefault();
+          go(current - 1);
+        }
+        if (event.key === "Home") {
+          event.preventDefault();
+          go(0);
+        }
+        if (event.key === "End") {
+          event.preventDefault();
+          go(slides.length - 1);
+        }
+      });
+
+      prev.addEventListener("click", (event) => {
+        event.stopPropagation();
+        go(current - 1);
+      });
+
+      next.addEventListener("click", (event) => {
+        event.stopPropagation();
+        go(current + 1);
+      });
+
+      stage.addEventListener("click", (event) => {
+        if (event.target instanceof Element && event.target.closest("#hud")) return;
+        go(current + 1);
+      });
+    </script>
+  </body>
+</html>
