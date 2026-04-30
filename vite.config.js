@@ -45,6 +45,7 @@ module.exports = {
           fu_presentation: 'fu-presentation/index.html',
           junk_presentation: 'junk-presentation/index.html',
           uncreditd: 'uncreditd/index.html',
+          uncredited_presentation: 'uncredited-presentation/index.html',
         }
       }
     },
