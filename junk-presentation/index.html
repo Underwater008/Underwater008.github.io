@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JUNK Consortium Website — Xiao Zhixuan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/679ad104-0cce-4610-a674-fd2e88067ea5-Cpd2YT5r.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/f10881ec-2028-4cc0-8b00-1b40abbcc216-C5ekK6td.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/5c734b36-5f78-451a-8c94-93e407e8cb48-Ai74Rjx-.woff2") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/0968cb6b-5ea1-4097-a16a-38bb25f49110-BQL42Lnq.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/c4aab48d-7223-486e-a59b-24e16a7a2106-YEzCLjIM.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/e8fde6c9-495a-4761-b2b0-1dc19a589d8f-B_-bZUTo.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/9dc90867-749d-4e65-a824-d34c796f36bb-8kRkwJBP.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/679ad104-0cce-4610-a674-fd2e88067ea5-Cpd2YT5r.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/f10881ec-2028-4cc0-8b00-1b40abbcc216-C5ekK6td.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/5c734b36-5f78-451a-8c94-93e407e8cb48-Ai74Rjx-.woff2") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/0968cb6b-5ea1-4097-a16a-38bb25f49110-BQL42Lnq.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/c4aab48d-7223-486e-a59b-24e16a7a2106-YEzCLjIM.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/e8fde6c9-495a-4761-b2b0-1dc19a589d8f-B_-bZUTo.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/9dc90867-749d-4e65-a824-d34c796f36bb-8kRkwJBP.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/679ad104-0cce-4610-a674-fd2e88067ea5-Cpd2YT5r.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/f10881ec-2028-4cc0-8b00-1b40abbcc216-C5ekK6td.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/5c734b36-5f78-451a-8c94-93e407e8cb48-Ai74Rjx-.woff2") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/0968cb6b-5ea1-4097-a16a-38bb25f49110-BQL42Lnq.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/c4aab48d-7223-486e-a59b-24e16a7a2106-YEzCLjIM.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/e8fde6c9-495a-4761-b2b0-1dc19a589d8f-B_-bZUTo.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/9dc90867-749d-4e65-a824-d34c796f36bb-8kRkwJBP.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/679ad104-0cce-4610-a674-fd2e88067ea5-Cpd2YT5r.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/f10881ec-2028-4cc0-8b00-1b40abbcc216-C5ekK6td.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/5c734b36-5f78-451a-8c94-93e407e8cb48-Ai74Rjx-.woff2") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/0968cb6b-5ea1-4097-a16a-38bb25f49110-BQL42Lnq.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/c4aab48d-7223-486e-a59b-24e16a7a2106-YEzCLjIM.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/e8fde6c9-495a-4761-b2b0-1dc19a589d8f-B_-bZUTo.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/9dc90867-749d-4e65-a824-d34c796f36bb-8kRkwJBP.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/679ad104-0cce-4610-a674-fd2e88067ea5-Cpd2YT5r.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/f10881ec-2028-4cc0-8b00-1b40abbcc216-C5ekK6td.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/5c734b36-5f78-451a-8c94-93e407e8cb48-Ai74Rjx-.woff2") format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/0968cb6b-5ea1-4097-a16a-38bb25f49110-BQL42Lnq.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/c4aab48d-7223-486e-a59b-24e16a7a2106-YEzCLjIM.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/e8fde6c9-495a-4761-b2b0-1dc19a589d8f-B_-bZUTo.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/9dc90867-749d-4e65-a824-d34c796f36bb-8kRkwJBP.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("data:font/woff2;base64,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") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/5abe0605-f783-43ae-8c9b-635a59d7cd2d-D2jMJ_bk.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/884d0f63-08d5-44bc-8514-6d8038ddb949-D2nYnAec.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/ce8223c5-0ee3-49fb-be52-87823add1c64-CNlsqbWb.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/88304983-170f-4813-b6e1-8a449980727c-Bnd2h4Br.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/aed8e56a-c58e-4171-bf11-4f93f795a795-Db4Uuiha.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("data:font/woff2;base64,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") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/5abe0605-f783-43ae-8c9b-635a59d7cd2d-D2jMJ_bk.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/884d0f63-08d5-44bc-8514-6d8038ddb949-D2nYnAec.woff2") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/ce8223c5-0ee3-49fb-be52-87823add1c64-CNlsqbWb.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/88304983-170f-4813-b6e1-8a449980727c-Bnd2h4Br.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/aed8e56a-c58e-4171-bf11-4f93f795a795-Db4Uuiha.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/724b33ef-3bac-41f6-9f99-cf48521120fb-DqYquI1V.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/68fd1880-1c6a-44a8-adc2-94564a9b648f-7s1ppcbL.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/071985e9-45c5-45ea-a87b-5929b17a49a0-V6065t5x.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/2321ae8e-582c-4092-8d3d-26be70be7c50-DHXaKUp_.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/1580370e-6132-4fc1-9cd2-e599e745020f-COqDbFHV.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/5ca7e82a-aba8-4a3b-9dfb-689cc0fb132e-BFcv9A5S.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/034953a3-2251-485d-aa26-7a31b7c1460c-CnXWPxla.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/0d6bc580-041b-46a9-acf1-119ddee6af0d-CSUZDoAs.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/1580370e-6132-4fc1-9cd2-e599e745020f-COqDbFHV.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/5ca7e82a-aba8-4a3b-9dfb-689cc0fb132e-BFcv9A5S.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/034953a3-2251-485d-aa26-7a31b7c1460c-CnXWPxla.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/0d6bc580-041b-46a9-acf1-119ddee6af0d-CSUZDoAs.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/1580370e-6132-4fc1-9cd2-e599e745020f-COqDbFHV.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/5ca7e82a-aba8-4a3b-9dfb-689cc0fb132e-BFcv9A5S.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/034953a3-2251-485d-aa26-7a31b7c1460c-CnXWPxla.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/assets/0d6bc580-041b-46a9-acf1-119ddee6af0d-CSUZDoAs.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/1580370e-6132-4fc1-9cd2-e599e745020f-COqDbFHV.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/5ca7e82a-aba8-4a3b-9dfb-689cc0fb132e-BFcv9A5S.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/034953a3-2251-485d-aa26-7a31b7c1460c-CnXWPxla.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/0d6bc580-041b-46a9-acf1-119ddee6af0d-CSUZDoAs.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+
+<style>
+  :root{
+    --paper:#F2EEE6;
+    --paper-2:#EAE5DA;
+    --ink:#0A0A0A;
+    --ink-2:#1A1A1A;
+    --rule:#0A0A0A;
+    --muted:#6B6660;
+    --muted-on-dark:#9A958E;
+  }
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+  deck-stage{--bg:var(--paper);}
+  section{
+    background:var(--paper);
+    color:var(--ink);
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+  }
+  .dark{background:#0A0A0A;color:#F2EEE6;}
+  .dark .rule{background:#F2EEE6;}
+  .dark .muted{color:var(--muted-on-dark);}
+
+  /* Slide chrome ------- */
+  .frame{
+    position:absolute;inset:0;
+    padding:80px 100px 80px 100px;
+    display:flex;flex-direction:column;
+    box-sizing:border-box;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:24px;border-bottom:1px solid var(--ink);
+    font-family:'Inter',sans-serif;font-size:24px;letter-spacing:0.18em;text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .topbar .pager{white-space:nowrap;}
+  .topbar .nav span{white-space:nowrap;}
+  .dark .topbar{border-bottom-color:#F2EEE6;}
+  .topbar .nav{display:flex;gap:36px;color:var(--ink);}
+  .dark .topbar .nav{color:#F2EEE6;}
+  .topbar .nav .active{font-weight:600;}
+  .topbar .nav .dim{color:var(--muted);}
+  .dark .topbar .nav .dim{color:var(--muted-on-dark);}
+  .topbar .pager{font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:0.05em;}
+
+  .footer{
+    margin-top:auto;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--muted);
+    letter-spacing:0.05em;
+    white-space:nowrap;
+  }
+  .dark .footer{color:var(--muted-on-dark);}
+
+  /* Type ------- */
+  .display{
+    font-family:'Playfair Display',serif;
+    font-weight:500;
+    font-size:180px;
+    line-height:0.92;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .dark .display{color:#F2EEE6;}
+  .h1{
+    font-family:'Playfair Display',serif;
+    font-weight:500;
+    font-size:96px;
+    line-height:1.0;
+    letter-spacing:-0.015em;
+  }
+  .h2{
+    font-family:'Playfair Display',serif;
+    font-weight:500;
+    font-size:72px;
+    line-height:1.05;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:26px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .dark .eyebrow{color:#F2EEE6;}
+  .body{
+    font-family:'Inter',sans-serif;
+    font-size:30px;
+    line-height:1.45;
+    font-weight:400;
+    color:var(--ink);
+    max-width:1100px;
+  }
+  .dark .body{color:#E8E3D8;}
+  .small{
+    font-family:'Inter',sans-serif;
+    font-size:24px;
+    line-height:1.5;
+    color:var(--muted);
+  }
+  .dark .small{color:var(--muted-on-dark);}
+  .mono{font-family:'JetBrains Mono',monospace;letter-spacing:0.02em;}
+  .italic{font-style:italic;font-family:'Playfair Display',serif;}
+  hr.rule{border:0;border-top:1px solid var(--ink);margin:0;}
+  .dark hr.rule{border-top-color:#F2EEE6;}
+
+  /* Reusable building blocks ------- */
+  .stack-tight > * + *{margin-top:18px;}
+  .stack > * + *{margin-top:36px;}
+  .stack-lg > * + *{margin-top:60px;}
+
+  .browser{
+    background:#fff;border:1px solid #0A0A0A;
+    box-shadow:24px 24px 0 -1px #0A0A0A;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .browser .bar{
+    height:36px;background:#EFEAE0;border-bottom:1px solid #0A0A0A;
+    display:flex;align-items:center;gap:8px;padding:0 16px;
+  }
+  .browser .dot{width:10px;height:10px;border-radius:50%;background:#0A0A0A;opacity:.18;}
+  .browser .url{
+    flex:1;text-align:center;font-family:'JetBrains Mono',monospace;
+    font-size:24px;color:#6B6660;letter-spacing:0.04em;
+  }
+  .browser img{display:block;width:100%;height:auto;}
+
+  .video-placeholder{
+    background:#0A0A0A;color:#F2EEE6;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:24px;
+    border:1px solid #0A0A0A;
+  }
+  .video-placeholder .play{
+    width:120px;height:120px;border-radius:50%;
+    border:2px solid #F2EEE6;display:flex;align-items:center;justify-content:center;
+  }
+  .video-placeholder .play svg{margin-left:8px;}
+  .video-placeholder .label{
+    font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:0.2em;
+    text-transform:uppercase;color:#F2EEE6;
+  }
+
+  .tag{
+    display:inline-block;border:1px solid currentColor;
+    padding:6px 16px;font-family:'Inter',sans-serif;font-size:24px;
+    letter-spacing:0.18em;text-transform:uppercase;white-space:nowrap;
+  }
+
+  /* Junk wordmark — distressed style approximation via SVG/text */
+  .junk-mark{
+    font-family:'Playfair Display',serif;
+    font-weight:900;
+    font-size:340px;
+    line-height:0.85;
+    letter-spacing:-0.04em;
+    color:#0A0A0A;
+    position:relative;
+  }
+  .dark .junk-mark{color:#F2EEE6;}
+
+  /* Quote screenshot frame */
+  .shot{
+    border:1px solid #0A0A0A;
+    background:#fff;
+    box-shadow:18px 18px 0 -1px #0A0A0A;
+    overflow:hidden;
+  }
+  .dark .shot{
+    border-color:#F2EEE6;
+    box-shadow:18px 18px 0 -1px #F2EEE6;
+  }
+  .shot img{display:block;width:100%;height:auto;}
+
+  /* Index dots */
+  .nav-dot-row{display:flex;gap:14px;}
+  .nav-dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.3;}
+  .nav-dot.on{opacity:1;}
+
+  /* Two-col grid */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+  .grid-12{display:grid;grid-template-columns:repeat(12,1fr);gap:32px;}
+
+  /* Number badge */
+  .num{
+    font-family:'Playfair Display',serif;font-style:italic;font-weight:400;
+    font-size:48px;color:var(--muted);
+  }
+
+  /* Specific slide helpers */
+  .cover-mark{
+    font-family:'Playfair Display',serif;font-weight:800;
+    font-size:520px;line-height:0.78;letter-spacing:-0.05em;
+    color:#0A0A0A;
+  }
+  .archipelago-cap{
+    background:#1F4E63;color:#F2EEE6;
+    padding:32px 36px;font-family:'Inter',sans-serif;
+    border:1px solid #1F4E63;
+  }
+
+  /* Feature lists */
+  .feat-list{list-style:none;padding:0;margin:0;}
+  .feat-list li{
+    padding:14px 0;border-top:1px solid currentColor;
+    font-size:26px;display:flex;align-items:baseline;gap:18px;
+  }
+  .feat-list li:last-child{border-bottom:1px solid currentColor;}
+  .feat-list li .idx{
+    font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--muted);min-width:42px;
+  }
+  .dark .feat-list li .idx{color:var(--muted-on-dark);}
+
+</style>
+  <script type="module" crossorigin src="/assets/junk_presentation-AUyFzJ1j.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- 01 — COVER -->
+  <section data-label="01 Cover">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav">
+          <span class="active">JUNK CONSORTIUM</span>
+        </div>
+        <div class="mono">PLANETJUNK.WORLD · 2026</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1.05fr 1fr;gap:90px;align-items:center;padding-top:50px;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:40px;">A Website Commission</div>
+          <div style="font-family:'Playfair Display',serif;font-weight:800;font-size:340px;line-height:1;letter-spacing:-0.04em;color:#0A0A0A;">JUNK</div>
+          <div class="h1" style="font-style:italic;margin-top:40px;font-size:84px;padding-left:18px;">Consortium</div>
+          <div class="small mono" style="margin-top:54px;color:var(--ink);letter-spacing:0.08em;">
+            DESIGNED &amp; BUILT BY XIAO ZHIXUAN
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px;align-items:flex-end;">
+          <div class="shot" style="width:100%;max-width:720px;">
+            <img src="/assets/f19253ae-b263-442d-8164-32b19a5c9ea5-DPysM2Ew.png" alt="planetjunk.world" style="display:block;width:100%;">
+          </div>
+          <div class="mono small" style="text-align:right;">planetjunk.world &nbsp;/&nbsp; commissioned 2026</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>Xiao Zhixuan&nbsp;·&nbsp;Designer</span>
+        <span>01&nbsp;/&nbsp;10</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — ORIGIN: IML 575 -->
+  <section data-label="02 Origin IML 575">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="active">ORIGIN</span><span class="dim">COMMISSION</span><span class="dim">CURRENT</span></div>
+        <div class="pager">02 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-rows:auto 1fr;gap:50px;padding-top:60px;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:24px;">Fall 2025 · IML 575 Final</div>
+          <div class="h1">The first version.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:80px;align-items:center;transform:translateY(-46px);">
+          <div class="body">
+            <p style="margin:0 0 28px 0;">For my IML 575 final at USC, I built a website around the JUNK Consortium — an interactive <em>Archipelago</em> where each member of the studio appeared as a distinct island.</p>
+            <p style="margin:0;">The assignment didn't require a website. I made one anyway, on top of the standard deliverable.</p>
+          </div>
+          <div class="shot">
+            <img src="/assets/7d65e2b6-0797-484f-9826-0b50df1d42f3-CDpXe8SK.png" alt="Archipelago class project">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — From class project to commission -->
+  <section data-label="03 From class to commission">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="active">COMMISSION</span><span class="dim">CURRENT</span></div>
+        <div class="pager">03 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:90px;padding-top:60px;align-items:center;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:32px;">From class project to commission</div>
+          <div class="h1" style="margin-bottom:48px;">Out of courtesy,<br><span style="opacity:0.7;">it was free.</span></div>
+          <div class="body">
+            <p style="margin:0 0 24px 0;">I delivered the standard IML 575 assignment <em>and</em> a working website for the studio — at no cost.</p>
+            <p style="margin:0;">A few months later, Alex McDowell asked if I would design the website for the entire JUNK Consortium worldwide.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:32px;">
+          <div class="shot"><img src="/assets/9f28ddbf-1824-4ea9-87a6-f5487e607332-BE143Iue.png" alt="Email from Alex McDowell"></div>
+          <div class="mono small" style="color:var(--muted);letter-spacing:0.05em;">
+            Email · Alex McDowell · Mar 31
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — THE COMMISSION (announcement) -->
+  <section data-label="04 The Commission">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="active">COMMISSION</span><span class="dim">CURRENT</span></div>
+        <div class="pager">04 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:80px;padding-top:60px;align-items:center;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:32px;">The commission</div>
+          <div class="h2" style="margin-bottom:48px;">A single platform for the JUNK Consortium worldwide.</div>
+          <div class="body">
+            <p style="margin:0 0 22px 0;">A hub where students and faculty across every member school can <strong>upload, edit, and publish</strong> their own JUNK projects —</p>
+            <p style="margin:0;color:var(--muted);">— without waiting on an admin to organize or update the site.</p>
+          </div>
+
+          <div style="display:flex;gap:14px;margin-top:60px;flex-wrap:wrap;">
+            <span class="tag">USC</span>
+            <span class="tag">Purdue</span>
+            <span class="tag">UBC</span>
+            <span class="tag">Miami</span>
+            <span class="tag">Nebraska</span>
+            <span class="tag">UEC</span>
+            <span class="tag">+ more</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:24px;">
+          <div class="shot"><img src="/assets/236fe6af-928d-459f-b2cc-562fc01741eb-vgs5gKUc.png" alt="Discord announcement"></div>
+          <div class="mono small" style="letter-spacing:0.05em;">Discord · Alex McDowell · Feb 16</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — THE CURRENT WEBSITE (full bleed) -->
+  <section data-label="05 Current website">
+    <div style="position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;box-sizing:border-box;">
+      <div class="topbar" style="padding:60px 100px 20px 100px;">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="dim">COMMISSION</span><span class="active">CURRENT</span></div>
+        <div class="pager">05 / 10</div>
+      </div>
+      <div style="padding:28px 100px;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden;">
+        <div class="shot" style="max-width:1500px;max-height:100%;width:auto;">
+          <img src="/assets/f19253ae-b263-442d-8164-32b19a5c9ea5-DPysM2Ew.png" alt="planetjunk.world current site" style="max-height:660px;width:auto;display:block;">
+        </div>
+      </div>
+      <div style="padding:0 100px 60px 100px;display:flex;justify-content:space-between;align-items:flex-end;gap:40px;">
+        <div style="white-space:nowrap;">
+          <div class="eyebrow" style="margin-bottom:14px;">The current website</div>
+          <div class="h2" style="font-size:56px;">planetjunk.world</div>
+        </div>
+        <div class="small mono" style="text-align:right;white-space:nowrap;">
+          ABOUT · CONSORTIUM · MEMBERS<br>
+          <span style="color:var(--ink);font-weight:500;">Live · 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — DESIGNED FOR SELF-SERVE EDITING (video placeholder) -->
+  <section data-label="06 Self serve editing">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="dim">COMMISSION</span><span class="active">CURRENT</span></div>
+        <div class="pager">06 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1.4fr;gap:80px;padding-top:60px;align-items:center;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:32px;">A self-serve platform</div>
+          <div class="h1" style="margin-bottom:40px;">Every school edits<br>its own pages.</div>
+          <div class="body">
+            <p style="margin:0 0 20px 0;">The CMS layer lets students and professors anywhere in the world publish their own JUNK projects directly.</p>
+            <p style="margin:0;color:var(--muted);">No central admin. No bottleneck.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="shot" style="width:100%;">
+            <img src="/assets/c9c31819-eb72-42e2-90d7-2f14f311e41b-DyXM8dY2.png" alt="CMS edit view — project page" style="display:block;width:100%;">
+          </div>
+          <div class="mono small" style="color:var(--muted);letter-spacing:0.05em;text-align:right;">
+            CMS edit view &nbsp;·&nbsp; project page
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — WHAT'S LIVE NOW (use discord screenshot) -->
+  <section data-label="07 Whats live">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="dim">COMMISSION</span><span class="active">CURRENT</span></div>
+        <div class="pager">07 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:90px;padding-top:60px;align-items:center;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:24px;">Status update · April 13</div>
+          <div class="h1" style="margin-bottom:40px;">What's live,<br><span style="opacity:0.65;">what's next.</span></div>
+          <div class="body">
+            <p style="margin:0 0 20px 0;">A check-in I posted to the Consortium Discord — the upload &amp; editing system is in members' hands now.</p>
+            <p style="margin:0;color:var(--muted);">The roadmap covers richer media, 3D model uploads, and members-list editing.</p>
+          </div>
+        </div>
+
+        <div class="shot" style="max-height:880px;overflow:hidden;">
+          <img src="/assets/eb21cea3-8458-4108-b124-502881ce3cc5-B29GTONm.png" alt="Discord status update with feature list">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — WHAT MEMBERS ARE SAYING -->
+  <section data-label="08 Member quotes">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="dim">COMMISSION</span><span class="active">CURRENT</span></div>
+        <div class="pager">08 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-rows:auto 1fr;gap:50px;padding-top:60px;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:24px;">From the Consortium</div>
+          <div class="h1">Reception.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:start;">
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div class="shot"><img src="/assets/80bb5db0-2fe5-4839-9ea3-cee811807584-CQjbGkYz.png" alt="Discord message from Shobhan, Purdue"></div>
+            <div class="mono small" style="color:var(--muted);letter-spacing:0.05em;">
+              Discord · Shobhan, Purdue · Apr 14
+            </div>
+            <div class="body" style="font-family:'Playfair Display',serif;font-size:34px;line-height:1.3;">
+              "really enjoying the globe spinning around — and how neat the interface looks."
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div class="shot"><img src="/assets/54624747-cdf9-4ef5-b955-b058f2f1f9fd-Corqixk4.png" alt="Email signoff from Alex McDowell"></div>
+            <div class="mono small" style="color:var(--muted);letter-spacing:0.05em;">
+              Email · Alex McDowell
+            </div>
+            <div class="body" style="font-family:'Playfair Display',serif;font-size:34px;line-height:1.3;">
+              "Although he didn't have a chance to present his own work, he's instrumental in our progress."
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — COMING NEXT -->
+  <section data-label="09 Coming next">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="dim">ORIGIN</span><span class="dim">COMMISSION</span><span class="active">CURRENT</span></div>
+        <div class="pager">09 / 10</div>
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-rows:auto 1fr;gap:50px;padding-top:60px;">
+        <div>
+          <div class="eyebrow" style="margin-bottom:24px;">Roadmap</div>
+          <div class="h1">Coming next.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:start;">
+          <div>
+            <div class="small mono" style="margin-bottom:18px;letter-spacing:0.18em;">LIVE NOW</div>
+            <ul class="feat-list">
+              <li><span class="idx">01</span><span>Project upload &amp; editing</span></li>
+              <li><span class="idx">02</span><span>Image upload</span></li>
+              <li><span class="idx">03</span><span>Cover &amp; card image setup</span></li>
+              <li><span class="idx">04</span><span>Project location setting</span></li>
+              <li><span class="idx">05</span><span>University assignment &amp; logo</span></li>
+              <li><span class="idx">06</span><span>Tags, year, metadata</span></li>
+              <li><span class="idx">07</span><span>Draft &amp; publish workflow</span></li>
+            </ul>
+          </div>
+          <div>
+            <div class="small mono" style="margin-bottom:18px;letter-spacing:0.18em;">COMING SOON</div>
+            <ul class="feat-list" style="color:var(--muted);">
+              <li><span class="idx">08</span><span>Video upload</span></li>
+              <li><span class="idx">09</span><span>3D model upload</span></li>
+              <li><span class="idx">10</span><span>Members list editing</span></li>
+              <li><span class="idx">11</span><span>Richer media layouts</span></li>
+              <li><span class="idx">12</span><span>Better project navigation</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — THANK YOU -->
+  <section data-label="10 Thank you">
+    <div class="frame">
+      <div class="topbar">
+        <div class="nav"><span class="active">JUNK CONSORTIUM</span></div>
+        <div class="pager">10 / 10</div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:48px;">
+        <div class="eyebrow">— end —</div>
+        <div class="display" style="font-size:240px;">Thank you.</div>
+        <div class="small mono" style="letter-spacing:0.18em;color:var(--muted);">
+          XIAO ZHIXUAN &nbsp; · &nbsp; PLANETJUNK.WORLD &nbsp; · &nbsp; 2026
+        </div>
+      </div>
+    </div>
+  </section>
+
+</deck-stage>
+
+
+
+</body></html>
