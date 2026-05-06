@@ -348,8 +348,8 @@
   .vendor img{width:340px;max-width:100%;height:auto;margin-bottom:18px;background:#fff;padding:14px;border-radius:8px}
   .vendor figcaption{text-align:center;font-style:normal;font-size:15px;line-height:1.45}
   .vendor figcaption strong{color:var(--ink);font-family:'Cinzel',serif;font-size:24px}
-  .vendor-fail{opacity:.55}
-  .vendor-fail img{filter:grayscale(.35)}
+  .vendor-fail{opacity:1}
+  .vendor-fail img{filter:none}
   .vendor-fail::after{
     content:'PRICE RAISED · WALKED';
     display:block;margin-top:10px;
@@ -377,9 +377,340 @@
   .chat-row-tall .img-card img{width:100%;max-height:46vh;height:auto;object-fit:contain;display:block}
   .chat-row-wide .img-card img{width:100%;max-height:22vh;height:auto;object-fit:contain;display:block}
   .chat-rows figcaption{font-size:12px;line-height:1.4;text-align:center;margin-top:5px;max-width:100%}
-  @media (max-width:1200px){
+  @media (max-width:900px){
     .chat-row-tall{grid-template-columns:repeat(2,1fr)}
     .chat-row-wide{grid-template-columns:1fr}
+  }
+
+  /* Layout stabilization pass: keep every slide inside one presentation frame. */
+  section{
+    padding:
+      clamp(44px,5.2vh,64px)
+      clamp(46px,6.4vw,116px)
+      clamp(78px,8.6vh,104px);
+    justify-content:flex-start;
+    gap:clamp(10px,1.5vh,18px);
+    overflow:hidden;
+  }
+  section.active{display:flex;animation:none}
+  section > *{min-width:0}
+  h1{line-height:1.02}
+  h2{
+    font-size:clamp(26px,3vw,44px);
+    line-height:1.08;
+    margin-bottom:clamp(8px,1.3vh,14px);
+    max-width:1280px;
+  }
+  .big-h2{
+    font-size:clamp(30px,3.55vw,54px);
+    line-height:1.06;
+    margin-bottom:clamp(8px,1.2vh,14px);
+  }
+  p{margin-bottom:.68em}
+  .lead{
+    font-size:clamp(18px,1.55vw,23px);
+    line-height:1.34;
+    max-width:58ch;
+  }
+  .small{font-size:clamp(12px,.9vw,14px)}
+  .counter{top:14px;right:20px;padding:5px 10px;font-size:10px}
+  .ctrl{bottom:14px;padding:6px 12px;gap:12px}
+  .ctrl button{width:38px;height:32px}
+  .ctrl .label{font-size:10px;min-width:44px}
+
+  .grid-2,
+  .grid-3,
+  .deal-grid,
+  .merge-lr,
+  .chat-rows{
+    min-height:0;
+  }
+  .grid-2{
+    gap:clamp(22px,3vw,48px);
+    flex:1 1 auto;
+  }
+  .grid-2 > *,
+  .grid-3 > *,
+  .deal-grid > *,
+  .merge-lr > *{min-width:0}
+  .stack > * + *{margin-top:clamp(8px,1.05vh,13px)}
+  figcaption{
+    margin-top:8px;
+    font-size:clamp(11px,.9vw,13px);
+    line-height:1.32;
+  }
+  img.img-card{
+    width:100%;
+    height:auto;
+    max-height:min(56vh,560px);
+    object-fit:contain;
+  }
+  .img-card img{max-height:min(56vh,560px)}
+  .full-bleed{
+    margin-left:calc(-1 * clamp(46px,6.4vw,116px));
+    margin-right:calc(-1 * clamp(46px,6.4vw,116px));
+    width:calc(100% + 2 * clamp(46px,6.4vw,116px));
+  }
+
+  #s2{gap:clamp(8px,1.2vh,14px)}
+  #s2 .grid-2{
+    grid-template-columns:minmax(0,1.02fr) minmax(320px,.98fr);
+    align-items:center;
+    gap:clamp(28px,4vw,60px);
+  }
+  #s2 p{
+    font-size:clamp(18px,1.35vw,21px);
+    line-height:1.38;
+  }
+  #s2 .disclosure-title{
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:clamp(32px,3.35vw,52px);
+    font-weight:500;
+    letter-spacing:0;
+    line-height:1.04;
+    max-width:1020px;
+  }
+  #s2 .disclosure-label{
+    color:var(--gold);
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(11px,.82vw,13px);
+    font-style:normal;
+    font-weight:600;
+    letter-spacing:.22em;
+    line-height:1.4;
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  #s2 .provenance-note{
+    color:var(--muted);
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(12px,.9vw,14px);
+    font-style:normal;
+    letter-spacing:.01em;
+    line-height:1.5;
+    margin-top:.45em;
+  }
+  #s2 .stack{font-size:inherit}
+  #s2 .stack > * + *{margin-top:clamp(8px,1.15vh,14px)}
+  #s2 img.img-card{max-height:min(49vh,520px)}
+  #s2 figcaption{font-size:clamp(11px,.95vw,14px);line-height:1.3}
+
+  #s3 .deal-grid{
+    grid-template-columns:minmax(0,.92fr) minmax(320px,1.08fr);
+    gap:clamp(28px,4vw,64px);
+    flex:1 1 auto;
+  }
+  #s3 .deal-left p{
+    font-size:clamp(19px,1.45vw,22px);
+    line-height:1.42;
+  }
+  #s3 .deal-note{
+    border-left:3px solid var(--gold);
+    color:var(--muted);
+    font-size:clamp(18px,1.3vw,21px);
+    line-height:1.35;
+    margin-top:clamp(6px,1vh,12px);
+    padding-left:18px;
+  }
+  .deal-figure img{max-height:min(58vh,610px)}
+
+  #s4{gap:clamp(10px,1.3vh,16px)}
+  #s4 .big-h2{margin-top:0}
+  #s4 .merge-lr{
+    gap:clamp(20px,2.8vw,40px);
+    margin-top:0;
+  }
+  #s4 .merge-col{gap:10px}
+  #s4 .scene-tag{font-size:clamp(15px,1.25vw,18px);padding:8px 0}
+  #s4 .merge-lr-body{gap:clamp(12px,1.8vw,22px)}
+  #s4 .merge-shot img{max-height:min(52vh,540px)}
+  #s4 .buyin-shot{flex:1.28 1 0 !important}
+  #s4 .buyin-shot img{max-height:min(60vh,620px)}
+  #s4 .vendor img{width:min(260px,18vw);padding:10px;margin-bottom:10px}
+  #s4 .vendor figcaption strong{font-size:clamp(19px,1.5vw,24px)}
+  #s4 .vendor::after{font-size:9px;letter-spacing:.12em;text-align:center}
+
+  #s5{gap:clamp(8px,1.1vh,14px)}
+  #s5{
+    padding-left:clamp(32px,4vw,78px);
+    padding-right:clamp(32px,4vw,78px);
+  }
+  #s5 h2{margin-bottom:4px}
+  #s5 .lead{margin-bottom:0}
+  #s5 .chat-rows{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    flex:1 1 auto;
+    max-height:none;
+    gap:clamp(8px,1.2vh,13px);
+    margin-top:clamp(8px,1.2vh,14px);
+    overflow:hidden;
+  }
+  #s5 .chat-row-tall,
+  #s5 .chat-row-wide{display:contents}
+  #s5 .chat-rows figure{min-height:0}
+  #s5 .chat-rows .pair{gap:clamp(4px,.45vw,7px)}
+  #s5 .chat-rows .img-card{padding:3px}
+  #s5 .chat-rows .img-card img{max-height:min(30vh,300px)}
+  #s5 .chat-rows img.img-card{
+    display:block;
+    flex:0 1 auto;
+    height:auto;
+    max-height:min(34vh,340px);
+    max-width:calc(50% - 4px);
+    object-fit:contain;
+    width:auto;
+  }
+  #s5 .chat-rows figcaption{
+    font-size:clamp(10px,.82vw,12px);
+    line-height:1.22;
+    margin-top:4px;
+  }
+
+  #s6 .grid-2{
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+    align-items:center;
+  }
+  #s6 .grid-2 > .stack:last-child{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:clamp(8px,1vh,12px);
+  }
+  #s6 .grid-2 > .stack:last-child > *{margin-top:0}
+  #s6 .grid-2 > .stack:last-child img{max-height:min(21vh,220px)}
+  #s6 video{max-height:min(24vh,250px) !important}
+  #s6 .grid-2 > .foil-media-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(210px,.72fr);
+    gap:clamp(14px,1.8vw,24px);
+    align-items:center;
+  }
+  #s6 .grid-2 > .stack.foil-media-grid:last-child{
+    grid-template-columns:minmax(0,1fr) minmax(190px,.58fr);
+    gap:clamp(16px,2vw,28px);
+  }
+  #s6 .foil-stills{
+    display:grid;
+    gap:clamp(10px,1.3vh,14px);
+    min-width:0;
+  }
+  #s6 .foil-stills figure,
+  #s6 .foil-video{margin-top:0}
+  #s6 .grid-2 > .foil-media-grid .foil-stills img{max-height:min(27vh,270px)}
+  #s6 .foil-video{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+  }
+  #s6 .foil-video video{
+    background:#160708;
+    max-height:min(59vh,610px) !important;
+    object-fit:contain !important;
+  }
+
+  #s7 .full-bleed{margin-top:clamp(12px,2vh,24px) !important}
+  #s7 .lead{max-width:72ch}
+  #s7 .full-bleed{
+    margin-left:0;
+    margin-right:0;
+    width:100%;
+  }
+  #s7 .full-bleed img{max-height:min(51vh,540px)}
+  #s7 .small{margin-top:10px !important}
+  #s7b h2{margin-bottom:4px !important}
+
+  #s11{gap:clamp(6px,1vh,12px)}
+  #s11 h2{margin-bottom:4px}
+  #s11 > p{
+    margin-bottom:0;
+    max-width:70ch;
+  }
+  #s11 .stats{
+    gap:clamp(14px,1.8vw,24px);
+    margin:clamp(10px,1.6vh,16px) 0;
+  }
+  #s11 .stat .n{font-size:clamp(30px,2.65vw,38px)}
+  #s11 .stat .l{font-size:clamp(10px,.86vw,12px);line-height:1.35}
+  #s11 .grid-3{
+    align-items:start;
+    gap:clamp(18px,2.4vw,34px);
+    margin-top:clamp(8px,1.2vh,12px) !important;
+  }
+  #s11 img.img-card{max-height:min(50vh,540px) !important}
+
+  #s10 .grid-2{
+    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  }
+  #s10 img.img-card{max-height:min(49vh,520px)}
+  #s10 video{max-height:min(30vh,320px) !important}
+
+  #s12 .grid-2{
+    max-width:1180px !important;
+    margin:clamp(10px,1.8vh,18px) auto 0 !important;
+    gap:clamp(14px,2vw,24px);
+  }
+  #s12 img.img-card,
+  #s12 video{max-height:min(47vh,500px) !important}
+  #s12b{justify-content:center}
+  #s12b .full-bleed{
+    margin-left:0;
+    margin-right:0;
+    width:100%;
+  }
+  #s12b .full-bleed img{
+    max-height:calc(100vh - 166px) !important;
+    max-width:100%;
+  }
+
+  #s13{justify-content:flex-start}
+  #s13 h2{margin-bottom:4px}
+  #s13 figure{margin-top:8px !important}
+  #s13 img.img-card{max-height:min(28vh,300px) !important}
+  #s13 .lead{
+    font-size:clamp(16px,1.18vw,19px);
+    line-height:1.25;
+  }
+  #s13 .lead[style]{margin-top:clamp(8px,1.2vh,14px) !important}
+  #s13 .hr{margin:clamp(10px,1.5vh,18px) auto !important}
+  #s13 .credit{margin-top:clamp(10px,1.4vh,16px);font-size:9px}
+
+  @media (max-width:1100px){
+    section{overflow-y:auto}
+    #s2 .grid-2,
+    #s3 .deal-grid,
+    #s6 .grid-2,
+    #s10 .grid-2{grid-template-columns:1fr}
+    #s2 img.img-card,
+    #s3 .deal-figure img,
+    #s6 img.img-card,
+    #s10 img.img-card{max-height:46vh}
+  }
+
+  @media (max-height:820px) and (min-width:901px){
+    section{
+      padding:
+        clamp(38px,5vh,48px)
+        clamp(44px,6vw,104px)
+        clamp(68px,8vh,82px);
+      gap:8px;
+    }
+    h2{font-size:clamp(25px,2.75vw,38px)}
+    .big-h2{font-size:clamp(28px,3.15vw,46px)}
+    .lead{font-size:clamp(17px,1.45vw,20px);line-height:1.28}
+    #s4 .scene-tag{font-size:15px;padding:6px 0}
+    #s4 .merge-lr{gap:18px}
+    #s4 .merge-shot img{max-height:min(42vh,340px)}
+    #s4 .vendor img{width:min(220px,16vw);margin-bottom:8px}
+    #s5 .chat-rows .img-card img,
+    #s5 .chat-rows img.img-card{max-height:min(28vh,224px)}
+    #s6 .grid-2 > .foil-media-grid .foil-stills img{max-height:min(24vh,190px)}
+    #s6 .foil-video video{max-height:min(52vh,410px) !important}
+    #s7 .full-bleed img{max-height:min(47vh,390px)}
+    #s11 .stats{margin:8px 0}
+    #s11 img.img-card{max-height:min(44vh,350px) !important}
   }
 </style>
 </head>
@@ -415,15 +746,15 @@
 <!-- 02 DISCLOSURE                                                -->
 <!-- ============================================================ -->
 <section id="s2">
-  <div class="section-num">02 · REQUIRED BY 544</div>
-  <h2 class="big-h2"><em class="gold">Disclaimer:</em> this artifact only exists because of this final.</h2>
+  <div class="section-num">02 · DISCLOSURE</div>
+  <h2 class="big-h2 disclosure-title"><span class="disclosure-label">Disclaimer</span>This is not a recycled project.</h2>
   <div class="grid-2">
     <div class="stack">
-      <p>Class 544's rule is explicit: <em class="gold">no recycling other class projects</em>. So the disclosure has to be just as explicit.</p>
-      <p>Anthony Alvarez had <em class="gold">already printed</em> physical Masterworks of Horror cards before I touched any of this — but as <em class="gold">marketing samples</em>, not a finished product. <em class="muted">That work is his, and predates this project. We've been handing these cards out as marketing since last semester and at GDC.</em></p>
+      <p>This disclosure is here to be explicit: <em class="gold">this project is new, not reused from an older class project</em>.</p>
+      <p>Anthony Alvarez had <em class="gold">already printed</em> physical Masterworks of Horror cards before I touched any of this — but as <em class="gold">marketing samples</em>, not a finished product. <span class="provenance-note">What I made is also for marketing, but I have higher standards for presentation and visual appearance.</span></p>
       <p>But those cards were what they were — not foil, not in blister packs, the cuts uneven, a QR code stamped on the front of every card. Functional. Not "shelf."</p>
       <p style="border-left:3px solid var(--gold);padding-left:18px;margin-top:18px">
-        Everything you'll see from here on — the foil layers, the AI mask pipeline, the supplier negotiation, the blister packs, the print run, the box on the desk — <em class="gold">did not exist before Class 544</em>. If this final hadn't been assigned, none of it would have been made.
+        Everything you'll see from here on — the foil layers, the AI mask pipeline, the supplier negotiation, the blister packs, the print run, the box on the desk — <em class="gold">did not exist before this project</em>. If this project hadn't happened, none of it would have been made.
       </p>
       <p>This is a brand-new artifact, built specifically as my response to <em class="gold">The Pleasures of Book Collecting</em>.</p>
     </div>
@@ -444,10 +775,10 @@
     <div class="deal-left">
       <p>We talked about it in person at <em class="gold">Egg Building</em> while working on the actual digital MoH game — I'd handle every step of the new physical pack, he'd just cover the production cost.</p>
       <p>We worked till midnight there, then both went home and <em class="gold">kept going</em>. The Discord on the right is what continued from my couch.</p>
+      <p class="deal-note"><em class="gold">"having beautiful foil blisters would be the nail in the coffin yes"</em> — and the Lovecraft + Poe pack covers he forwarded.</p>
     </div>
     <figure class="deal-figure">
       <img src="assets/34_dm_buyin.jpg" alt="Discord with Anthony" loading="lazy">
-      <figcaption><em class="gold">"having beautiful foil blisters would be the nail in the coffin yes"</em> — and the Lovecraft + Poe pack covers he forwarded.</figcaption>
     </figure>
   </div>
 </section>
@@ -463,9 +794,8 @@
   <div class="merge-lr">
     <!-- Left: chats with Anthony (buy-in + QA loop) -->
     <div class="merge-col">
-      <div class="scene-tag">Anthony green-lit using his name with the supplier, and later reviewed every mask I generated.</div>
       <div class="merge-lr-body" style="justify-content:center;gap:18px">
-        <figure class="merge-shot" style="flex:1 1 0;width:auto">
+        <figure class="merge-shot buyin-shot" style="flex:1 1 0;width:auto">
           <img src="assets/38_dm_anthony_yes.jpg" alt="Anthony saying Sure on Discord" loading="lazy" class="img-card">
           <figcaption>Buy-in · 4/9 · 7:50 PM</figcaption>
         </figure>
@@ -478,7 +808,6 @@
 
     <!-- Right: sourcing logos -->
     <div class="merge-col">
-      <div class="scene-tag right">US too expensive. Taobao quote fell through. Pivoted to 1688.</div>
       <div class="merge-lr-body" style="justify-content:center">
         <div class="sourcing-flow">
           <figure class="vendor vendor-fail">
@@ -552,11 +881,13 @@
       </div>
       <p style="margin-top:24px">Designing a hundred of these by hand was not an option.</p>
     </div>
-    <div class="stack">
-      <figure><img src="assets/20_foil_layers_ref.jpg" alt="three versions" loading="lazy" class="img-card"><figcaption>Reference example the supplier sent. Three layers: original / mask / physical product.</figcaption></figure>
-      <figure><img src="assets/28_fortunato.jpg" alt="Fortunato silhouette to final" loading="lazy" class="img-card"><figcaption>Fortunato — silhouette mask (left) → final card (right) with selective foil under the gold script and the figure's outline.</figcaption></figure>
-      <figure class="img-card" style="padding:2px">
-        <video src="assets/factory_proof_0409.mov" autoplay muted loop playsinline style="width:100%;display:block;max-height:38vh;object-fit:cover"></video>
+    <div class="stack foil-media-grid">
+      <div class="foil-stills">
+        <figure><img src="assets/20_foil_layers_ref.jpg" alt="three versions" loading="lazy" class="img-card"><figcaption>Reference example the supplier sent. Three layers: original / mask / physical product.</figcaption></figure>
+        <figure><img src="assets/28_fortunato.jpg" alt="Fortunato silhouette to final" loading="lazy" class="img-card"><figcaption>Fortunato — silhouette mask (left) → final card (right) with selective foil under the gold script and the figure's outline.</figcaption></figure>
+      </div>
+      <figure class="img-card foil-video" style="padding:2px">
+        <video src="assets/factory_proof_0409.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
         <figcaption>Supplier proof video — sent 4/9, foil pulling on a finished card.</figcaption>
       </figure>
     </div>
@@ -571,7 +902,7 @@
   <h2>So I built an AI pipeline to generate the masks.</h2>
   <p class="lead">Each of Anthony's 70+ source PNGs went through a node-based workflow that isolated the figure, posterized to black/white, and exported the mask as a print-ready 300dpi JPG named to the supplier's convention.</p>
   <div class="full-bleed" style="margin-top:32px">
-    <img src="assets/35_ai_node_graph.jpg" alt="AI node graph for mask generation" loading="lazy">
+    <img src="assets/35_ai_node_graph_full.png" alt="AI node graph for mask generation" loading="lazy">
   </div>
   <p class="muted small" style="margin-top:16px;text-align:center">Original card art on the left, mask outputs on the right. Each connection is one card processed.</p>
 </section>
@@ -601,7 +932,7 @@
   <div class="stats">
     <div class="stat"><div class="n">¥9,000</div><div class="l">Initial Alipay attempt — buyer account didn't exist</div></div>
     <div class="stat"><div class="n">¥11,200</div><div class="l">Retry — flagged for security (yw1128). Filed appeal.</div></div>
-    <div class="stat"><div class="n gold">$1,700.41</div><div class="l">Final via Apple Pay → Cainiao International Store (~¥11,536)</div></div>
+    <div class="stat"><div class="n gold">$2,000</div><div class="l">Final via Apple Pay → Cainiao International Store (~¥11,536)</div></div>
   </div>
   <div class="grid-3" style="margin-top:24px">
     <figure><img src="assets/32_pay_error.jpg" alt="pay error" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>"Buyer Alipay account does not exist"</figcaption></figure>
