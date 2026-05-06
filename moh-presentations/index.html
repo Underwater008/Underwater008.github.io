@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Masterworks of Horror — A Production Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#3a1517;          /* deep oxblood — matches the book jacket */
+    --bg-2:#4a1d20;
+    --bg-3:#5a2429;
+    --ink:#f3ead4;         /* cream — also from the book */
+    --muted:#c4ad7f;
+    --gold:#e8c878;
+    --gold-dim:#a07f3d;
+    --blood:#e84455;
+    --line:rgba(232,200,120,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:19px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--gold);text-decoration:none}
+  a:hover{color:var(--ink)}
+  img{max-width:100%;display:block}
+  ::selection{background:var(--gold);color:var(--bg)}
+
+  /* ---- Top progress + counter ---- */
+  .progress{
+    position:fixed;top:0;left:0;height:2px;width:0;
+    background:var(--gold);z-index:100;transition:width .35s ease;
+  }
+  .counter{
+    position:fixed;top:18px;right:24px;z-index:90;
+    font-family:'JetBrains Mono', monospace;font-size:11px;
+    color:var(--muted);letter-spacing:.12em;
+    background:rgba(58,21,23,.78);backdrop-filter:blur(8px);
+    padding:6px 12px;border:1px solid var(--line);border-radius:2px;
+  }
+  .counter .cur{color:var(--gold)}
+
+  /* ---- Bottom slide controls ---- */
+  .ctrl{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+    z-index:95;display:flex;gap:14px;align-items:center;
+    background:rgba(58,21,23,.85);backdrop-filter:blur(10px);
+    padding:8px 14px;border:1px solid var(--line);border-radius:99px;
+    box-shadow:0 6px 24px rgba(0,0,0,.45);
+  }
+  .ctrl button{
+    background:transparent;border:1px solid var(--gold-dim);color:var(--gold);
+    width:44px;height:36px;border-radius:99px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:16px;line-height:1;
+    transition:all .18s ease;
+  }
+  .ctrl button:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+  .ctrl button:disabled{opacity:.25;cursor:not-allowed}
+  .ctrl button:disabled:hover{background:transparent;color:var(--gold-dim)}
+  .ctrl .label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);letter-spacing:.16em;min-width:48px;text-align:center;
+  }
+  .ctrl .label .cur{color:var(--gold)}
+
+  /* ---- Section ---- */
+  section{
+    position:fixed;inset:0;
+    padding:64px 7vw 88px;
+    display:none;flex-direction:column;justify-content:center;
+    overflow-y:auto;overflow-x:hidden;
+  }
+  section.active{display:flex;animation:fadeIn .45s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  section::-webkit-scrollbar{width:6px}
+  section::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px}
+  .section-num{display:none}
+  h1{
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:clamp(40px,7vw,84px);
+    line-height:1.05;
+    letter-spacing:.01em;
+    color:var(--gold);
+  }
+  h2{
+    font-family:'Cinzel',serif;font-weight:500;
+    font-size:clamp(26px,3.4vw,44px);
+    line-height:1.15;color:var(--ink);
+    margin-bottom:18px;
+  }
+  h3{
+    font-family:'Cinzel',serif;font-weight:500;
+    font-size:22px;color:var(--gold);
+    margin-bottom:8px;letter-spacing:.04em;
+  }
+  p{max-width:none;margin-bottom:1em}
+  .lead{font-size:24px;line-height:1.45;max-width:none;color:var(--ink)}
+  .muted{color:var(--muted)}
+  .small{font-size:14px;line-height:1.5}
+  em.gold{color:var(--gold);font-style:normal}
+  em.blood{color:var(--blood);font-style:normal;font-weight:500}
+  .hr{height:1px;background:var(--line);margin:24px 0;width:80px}
+
+  /* ---- Hero / title ---- */
+  .hero{
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(232,200,120,.10), transparent 55%),
+      radial-gradient(ellipse at 70% 80%, rgba(232,68,85,.08), transparent 55%),
+      var(--bg);
+    align-items:stretch;justify-content:center;
+  }
+  .title-grid{
+    display:grid;grid-template-columns:1.2fr 1fr;
+    gap:64px;align-items:center;width:100%;max-width:1400px;margin:0 auto;
+  }
+  .title-text{padding-right:24px}
+  .title-text .kicker{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.3em;color:var(--gold-dim);
+    margin-bottom:28px;text-transform:uppercase;
+  }
+  .title-text h1{margin-bottom:36px;font-size:clamp(36px,5.6vw,68px)}
+  .title-text .meta{
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    color:var(--gold);letter-spacing:.22em;text-transform:uppercase;
+  }
+  .title-book{display:flex;flex-direction:column;align-items:center;gap:16px}
+  .title-book img{
+    max-height:62vh;width:auto;
+    box-shadow:0 18px 60px rgba(0,0,0,.7), 0 4px 16px rgba(212,162,76,.18);
+    border:1px solid var(--gold-dim);
+  }
+  .title-book figcaption{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--gold-dim);letter-spacing:.18em;text-align:center;
+    text-transform:uppercase;line-height:1.7;
+  }
+  .title-book figcaption em{color:var(--gold);font-style:normal;letter-spacing:.18em}
+  @media (max-width:840px){
+    .title-grid{grid-template-columns:1fr;gap:32px;text-align:center}
+    .title-text{padding-right:0}
+    .title-text .sub{margin-left:auto;margin-right:auto}
+    .title-book img{max-height:40vh}
+  }
+
+  /* ---- Layouts ---- */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  .grid-2.tight{gap:24px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+  .stack > * + *{margin-top:14px}
+  /* When grid-2 has prose, let it fill its column instead of capping at 60ch */
+  .grid-2 p{max-width:none}
+
+  .full-bleed{
+    margin-left:calc(-7vw);margin-right:calc(-7vw);
+    width:calc(100% + 14vw);
+  }
+  .full-bleed img{width:100%;display:block;max-height:62vh;object-fit:contain;background:var(--bg-2)}
+
+  figure{margin:0}
+  figcaption{
+    margin-top:10px;color:var(--muted);font-size:13px;font-style:italic;
+    line-height:1.4;
+  }
+
+  .img-card{
+    background:var(--bg-2);border:1px solid var(--line);
+    padding:6px;
+  }
+  .img-card img{width:100%;display:block;max-height:60vh;object-fit:contain}
+  .img-card figcaption{padding:6px 4px 2px;color:var(--muted);font-size:12px}
+
+  /* phone-like screenshots scaled smaller */
+  .phone{max-width:280px;margin:0 auto}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin:32px 0}
+  .stat{
+    border-left:2px solid var(--gold);
+    padding:8px 0 8px 18px;
+  }
+  .stat .n{
+    font-family:'Cinzel',serif;font-size:42px;color:var(--ink);
+    line-height:1;margin-bottom:6px;
+  }
+  .stat .n.blood{color:var(--blood)}
+  .stat .n.gold{color:var(--gold)}
+  .stat .l{font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+  blockquote{
+    border-left:3px solid var(--gold);
+    padding:12px 0 12px 24px;
+    font-style:italic;font-size:24px;color:var(--ink);
+    max-width:46ch;margin:24px 0;
+  }
+  blockquote .who{
+    display:block;margin-top:10px;
+    font-style:normal;font-size:13px;color:var(--gold-dim);
+    font-family:'JetBrains Mono',monospace;letter-spacing:.1em;
+  }
+
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .pill{
+    border:1px solid var(--gold-dim);color:var(--gold);
+    padding:4px 12px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.1em;border-radius:99px;
+  }
+
+  .chat-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px;margin-top:32px;
+  }
+
+  /* lightbox */
+  .lb{
+    display:none;position:fixed;inset:0;
+    background:rgba(20,5,7,.95);z-index:1000;
+    align-items:center;justify-content:center;
+    cursor:zoom-out;padding:32px;
+  }
+  .lb.open{display:flex}
+  .lb img{max-width:95vw;max-height:95vh;object-fit:contain}
+
+  /* timeline */
+  .timeline{
+    border-left:1px solid var(--gold-dim);
+    margin-left:8px;padding-left:32px;
+  }
+  .timeline > div{margin-bottom:24px;position:relative}
+  .timeline > div::before{
+    content:"";position:absolute;left:-39px;top:8px;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--gold);
+  }
+  .t-when{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--gold);letter-spacing:.15em;text-transform:uppercase;
+  }
+
+  .closing{
+    background:linear-gradient(180deg, var(--bg) 0%, #2a0e10 100%);
+    text-align:center;align-items:center;
+  }
+  .closing .credit{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--gold-dim);margin-top:48px;letter-spacing:.2em;
+  }
+
+  /* responsive */
+  @media (max-width:840px){
+    body{font-size:17px}
+    section{padding:72px 6vw 72px}
+    .grid-2{grid-template-columns:1fr;gap:32px}
+    .grid-3{grid-template-columns:1fr 1fr}
+    .stats{grid-template-columns:1fr}
+    .nav{display:none}
+  }
+
+  .big-h2{font-size:clamp(32px,4.6vw,58px);line-height:1.12;margin-bottom:28px}
+  #s2 p{font-size:23px;line-height:1.55;max-width:none}
+  #s2 .stack{font-size:23px}
+  #s2 .stack > * + *{margin-top:18px}
+  #s2 .grid-2{grid-template-columns:1.15fr 1fr;gap:48px;align-items:start}
+  #s2 figcaption{font-size:15px}
+  #s2 figure{align-self:start}
+
+  /* Slide 3 — THE DEAL conversation layout */
+  .deal-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:48px;align-items:center;margin-top:18px;
+  }
+  .deal-left{display:flex;flex-direction:column;gap:18px}
+  .deal-left p{font-size:21px;line-height:1.55;max-width:none}
+  .scene-tag{
+    font-family:'EB Garamond', Georgia, serif;
+    font-style:italic;font-size:18px;line-height:1.4;
+    color:var(--gold);letter-spacing:0;text-transform:none;
+    padding:10px 0;border-top:1px solid var(--gold-dim);
+  }
+  .scene-tag.right{text-align:right}
+  .chat-thread{display:flex;flex-direction:column;gap:14px}
+  .bubble{
+    max-width:88%;padding:14px 18px;border-radius:14px;
+    font-size:19px;line-height:1.5;position:relative;
+  }
+  .bubble-me{
+    align-self:flex-start;background:var(--bg-2);
+    border:1px solid var(--line);border-bottom-left-radius:4px;
+  }
+  .bubble-them{
+    align-self:flex-end;background:var(--gold);color:var(--bg);
+    border-bottom-right-radius:4px;font-family:'JetBrains Mono',monospace;
+    font-size:18px;font-weight:600;letter-spacing:.04em;
+    padding:12px 22px;
+  }
+  .bubble .who-mini{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:6px;
+  }
+  .bubble-them .who-mini{color:var(--bg);opacity:.75}
+  .deal-figure{
+    display:flex;flex-direction:column;align-items:center;
+    width:100%;
+  }
+  .deal-figure img{
+    max-height:60vh;width:auto;max-width:100%;
+    border:none;background:transparent;padding:0;
+  }
+  .deal-figure figcaption{
+    margin-top:12px;text-align:center;max-width:520px;font-size:14px;
+  }
+  @media (max-width:840px){
+    .deal-grid{grid-template-columns:1fr}
+    .scene-tag.right{text-align:left}
+  }
+
+  /* Merged slide 4: Identity (left) + Sourcing (right) */
+  #s4{justify-content:flex-start}
+  #s4 .big-h2{margin-top:8px}
+  .merge-lr{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:stretch;margin-top:18px;flex:1;min-height:0}
+  .merge-col{display:flex;flex-direction:column;gap:14px;min-height:0}
+  .merge-lr-body{display:flex;gap:24px;align-items:center;justify-content:center;flex:1;min-height:0}
+  .merge-col .chat-thread{display:flex;flex-direction:column;gap:10px;flex:1}
+  .merge-shot{display:flex;flex-direction:column;align-items:center;width:100%;max-width:none;flex:1 1 auto}
+  .merge-shot img{max-height:82vh;width:auto;max-width:100%;border:1px solid var(--gold-dim)}
+  .merge-shot figcaption{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:var(--gold-dim);margin-top:8px;text-align:center}
+  @media (max-width:1100px){
+    .merge-lr{grid-template-columns:1fr}
+    .merge-lr-body{flex-direction:column}
+  }
+  /* Sourcing slide: Taobao -> 1688 flow */
+  .sourcing-flow{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+  .vendor{
+    display:flex;flex-direction:column;align-items:center;
+    background:transparent;border:none;
+    padding:0;flex:0 1 auto;max-width:380px;
+  }
+  .vendor img{width:340px;max-width:100%;height:auto;margin-bottom:18px;background:#fff;padding:14px;border-radius:8px}
+  .vendor figcaption{text-align:center;font-style:normal;font-size:15px;line-height:1.45}
+  .vendor figcaption strong{color:var(--ink);font-family:'Cinzel',serif;font-size:24px}
+  .vendor-fail{opacity:1}
+  .vendor-fail img{filter:none}
+  .vendor-fail::after{
+    content:'PRICE RAISED · WALKED';
+    display:block;margin-top:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--blood);letter-spacing:.18em;
+  }
+  .vendor-win::after{
+    content:'DEAL · 1500 PCS × 2 PACKS · USD INVOICE';
+    display:block;margin-top:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--gold);letter-spacing:.18em;
+  }
+  .sourcing-flow .arrow{color:var(--gold-dim);font-size:36px;line-height:1;align-self:center}
+  .grid-2.top{align-items:start}
+  .grid-2 > .stack{align-self:center}
+  .grid-2 > figure{align-self:center}
+  .img-card.phone{max-width:300px;margin:0 auto;max-height:55vh}
+  .img-card.phone img{max-height:50vh}
+  .chat-rows{display:flex;flex-direction:column;gap:14px;margin-top:14px;max-height:74vh}
+  .chat-row-tall{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;flex:0 0 auto}
+  .chat-row-wide{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;align-items:start;flex:0 0 auto}
+  .chat-rows figure{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%}
+  .chat-rows .pair{display:flex;gap:3px;align-items:flex-start;justify-content:center;width:100%;min-width:0}
+  .chat-rows .img-card{background:var(--bg-2);padding:2px;flex:1 1 0;min-width:0;display:flex;justify-content:center}
+  .chat-row-tall .img-card img{width:100%;max-height:46vh;height:auto;object-fit:contain;display:block}
+  .chat-row-wide .img-card img{width:100%;max-height:22vh;height:auto;object-fit:contain;display:block}
+  .chat-rows figcaption{font-size:12px;line-height:1.4;text-align:center;margin-top:5px;max-width:100%}
+  @media (max-width:900px){
+    .chat-row-tall{grid-template-columns:repeat(2,1fr)}
+    .chat-row-wide{grid-template-columns:1fr}
+  }
+
+  /* Layout stabilization pass: keep every slide inside one presentation frame. */
+  section{
+    padding:
+      clamp(44px,5.2vh,64px)
+      clamp(46px,6.4vw,116px)
+      clamp(78px,8.6vh,104px);
+    justify-content:flex-start;
+    gap:clamp(10px,1.5vh,18px);
+    overflow:hidden;
+  }
+  section.active{display:flex;animation:none}
+  section > *{min-width:0}
+  h1{line-height:1.02}
+  h2{
+    font-size:clamp(26px,3vw,44px);
+    line-height:1.08;
+    margin-bottom:clamp(8px,1.3vh,14px);
+    max-width:1280px;
+  }
+  .big-h2{
+    font-size:clamp(30px,3.55vw,54px);
+    line-height:1.06;
+    margin-bottom:clamp(8px,1.2vh,14px);
+  }
+  p{margin-bottom:.68em}
+  .lead{
+    font-size:clamp(18px,1.55vw,23px);
+    line-height:1.34;
+    max-width:none;
+  }
+  .small{font-size:clamp(12px,.9vw,14px)}
+  .counter{top:14px;right:20px;padding:5px 10px;font-size:10px}
+  .ctrl{bottom:14px;padding:6px 12px;gap:12px}
+  .ctrl button{width:38px;height:32px}
+  .ctrl .label{font-size:10px;min-width:44px}
+
+  .grid-2,
+  .grid-3,
+  .deal-grid,
+  .merge-lr,
+  .chat-rows{
+    min-height:0;
+  }
+  .grid-2{
+    gap:clamp(22px,3vw,48px);
+    flex:1 1 auto;
+  }
+  .grid-2 > *,
+  .grid-3 > *,
+  .deal-grid > *,
+  .merge-lr > *{min-width:0}
+  .stack > * + *{margin-top:clamp(8px,1.05vh,13px)}
+  figcaption{
+    margin-top:8px;
+    font-size:clamp(11px,.9vw,13px);
+    line-height:1.32;
+  }
+  img.img-card{
+    width:100%;
+    height:auto;
+    max-height:min(56vh,560px);
+    object-fit:contain;
+  }
+  .img-card img{max-height:min(56vh,560px)}
+  .full-bleed{
+    margin-left:calc(-1 * clamp(46px,6.4vw,116px));
+    margin-right:calc(-1 * clamp(46px,6.4vw,116px));
+    width:calc(100% + 2 * clamp(46px,6.4vw,116px));
+  }
+
+  #s2{gap:clamp(8px,1.2vh,14px)}
+  #s2 .grid-2{
+    grid-template-columns:minmax(0,1.02fr) minmax(320px,.98fr);
+    align-items:center;
+    gap:clamp(28px,4vw,60px);
+  }
+  #s2 p{
+    font-size:clamp(18px,1.35vw,21px);
+    line-height:1.38;
+  }
+  #s2 .disclosure-title{
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:clamp(32px,3.35vw,52px);
+    font-weight:500;
+    letter-spacing:0;
+    line-height:1.04;
+    max-width:1020px;
+  }
+  #s2 .disclosure-label{
+    color:var(--gold);
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(11px,.82vw,13px);
+    font-style:normal;
+    font-weight:600;
+    letter-spacing:.22em;
+    line-height:1.4;
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  #s2 .provenance-note{
+    color:var(--muted);
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(12px,.9vw,14px);
+    font-style:normal;
+    letter-spacing:.01em;
+    line-height:1.5;
+    margin-top:.45em;
+  }
+  #s2 .stack{font-size:inherit}
+  #s2 .stack > * + *{margin-top:clamp(8px,1.15vh,14px)}
+  #s2 img.img-card{max-height:min(49vh,520px)}
+  #s2 figcaption{font-size:clamp(11px,.95vw,14px);line-height:1.3}
+
+  #s3 .deal-grid{
+    grid-template-columns:minmax(0,.92fr) minmax(320px,1.08fr);
+    gap:clamp(28px,4vw,64px);
+    flex:1 1 auto;
+  }
+  #s3 .deal-left p{
+    font-size:clamp(19px,1.45vw,22px);
+    line-height:1.42;
+  }
+  #s3 .deal-note{
+    border-left:3px solid var(--gold);
+    color:var(--muted);
+    font-size:clamp(18px,1.3vw,21px);
+    line-height:1.35;
+    margin-top:clamp(6px,1vh,12px);
+    padding-left:18px;
+  }
+  .deal-figure img{max-height:min(58vh,610px)}
+
+  #s4{gap:clamp(10px,1.3vh,16px)}
+  #s4 .big-h2{margin-top:0}
+  #s4 .merge-lr{
+    gap:clamp(20px,2.8vw,40px);
+    margin-top:0;
+  }
+  #s4 .merge-col{gap:10px}
+  #s4 .scene-tag{font-size:clamp(15px,1.25vw,18px);padding:8px 0}
+  #s4 .merge-lr-body{gap:clamp(12px,1.8vw,22px)}
+  #s4 .merge-shot img{max-height:min(74vh,780px)}
+  #s4 .buyin-shot{flex:1.28 1 0 !important}
+  #s4 .buyin-shot img{max-height:min(80vh,820px)}
+  #s4 .vendor img{width:min(260px,18vw);padding:10px;margin-bottom:10px}
+  #s4 .vendor figcaption strong{font-size:clamp(19px,1.5vw,24px)}
+  #s4 .vendor::after{font-size:9px;letter-spacing:.12em;text-align:center}
+
+  #s5{gap:clamp(8px,1.1vh,14px)}
+  #s5{
+    padding-left:clamp(32px,4vw,78px);
+    padding-right:clamp(32px,4vw,78px);
+  }
+  #s5 h2{margin-bottom:4px}
+  #s5 .lead{margin-bottom:0}
+  #s5 .chat-rows{
+    display:flex;
+    flex-direction:column;
+    flex:1 1 auto;
+    max-height:none;
+    gap:clamp(10px,1.4vh,18px);
+    margin-top:clamp(8px,1.2vh,14px);
+    overflow:hidden;
+  }
+  #s5 .chat-row-tall{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:clamp(8px,1vw,14px);
+    flex:1.6 1 0;
+    min-height:0;
+    align-items:start;
+  }
+  #s5 .chat-row-wide{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:clamp(14px,2vw,28px);
+    flex:1 1 0;
+    min-height:0;
+    align-items:start;
+  }
+  #s5 .chat-rows figure{min-height:0;height:100%;justify-content:flex-start}
+  #s5 .chat-rows .pair{gap:clamp(4px,.45vw,7px);height:100%;align-items:stretch}
+  #s5 .chat-rows .img-card{padding:3px;align-items:center}
+  #s5 .chat-row-tall .img-card img{max-height:min(48vh,520px)}
+  #s5 .chat-row-wide .img-card img{max-height:min(34vh,360px)}
+  #s5 .chat-rows img.img-card{
+    display:block;
+    flex:0 1 auto;
+    height:auto;
+    max-width:calc(50% - 4px);
+    object-fit:contain;
+    width:auto;
+  }
+  #s5 .chat-row-tall img.img-card{max-height:min(48vh,520px)}
+  #s5 .chat-row-wide img.img-card{max-height:min(34vh,360px)}
+  #s5 .chat-rows figcaption{display:none}
+
+  #s6 .grid-2{
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+    align-items:center;
+  }
+  #s6 .grid-2 > .stack:last-child{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:clamp(8px,1vh,12px);
+  }
+  #s6 .grid-2 > .stack:last-child > *{margin-top:0}
+  #s6 .grid-2 > .stack:last-child img{max-height:min(21vh,220px)}
+  #s6 video{max-height:min(24vh,250px) !important}
+  #s6 .grid-2 > .foil-media-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(210px,.72fr);
+    gap:clamp(14px,1.8vw,24px);
+    align-items:center;
+  }
+  #s6 .grid-2 > .stack.foil-media-grid:last-child{
+    grid-template-columns:minmax(0,1fr) minmax(190px,.58fr);
+    gap:clamp(16px,2vw,28px);
+  }
+  #s6 .foil-stills{
+    display:grid;
+    gap:clamp(10px,1.3vh,14px);
+    min-width:0;
+  }
+  #s6 .foil-stills figure,
+  #s6 .foil-video{margin-top:0}
+  #s6 .grid-2 > .foil-media-grid .foil-stills img{max-height:min(27vh,270px)}
+  #s6 .foil-video{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+  }
+  #s6 .foil-video video{
+    background:#160708;
+    max-height:min(59vh,610px) !important;
+    object-fit:contain !important;
+  }
+
+  #s7 .full-bleed{margin-top:clamp(8px,1.4vh,16px) !important}
+  #s7 .lead{max-width:none}
+  #s7 h2{margin-bottom:6px}
+  #s7 > p:last-of-type{margin-top:8px !important}
+  #s7 .full-bleed{
+    margin-left:0;
+    margin-right:0;
+    width:100%;
+  }
+  #s7 .full-bleed img{max-height:min(72vh,820px);width:auto;margin:0 auto;display:block}
+  #s7 .small{margin-top:10px !important}
+  #s7b h2{margin-bottom:4px !important}
+  #s7b{justify-content:center}
+  #s7b > div[style*="grid-template-columns"]{
+    align-items:center !important;
+    align-content:center;
+    margin-top:auto !important;
+    margin-bottom:auto !important;
+    flex:0 1 auto !important;
+  }
+  #s7b > div[style*="grid-template-columns"] figure{
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  #s7b > div[style*="grid-template-columns"] figure img{
+    height:auto !important;
+    max-height:72vh;
+  }
+
+  #s11{gap:clamp(6px,1vh,12px)}
+  #s11 h2{margin-bottom:4px}
+  #s11 > p{
+    margin-bottom:0;
+    max-width:none;
+  }
+  #s11 .stats{
+    gap:clamp(14px,1.8vw,24px);
+    margin:clamp(10px,1.6vh,16px) 0;
+  }
+  #s11 .stat .n{font-size:clamp(30px,2.65vw,38px)}
+  #s11 .stat .l{font-size:clamp(10px,.86vw,12px);line-height:1.35}
+  #s11 .grid-3{
+    align-items:start;
+    gap:clamp(18px,2.4vw,34px);
+    margin-top:clamp(8px,1.2vh,12px) !important;
+  }
+  #s11 img.img-card{max-height:min(70vh,720px) !important;width:auto !important;margin:0 auto !important}
+  #s11 figcaption{display:none}
+
+  #s10 .floor-row{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(20px,2.4vw,36px);
+    align-items:center;
+    justify-items:center;
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+  }
+  #s10 .floor-item{
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:min(66vh,680px);
+    padding:4px;
+  }
+  #s10 .floor-item img.img-card,
+  #s10 .floor-item video{
+    width:100%;
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain !important;
+    margin:0;
+    padding:0;
+    background:#0b0707;
+  }
+  #s10 figcaption{display:none}
+
+  #s12 .grid-2{
+    max-width:1180px !important;
+    margin:clamp(10px,1.8vh,18px) auto 0 !important;
+    gap:clamp(14px,2vw,24px);
+  }
+  #s12 img.img-card,
+  #s12 video{max-height:min(70vh,720px) !important}
+  #s12 figcaption{display:none}
+  #s12b{justify-content:center}
+  #s12b .full-bleed{
+    margin-left:0;
+    margin-right:0;
+    width:100%;
+  }
+  #s12b .full-bleed img{
+    max-height:calc(100vh - 166px) !important;
+    max-width:100%;
+  }
+
+  #s13{justify-content:center;text-align:left;align-items:stretch}
+  #s13 .closing-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+    gap:clamp(28px,4vw,64px);
+    align-items:center;
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    max-width:1280px;
+    margin:0 auto;
+  }
+  #s13 .closing-text{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px,1.4vh,16px);
+    text-align:left;
+  }
+  #s13 .closing-text h2{margin-bottom:4px;text-align:left}
+  #s13 .closing-text .lead{
+    font-size:clamp(16px,1.18vw,19px);
+    line-height:1.32;
+    margin:0;
+    max-width:54ch;
+  }
+  #s13 .closing-text .closing-coda{font-size:clamp(18px,1.35vw,22px)}
+  #s13 .closing-text .hr{margin:clamp(10px,1.5vh,18px) 0 !important;max-width:120px}
+  #s13 .closing-figure{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  #s13 .closing-figure .img-card{
+    display:block;
+    width:auto;
+    max-width:100%;
+    max-height:min(72vh,760px);
+    height:auto;
+    margin:0 auto;
+    padding:4px;
+  }
+  #s13 .closing-figure figcaption{
+    text-align:center;
+    margin-top:12px;
+    font-style:normal;
+    font-size:clamp(14px,1.05vw,16px);
+    color:var(--ink);
+    line-height:1.4;
+  }
+  #s13 em.muted,
+  #s13 .muted{
+    color:var(--ink);
+    font-style:normal;
+    opacity:.9;
+  }
+  #s13 .credit{margin-top:clamp(10px,1.4vh,16px);font-size:9px;text-align:center}
+
+  @media (max-width:1100px){
+    section{overflow-y:auto}
+    #s2 .grid-2,
+    #s3 .deal-grid,
+    #s6 .grid-2,
+    #s10 .grid-2{grid-template-columns:1fr}
+    #s2 img.img-card,
+    #s3 .deal-figure img,
+    #s6 img.img-card,
+    #s10 img.img-card{max-height:46vh}
+  }
+
+  @media (max-height:820px) and (min-width:901px){
+    section{
+      padding:
+        clamp(38px,5vh,48px)
+        clamp(44px,6vw,104px)
+        clamp(68px,8vh,82px);
+      gap:8px;
+    }
+    h2{font-size:clamp(25px,2.75vw,38px)}
+    .big-h2{font-size:clamp(28px,3.15vw,46px)}
+    .lead{font-size:clamp(17px,1.45vw,20px);line-height:1.28}
+    #s4 .scene-tag{font-size:15px;padding:6px 0}
+    #s4 .merge-lr{gap:18px}
+    #s4 .merge-shot img{max-height:min(68vh,580px)}
+    #s4 .vendor img{width:min(220px,16vw);margin-bottom:8px}
+    #s5 .chat-row-tall .img-card img,
+    #s5 .chat-row-tall img.img-card{max-height:min(44vh,360px)}
+    #s5 .chat-row-wide .img-card img,
+    #s5 .chat-row-wide img.img-card{max-height:min(30vh,260px)}
+    #s6 .grid-2 > .foil-media-grid .foil-stills img{max-height:min(24vh,190px)}
+    #s6 .foil-video video{max-height:min(52vh,410px) !important}
+    #s7 .full-bleed img{max-height:min(66vh,620px)}
+    #s11 .stats{margin:8px 0}
+    #s11 img.img-card{max-height:min(60vh,560px) !important}
+    #s10 img.img-card{max-height:min(72vh,680px)}
+    #s12 img.img-card,
+    #s12 video{max-height:min(60vh,580px) !important}
+    #s13 .closing-figure .img-card{max-height:min(64vh,580px)}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="counter"><span class="cur" id="navCur">01</span> / <span id="navTotal">13</span></div>
+
+<div class="ctrl">
+  <button id="prev" title="Previous (←)">‹</button>
+  <span class="label"><span class="cur" id="lblCur">01</span> / <span id="lblTotal">13</span></span>
+  <button id="next" title="Next (→)">›</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 01 TITLE                                                     -->
+<!-- ============================================================ -->
+<section id="s1" class="hero">
+  <div class="title-grid">
+    <div class="title-text">
+      <div class="kicker">Class 544 · Final · After Salvatore J. Iacone</div>
+      <h1>Behind<br>the Pleasure<br>of Collecting</h1>
+      <div class="meta">A production story by Xiao</div>
+    </div>
+    <figure class="title-book">
+      <img src="assets/book_cover.jpg" alt="The Pleasures of Book Collecting by Salvatore J. Iacone">
+      <figcaption><em>The Pleasures of Book Collecting</em><br>Salvatore J. Iacone</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 02 DISCLOSURE                                                -->
+<!-- ============================================================ -->
+<section id="s2">
+  <div class="section-num">02 · DISCLOSURE</div>
+  <h2 class="big-h2 disclosure-title"><span class="disclosure-label">Disclaimer</span>This is not a recycled project.</h2>
+  <div class="grid-2">
+    <div class="stack">
+      <p>This disclosure is here to be explicit: <em class="gold">this project is new, not reused from an older class project</em>.</p>
+      <p>Anthony Alvarez had <em class="gold">already printed</em> physical Masterworks of Horror cards before I touched any of this — but as <em class="gold">marketing samples</em>, not a finished product. <span class="provenance-note">What I made is also for marketing, but I have higher standards for presentation and visual appearance.</span></p>
+      <p>But those cards were what they were — not foil, not in blister packs, the cuts uneven, a QR code stamped on the front of every card. Functional. Not "shelf."</p>
+      <p style="border-left:3px solid var(--gold);padding-left:18px;margin-top:18px">
+        Everything you'll see from here on — the foil layers, the AI mask pipeline, the supplier negotiation, the blister packs, the print run, the box on the desk — <em class="gold">did not exist before this project</em>. If this project hadn't happened, none of it would have been made.
+      </p>
+      <p>This is a brand-new artifact, built specifically as my response to <em class="gold">The Pleasures of Book Collecting</em>.</p>
+    </div>
+    <figure>
+      <img src="assets/37_melon_before_after.jpg" alt="Melon card before and after" loading="lazy" class="img-card">
+      <figcaption><strong style="color:var(--gold)">Melon — The Ravenous.</strong> Left: Anthony's pre-existing print (visible QR, slightly miscut, no foil). Right: the new foil-blister version, printed for this project. <em>Same art. Different artifact.</em></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- BUY-IN (NEW)                                                 -->
+<!-- ============================================================ -->
+<section id="s3">
+  <div class="section-num">03 · THE DEAL</div>
+  <h2 class="big-h2">I told Anthony I'd redo the cards.<br>He just covers the cost.</h2>
+  <div class="deal-grid">
+    <div class="deal-left">
+      <p>We talked about it in person at <em class="gold">Egg Building</em> while working on the actual digital MoH game — I'd handle every step of the new physical pack, he'd just cover the production cost.</p>
+      <p>We worked till midnight there, then both went home and <em class="gold">kept going</em>. The Discord on the right is what continued from my couch.</p>
+      <p class="deal-note"><em class="gold">"having beautiful foil blisters would be the nail in the coffin yes"</em> — and the Lovecraft + Poe pack covers he forwarded.</p>
+    </div>
+    <figure class="deal-figure">
+      <img src="assets/34_dm_buyin.jpg" alt="Discord with Anthony" loading="lazy">
+    </figure>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- 06 SOURCING                                                  -->
+<!-- ============================================================ -->
+<section id="s4">
+  <div class="section-num">04 · SOURCING + IDENTITY</div>
+  <h2 class="big-h2">First the buy-in,<br>then the factory.</h2>
+
+  <div class="merge-lr">
+    <!-- Left: chats with Anthony (buy-in + QA loop) -->
+    <div class="merge-col">
+      <div class="merge-lr-body" style="justify-content:center;gap:18px">
+        <figure class="merge-shot buyin-shot" style="flex:1 1 0;width:auto">
+          <img src="assets/38_dm_anthony_yes.jpg" alt="Anthony saying Sure on Discord" loading="lazy" class="img-card">
+          <figcaption>Buy-in · 4/9 · 7:50 PM</figcaption>
+        </figure>
+        <figure class="merge-shot" style="flex:1 1 0;width:auto">
+          <img src="assets/36_dm_qa.jpg" alt="QA discord exchange with Anthony" loading="lazy" class="img-card">
+          <figcaption>Mask QA loop · 4/6</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Right: sourcing logos -->
+    <div class="merge-col">
+      <div class="merge-lr-body" style="justify-content:center">
+        <div class="sourcing-flow">
+          <figure class="vendor vendor-fail">
+            <img src="assets/logo_taobao.jpg" alt="Taobao logo">
+            <figcaption><strong>Taobao</strong><br><span class="muted small">C2C · ¥12,500 · raised the price</span></figcaption>
+          </figure>
+          <div class="arrow">→</div>
+          <figure class="vendor vendor-win">
+            <img src="assets/logo_1688.jpg" alt="1688 logo">
+            <figcaption><strong>1688</strong><br><span class="muted small">B2B · factory direct · invoiced in USD</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 08 SPEC GAUNTLET                                             -->
+<!-- ============================================================ -->
+<section id="s5">
+  <div class="section-num">05 · THE SPEC GAUNTLET</div>
+  <h2>Manufacturing is a specification problem.</h2>
+  <p class="lead">Every line in this chat is something the factory needed me to nail down before they would press print.</p>
+  <div class="chat-rows">
+    <div class="chat-row-tall">
+      <figure>
+        <div class="pair"><img src="assets/21_chat_specs_zh.jpg" alt="card specs (ZH)" loading="lazy" class="img-card"><img src="assets/21_chat_specs.jpg" alt="card specs (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>Card size.</strong> 63×88mm + 1.5mm bleed = 66×91mm. Design in PS, import to AI.</figcaption>
+      </figure>
+      <figure>
+        <div class="pair"><img src="assets/22_chat_naming_zh.jpg" alt="naming (ZH)" loading="lazy" class="img-card"><img src="assets/22_chat_naming.jpg" alt="naming (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>File naming.</strong> 300dpi JPG; <code>01_front / 01_back / 01_nonfoil</code>; zip and email.</figcaption>
+      </figure>
+      <figure>
+        <div class="pair"><img src="assets/23_chat_bag_zh.jpg" alt="bag (ZH)" loading="lazy" class="img-card"><img src="assets/23_chat_bag.jpg" alt="bag (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>Pack bag.</strong> 68×125mm finished, 156×125mm unfolded, CMYK only.</figcaption>
+      </figure>
+      <figure>
+        <div class="pair"><img src="assets/25_chat_safezone_zh.jpg" alt="safe zone (ZH)" loading="lazy" class="img-card"><img src="assets/25_chat_safezone.jpg" alt="safe zone (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>Safe zone.</strong> 10mm seal area top/bottom; text ≥13mm from any edge.</figcaption>
+      </figure>
+    </div>
+    <div class="chat-row-wide">
+      <figure>
+        <div class="pair"><img src="assets/24_chat_text_AI_zh.jpg" alt="text in AI (ZH)" loading="lazy" class="img-card"><img src="assets/24_chat_text_AI.jpg" alt="text in AI (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>All text in Illustrator.</strong> JPG text goes blurry when scaled; AI text stays crisp.</figcaption>
+      </figure>
+      <figure>
+        <div class="pair"><img src="assets/29_chat_qty_zh.jpg" alt="quantities (ZH)" loading="lazy" class="img-card"><img src="assets/29_chat_qty.jpg" alt="quantities (EN)" loading="lazy" class="img-card"></div>
+        <figcaption><strong>Quantities.</strong> 1500 unpackaged + 1500 in Pack 1 + 1500 in Pack 2 = 4500 cards / 3000 packs.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 09 FOIL MASKS EXPLAINED                                      -->
+<!-- ============================================================ -->
+<section id="s6">
+  <div class="section-num">06 · FOIL MASKS</div>
+  <div class="grid-2">
+    <div class="stack">
+      <h2>How a foil card is actually made.</h2>
+      <p>The base of a foil card is a sheet of holographic foil. The printer then lays down <em class="gold">white ink wherever the foil should NOT show through</em>, then prints the colored art on top.</p>
+      <p>So every card needs three files — the same three the supplier asks for in Chinese:</p>
+      <div class="stack" style="margin-top:8px">
+        <div><strong style="color:var(--gold)">原图 · Original</strong> — the original art (full color)</div>
+        <div><strong style="color:var(--gold)">不闪图 · Non-foil mask</strong> — black where ink covers foil, white where foil shows through</div>
+        <div><strong style="color:var(--gold)">闪图 · Foil front</strong> — the final front face with selective foil</div>
+      </div>
+      <p style="margin-top:24px">Designing a hundred of these by hand was not an option.</p>
+    </div>
+    <div class="stack foil-media-grid">
+      <div class="foil-stills">
+        <figure><img src="assets/20_foil_layers_ref.jpg" alt="three versions" loading="lazy" class="img-card"><figcaption>Reference example the supplier sent. Three layers: original / mask / physical product.</figcaption></figure>
+        <figure><img src="assets/28_fortunato.jpg" alt="Fortunato silhouette to final" loading="lazy" class="img-card"><figcaption>Fortunato — silhouette mask (left) → final card (right) with selective foil under the gold script and the figure's outline.</figcaption></figure>
+      </div>
+      <figure class="img-card foil-video" style="padding:2px">
+        <video src="assets/factory_proof_0409.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
+        <figcaption>Supplier proof video — sent 4/9, foil pulling on a finished card.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10 AI MASK GENERATION                                        -->
+<!-- ============================================================ -->
+<section id="s7">
+  <div class="section-num">07 · AUTOMATION</div>
+  <h2>So I built an AI pipeline to generate the masks.</h2>
+  <p class="lead">Each of Anthony's 70+ source PNGs went through a node-based workflow that isolated the figure, posterized to black/white, and exported the mask as a print-ready 300dpi JPG named to the supplier's convention.</p>
+  <div class="full-bleed" style="margin-top:32px">
+    <img src="assets/35_ai_node_graph_full.png" alt="AI node graph for mask generation" loading="lazy">
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 07b OVERLAY QA PASS                                          -->
+<!-- ============================================================ -->
+<section id="s7b">
+  <div class="section-num">07 · OVERLAY QA</div>
+  <h2 style="margin-bottom:6px">Then I eyeballed every mask in one pass.</h2>
+  <p class="lead" style="margin-bottom:0">Masks dropped back over originals in red — the whole set on one page. Anything wrong got hand-fixed before shipping.</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px;flex:1;min-height:0;align-items:stretch">
+    <figure class="img-card" style="margin:0;display:flex;background:transparent;border:0;padding:0"><img src="assets/overlay_page_1.jpg" alt="overlay page 1" loading="lazy" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in"></figure>
+    <figure class="img-card" style="margin:0;display:flex;background:transparent;border:0;padding:0"><img src="assets/overlay_page_2.jpg" alt="overlay page 2" loading="lazy" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in"></figure>
+    <figure class="img-card" style="margin:0;display:flex;background:transparent;border:0;padding:0"><img src="assets/overlay_page_3.jpg" alt="overlay page 3" loading="lazy" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in"></figure>
+    <figure class="img-card" style="margin:0;display:flex;background:transparent;border:0;padding:0"><img src="assets/overlay_page_4.jpg" alt="overlay page 4" loading="lazy" style="width:100%;height:100%;object-fit:contain;cursor:zoom-in"></figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 14 PAYMENT FRICTION                                          -->
+<!-- ============================================================ -->
+<section id="s11">
+  <div class="section-num">11 · PAYMENT</div>
+  <h2>Paying ¥11,536 from the wrong country was the hard part.</h2>
+  <p>Cross-border payment turned out to be the single most fragile step. Three rounds of failures before the order finally cleared.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">¥9,000</div><div class="l">Initial Alipay attempt — buyer account didn't exist</div></div>
+    <div class="stat"><div class="n">¥11,200</div><div class="l">Retry — flagged for security (yw1128). Filed appeal.</div></div>
+    <div class="stat"><div class="n gold">$2,000</div><div class="l">Total cost + 定金 rounds up to $2,000</div></div>
+  </div>
+  <div class="grid-3" style="margin-top:24px">
+    <figure><img src="assets/32_pay_error.jpg" alt="pay error" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
+    <figure><img src="assets/26_pay_failed.jpg" alt="pay failed" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
+    <figure><img src="assets/30_pay_apple.jpg" alt="apple pay confirm" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 13 FACTORY                                                   -->
+<!-- ============================================================ -->
+<section id="s10">
+  <div class="section-num">10 · ON THE FLOOR</div>
+  <h2>And then they pressed print.</h2>
+  <p class="lead">From "let's try this" to "the bag has been printed" took about three weeks of nightly WeChat back-and-forth. The factory sent photo and video proofs at every milestone — I was checking my phone at 3am for messages from Guangdong.</p>
+  <div class="floor-row">
+    <figure class="floor-item">
+      <img src="assets/11_print_bed.jpg" alt="print bed" loading="lazy" class="img-card">
+      <figcaption>The full uncut sheet on the factory print bed in Dongguan. Every card, foil intact, ready to die-cut. <em>This is the photo I will remember most.</em></figcaption>
+    </figure>
+    <figure class="floor-item img-card" style="padding:2px;margin:0">
+      <video src="assets/factory_clip_c.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
+    </figure>
+    <figure class="floor-item img-card" style="padding:2px;margin:0">
+      <video src="assets/factory_clip_b.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 15 ARRIVED                                                   -->
+<!-- ============================================================ -->
+<section id="s12">
+  <div class="section-num">12 · ARRIVED</div>
+  <h2>And then a cardboard box turned up at the office.</h2>
+  <div class="grid-2 tight" style="max-width:1100px;margin:24px auto 0;grid-template-columns:1fr 1fr 1fr">
+    <figure><img src="assets/05_shipbox.jpg" alt="shipping box" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>Customs cleared. Box opened.</figcaption></figure>
+    <figure><img src="assets/15_box_top.jpg" alt="top down packs" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>Stacked rows of sealed Masterworks of Horror booster packs.</figcaption></figure>
+    <figure class="img-card" style="padding:2px;margin:0 auto">
+      <video src="assets/factory_clip_a.mov" autoplay muted loop playsinline style="width:100%;display:block;max-height:55vh;object-fit:cover"></video>
+      <figcaption>Unboxing on the desk</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 15b HERO LAYOUT                                              -->
+<!-- ============================================================ -->
+<section id="s12b">
+  <div class="section-num">12 · LAID OUT</div>
+  <div class="full-bleed" style="margin:0">
+    <img src="assets/01_hero_18cards.jpg" alt="hero cards layout" loading="lazy" style="max-height:88vh;width:auto;margin:0 auto">
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 16 CLOSING                                                   -->
+<!-- ============================================================ -->
+<section id="s13" class="closing">
+  <div class="section-num">13 · CLOSING</div>
+  <div class="closing-grid">
+    <div class="closing-text">
+      <h2>And then we sorted 1,500 collab cards by hand.</h2>
+      <p class="lead">We ordered 5,000 cards. The factory shipped us more than that. 1,500 of them were collab cards we'd done with other games at USC — those came loose, not in packs, so we had to sort them by hand.</p>
+
+      <div class="hr"></div>
+
+      <p class="lead">
+        <em class="gold">The Pleasures of Book Collecting</em> argues that what makes an object collectible is the care that went into making it sit on a shelf. Anthony's cards already had the art and the system. What I did was give them the foil, the bag, the print bed in Dongguan, and the box on the desk.
+      </p>
+      <p class="lead closing-coda">
+        <em class="gold">That's the response.</em>
+      </p>
+    </div>
+    <figure class="closing-figure">
+      <img src="assets/06_bulk_stacks.jpg" alt="Hand-sorted collab card stacks on the office table" loading="lazy" class="img-card">
+    </figure>
+  </div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- LIGHTBOX                                                     -->
+<!-- ============================================================ -->
+<div class="lb" id="lb"><img id="lbi" src=""></div>
+
+<script>
+  const sections = [...document.querySelectorAll('section')];
+  const total = sections.length;
+  const prog = document.getElementById('progress');
+  const navCur = document.getElementById('navCur');
+  const navTotal = document.getElementById('navTotal');
+  const lblCur = document.getElementById('lblCur');
+  const lblTotal = document.getElementById('lblTotal');
+  const btnPrev = document.getElementById('prev');
+  const btnNext = document.getElementById('next');
+  navTotal.textContent = String(total).padStart(2,'0');
+  lblTotal.textContent = String(total).padStart(2,'0');
+
+  let idx = 1;
+
+  function show(n){
+    n = Math.max(1, Math.min(total, n));
+    idx = n;
+    sections.forEach((s,i)=>s.classList.toggle('active', i === n-1));
+    const pad = String(n).padStart(2,'0');
+    navCur.textContent = pad;
+    lblCur.textContent = pad;
+    prog.style.width = ((n-1)/(total-1)*100) + '%';
+    btnPrev.disabled = (n === 1);
+    btnNext.disabled = (n === total);
+    // sync hash without scrolling
+    history.replaceState(null, '', '#' + n);
+  }
+
+  // initial slide from hash
+  const startHash = parseInt(location.hash.replace('#',''),10);
+  show(Number.isFinite(startHash) && startHash >= 1 && startHash <= total ? startHash : 1);
+
+  btnPrev.addEventListener('click', () => show(idx - 1));
+  btnNext.addEventListener('click', () => show(idx + 1));
+
+  // keyboard nav
+  document.addEventListener('keydown', (e) => {
+    if (lb.classList.contains('open')) return;
+    if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); show(idx + 1); }
+    if (['ArrowLeft','PageUp'].includes(e.key))      { e.preventDefault(); show(idx - 1); }
+    if (e.key === 'Home') { e.preventDefault(); show(1); }
+    if (e.key === 'End')  { e.preventDefault(); show(total); }
+  });
+
+  // hash change (back/forward)
+  window.addEventListener('hashchange', () => {
+    const n = parseInt(location.hash.replace('#',''),10);
+    if (Number.isFinite(n)) show(n);
+  });
+
+  // lightbox
+  const lb = document.getElementById('lb');
+  const lbi = document.getElementById('lbi');
+  document.querySelectorAll('.img-card img, .full-bleed img').forEach(img => {
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lbi.src = img.src;
+      lb.classList.add('open');
+    });
+  });
+  lb.addEventListener('click', () => lb.classList.remove('open'));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lb.classList.remove('open');
+  });
+</script>
+</body>
+</html>

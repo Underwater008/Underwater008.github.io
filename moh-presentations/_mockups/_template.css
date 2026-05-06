@@ -1,0 +1,79 @@
+/* iOS WeChat mockup, ~506x1100 */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{margin:0;background:#fff}
+body{
+  width:506px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","SF Pro Display","PingFang SC","Hiragino Sans",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  color:#111;
+}
+.phone{
+  width:506px;
+  background:#ededed;
+  position:relative;
+}
+/* status bar */
+.status{
+  height:56px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;background:#f3f3f5;font-size:18px;font-weight:600;color:#111;
+  border-radius:16px 16px 0 0;
+}
+.status .time{display:flex;align-items:center;gap:6px}
+.status .bell{font-size:14px;opacity:.7}
+.status .right{display:flex;align-items:center;gap:6px;font-size:14px}
+.status .signal,.status .wifi{display:inline-block;width:18px;height:11px;background:#111;mask-image:radial-gradient(circle, #000 60%, transparent 60%)}
+.status .battery{
+  display:inline-block;width:28px;height:14px;border:1.5px solid #111;border-radius:4px;
+  position:relative;background:linear-gradient(to right,#111 var(--pct,40%),transparent var(--pct,40%));
+  padding:1px;
+}
+.status .battery::after{content:"";position:absolute;right:-4px;top:4px;width:3px;height:6px;background:#111;border-radius:0 2px 2px 0}
+/* header */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 16px;background:#f3f3f5;font-size:18px;font-weight:600;
+}
+.hdr .back{font-size:24px;color:#111}
+.hdr .title{font-size:18px;font-weight:600}
+.hdr .icons{display:flex;gap:14px;font-size:18px;color:#888}
+/* messages area */
+.msgs{padding:14px 14px 28px;background:#ededed;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:8px;align-items:flex-start}
+.row.right{justify-content:flex-end}
+.row .ava{
+  width:36px;height:36px;border-radius:6px;flex-shrink:0;
+  background:linear-gradient(135deg,#f1a955,#cf6f2c);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:13px;font-family:Georgia,serif;
+}
+.row .ava.shop{background:linear-gradient(135deg,#ff8a4c,#d65a18);font-size:11px}
+.row .ava.flower{
+  background:conic-gradient(from 0deg,#e91e63,#ff5722,#ffeb3b,#4caf50,#2196f3,#9c27b0,#e91e63);
+}
+.row .ava.user{background:linear-gradient(135deg,#5b6e8a,#3a4a63)}
+.col{display:flex;flex-direction:column;gap:4px;max-width:78%}
+.row.right .col{align-items:flex-end}
+.who{font-size:12px;color:#888;padding:0 2px}
+.bubble{
+  background:#fff;padding:11px 14px;border-radius:6px;font-size:15px;line-height:1.5;
+  max-width:100%;word-wrap:break-word;color:#111;
+}
+.bubble.peach{background:#fde4ce}
+.bubble.gray{background:#dadbdd;color:#555;font-size:13px}
+.bubble.notice{background:transparent;color:#888;font-size:12px;padding:6px 12px;border-radius:14px;background:#dcdcde;text-align:center}
+.translated{
+  font-size:11px;color:#888;margin-top:4px;display:flex;align-items:center;gap:5px;
+}
+.translated::before{content:"✓";display:inline-block;width:14px;height:14px;border-radius:50%;background:#bbb;color:#fff;font-size:9px;text-align:center;line-height:14px}
+.read-tag{font-size:13px;color:#7e8b9a;margin:0 8px;align-self:flex-end}
+/* bottom input bar */
+.input{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f3f3f5;border-top:1px solid #ddd;
+  margin-top:10px;
+}
+.input .mic{width:30px;height:30px;border-radius:50%;border:1px solid #aaa;display:flex;align-items:center;justify-content:center;font-size:14px;color:#555}
+.input .field{flex:1;background:#fff;border-radius:8px;height:38px}
+.input .ico{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#444}
+.input .plus{background:#444;color:#fff;border-radius:50%;width:28px;height:28px;font-size:16px}
+/* quick action chips above input */
+.chips{display:flex;gap:10px;padding:10px 14px 4px;background:#ededed}
+.chip{background:#f8f0e6;color:#c97a1f;font-size:13px;padding:7px 14px;border-radius:20px;display:flex;align-items:center;gap:6px}
