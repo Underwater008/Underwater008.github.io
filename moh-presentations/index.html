@@ -102,8 +102,8 @@
     font-size:22px;color:var(--gold);
     margin-bottom:8px;letter-spacing:.04em;
   }
-  p{max-width:60ch;margin-bottom:1em}
-  .lead{font-size:24px;line-height:1.45;max-width:48ch;color:var(--ink)}
+  p{max-width:none;margin-bottom:1em}
+  .lead{font-size:24px;line-height:1.45;max-width:none;color:var(--ink)}
   .muted{color:var(--muted)}
   .small{font-size:14px;line-height:1.5}
   em.gold{color:var(--gold);font-style:normal}
@@ -174,9 +174,8 @@
 
   .img-card{
     background:var(--bg-2);border:1px solid var(--line);
-    padding:6px;transition:transform .25s ease, border-color .25s ease;
+    padding:6px;
   }
-  .img-card:hover{border-color:var(--gold-dim)}
   .img-card img{width:100%;display:block;max-height:60vh;object-fit:contain}
   .img-card figcaption{padding:6px 4px 2px;color:var(--muted);font-size:12px}
 
@@ -410,7 +409,7 @@
   .lead{
     font-size:clamp(18px,1.55vw,23px);
     line-height:1.34;
-    max-width:58ch;
+    max-width:none;
   }
   .small{font-size:clamp(12px,.9vw,14px)}
   .counter{top:14px;right:20px;padding:5px 10px;font-size:10px}
@@ -525,9 +524,9 @@
   #s4 .merge-col{gap:10px}
   #s4 .scene-tag{font-size:clamp(15px,1.25vw,18px);padding:8px 0}
   #s4 .merge-lr-body{gap:clamp(12px,1.8vw,22px)}
-  #s4 .merge-shot img{max-height:min(52vh,540px)}
+  #s4 .merge-shot img{max-height:min(74vh,780px)}
   #s4 .buyin-shot{flex:1.28 1 0 !important}
-  #s4 .buyin-shot img{max-height:min(60vh,620px)}
+  #s4 .buyin-shot img{max-height:min(80vh,820px)}
   #s4 .vendor img{width:min(260px,18vw);padding:10px;margin-bottom:10px}
   #s4 .vendor figcaption strong{font-size:clamp(19px,1.5vw,24px)}
   #s4 .vendor::after{font-size:9px;letter-spacing:.12em;text-align:center}
@@ -540,34 +539,46 @@
   #s5 h2{margin-bottom:4px}
   #s5 .lead{margin-bottom:0}
   #s5 .chat-rows{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    display:flex;
+    flex-direction:column;
     flex:1 1 auto;
     max-height:none;
-    gap:clamp(8px,1.2vh,13px);
+    gap:clamp(10px,1.4vh,18px);
     margin-top:clamp(8px,1.2vh,14px);
     overflow:hidden;
   }
-  #s5 .chat-row-tall,
-  #s5 .chat-row-wide{display:contents}
-  #s5 .chat-rows figure{min-height:0}
-  #s5 .chat-rows .pair{gap:clamp(4px,.45vw,7px)}
-  #s5 .chat-rows .img-card{padding:3px}
-  #s5 .chat-rows .img-card img{max-height:min(30vh,300px)}
+  #s5 .chat-row-tall{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:clamp(8px,1vw,14px);
+    flex:1.6 1 0;
+    min-height:0;
+    align-items:start;
+  }
+  #s5 .chat-row-wide{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:clamp(14px,2vw,28px);
+    flex:1 1 0;
+    min-height:0;
+    align-items:start;
+  }
+  #s5 .chat-rows figure{min-height:0;height:100%;justify-content:flex-start}
+  #s5 .chat-rows .pair{gap:clamp(4px,.45vw,7px);height:100%;align-items:stretch}
+  #s5 .chat-rows .img-card{padding:3px;align-items:center}
+  #s5 .chat-row-tall .img-card img{max-height:min(48vh,520px)}
+  #s5 .chat-row-wide .img-card img{max-height:min(34vh,360px)}
   #s5 .chat-rows img.img-card{
     display:block;
     flex:0 1 auto;
     height:auto;
-    max-height:min(34vh,340px);
     max-width:calc(50% - 4px);
     object-fit:contain;
     width:auto;
   }
-  #s5 .chat-rows figcaption{
-    font-size:clamp(10px,.82vw,12px);
-    line-height:1.22;
-    margin-top:4px;
-  }
+  #s5 .chat-row-tall img.img-card{max-height:min(48vh,520px)}
+  #s5 .chat-row-wide img.img-card{max-height:min(34vh,360px)}
+  #s5 .chat-rows figcaption{display:none}
 
   #s6 .grid-2{
     grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
@@ -611,22 +622,40 @@
     object-fit:contain !important;
   }
 
-  #s7 .full-bleed{margin-top:clamp(12px,2vh,24px) !important}
-  #s7 .lead{max-width:72ch}
+  #s7 .full-bleed{margin-top:clamp(8px,1.4vh,16px) !important}
+  #s7 .lead{max-width:none}
+  #s7 h2{margin-bottom:6px}
+  #s7 > p:last-of-type{margin-top:8px !important}
   #s7 .full-bleed{
     margin-left:0;
     margin-right:0;
     width:100%;
   }
-  #s7 .full-bleed img{max-height:min(51vh,540px)}
+  #s7 .full-bleed img{max-height:min(72vh,820px);width:auto;margin:0 auto;display:block}
   #s7 .small{margin-top:10px !important}
   #s7b h2{margin-bottom:4px !important}
+  #s7b{justify-content:center}
+  #s7b > div[style*="grid-template-columns"]{
+    align-items:center !important;
+    align-content:center;
+    margin-top:auto !important;
+    margin-bottom:auto !important;
+    flex:0 1 auto !important;
+  }
+  #s7b > div[style*="grid-template-columns"] figure{
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  #s7b > div[style*="grid-template-columns"] figure img{
+    height:auto !important;
+    max-height:72vh;
+  }
 
   #s11{gap:clamp(6px,1vh,12px)}
   #s11 h2{margin-bottom:4px}
   #s11 > p{
     margin-bottom:0;
-    max-width:70ch;
+    max-width:none;
   }
   #s11 .stats{
     gap:clamp(14px,1.8vw,24px);
@@ -639,13 +668,40 @@
     gap:clamp(18px,2.4vw,34px);
     margin-top:clamp(8px,1.2vh,12px) !important;
   }
-  #s11 img.img-card{max-height:min(50vh,540px) !important}
+  #s11 img.img-card{max-height:min(70vh,720px) !important;width:auto !important;margin:0 auto !important}
+  #s11 figcaption{display:none}
 
-  #s10 .grid-2{
-    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  #s10 .floor-row{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(20px,2.4vw,36px);
+    align-items:center;
+    justify-items:center;
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
   }
-  #s10 img.img-card{max-height:min(49vh,520px)}
-  #s10 video{max-height:min(30vh,320px) !important}
+  #s10 .floor-item{
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:min(66vh,680px);
+    padding:4px;
+  }
+  #s10 .floor-item img.img-card,
+  #s10 .floor-item video{
+    width:100%;
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain !important;
+    margin:0;
+    padding:0;
+    background:#0b0707;
+  }
+  #s10 figcaption{display:none}
 
   #s12 .grid-2{
     max-width:1180px !important;
@@ -653,7 +709,8 @@
     gap:clamp(14px,2vw,24px);
   }
   #s12 img.img-card,
-  #s12 video{max-height:min(47vh,500px) !important}
+  #s12 video{max-height:min(70vh,720px) !important}
+  #s12 figcaption{display:none}
   #s12b{justify-content:center}
   #s12b .full-bleed{
     margin-left:0;
@@ -665,17 +722,64 @@
     max-width:100%;
   }
 
-  #s13{justify-content:flex-start}
-  #s13 h2{margin-bottom:4px}
-  #s13 figure{margin-top:8px !important}
-  #s13 img.img-card{max-height:min(28vh,300px) !important}
-  #s13 .lead{
-    font-size:clamp(16px,1.18vw,19px);
-    line-height:1.25;
+  #s13{justify-content:center;text-align:left;align-items:stretch}
+  #s13 .closing-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+    gap:clamp(28px,4vw,64px);
+    align-items:center;
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    max-width:1280px;
+    margin:0 auto;
   }
-  #s13 .lead[style]{margin-top:clamp(8px,1.2vh,14px) !important}
-  #s13 .hr{margin:clamp(10px,1.5vh,18px) auto !important}
-  #s13 .credit{margin-top:clamp(10px,1.4vh,16px);font-size:9px}
+  #s13 .closing-text{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px,1.4vh,16px);
+    text-align:left;
+  }
+  #s13 .closing-text h2{margin-bottom:4px;text-align:left}
+  #s13 .closing-text .lead{
+    font-size:clamp(16px,1.18vw,19px);
+    line-height:1.32;
+    margin:0;
+    max-width:54ch;
+  }
+  #s13 .closing-text .closing-coda{font-size:clamp(18px,1.35vw,22px)}
+  #s13 .closing-text .hr{margin:clamp(10px,1.5vh,18px) 0 !important;max-width:120px}
+  #s13 .closing-figure{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  #s13 .closing-figure .img-card{
+    display:block;
+    width:auto;
+    max-width:100%;
+    max-height:min(72vh,760px);
+    height:auto;
+    margin:0 auto;
+    padding:4px;
+  }
+  #s13 .closing-figure figcaption{
+    text-align:center;
+    margin-top:12px;
+    font-style:normal;
+    font-size:clamp(14px,1.05vw,16px);
+    color:var(--ink);
+    line-height:1.4;
+  }
+  #s13 em.muted,
+  #s13 .muted{
+    color:var(--ink);
+    font-style:normal;
+    opacity:.9;
+  }
+  #s13 .credit{margin-top:clamp(10px,1.4vh,16px);font-size:9px;text-align:center}
 
   @media (max-width:1100px){
     section{overflow-y:auto}
@@ -702,15 +806,21 @@
     .lead{font-size:clamp(17px,1.45vw,20px);line-height:1.28}
     #s4 .scene-tag{font-size:15px;padding:6px 0}
     #s4 .merge-lr{gap:18px}
-    #s4 .merge-shot img{max-height:min(42vh,340px)}
+    #s4 .merge-shot img{max-height:min(68vh,580px)}
     #s4 .vendor img{width:min(220px,16vw);margin-bottom:8px}
-    #s5 .chat-rows .img-card img,
-    #s5 .chat-rows img.img-card{max-height:min(28vh,224px)}
+    #s5 .chat-row-tall .img-card img,
+    #s5 .chat-row-tall img.img-card{max-height:min(44vh,360px)}
+    #s5 .chat-row-wide .img-card img,
+    #s5 .chat-row-wide img.img-card{max-height:min(30vh,260px)}
     #s6 .grid-2 > .foil-media-grid .foil-stills img{max-height:min(24vh,190px)}
     #s6 .foil-video video{max-height:min(52vh,410px) !important}
-    #s7 .full-bleed img{max-height:min(47vh,390px)}
+    #s7 .full-bleed img{max-height:min(66vh,620px)}
     #s11 .stats{margin:8px 0}
-    #s11 img.img-card{max-height:min(44vh,350px) !important}
+    #s11 img.img-card{max-height:min(60vh,560px) !important}
+    #s10 img.img-card{max-height:min(72vh,680px)}
+    #s12 img.img-card,
+    #s12 video{max-height:min(60vh,580px) !important}
+    #s13 .closing-figure .img-card{max-height:min(64vh,580px)}
   }
 </style>
 </head>
@@ -789,7 +899,7 @@
 <!-- ============================================================ -->
 <section id="s4">
   <div class="section-num">04 · SOURCING + IDENTITY</div>
-  <h2 class="big-h2">Becoming Anthony,<br>then finding a factory.</h2>
+  <h2 class="big-h2">First the buy-in,<br>then the factory.</h2>
 
   <div class="merge-lr">
     <!-- Left: chats with Anthony (buy-in + QA loop) -->
@@ -904,7 +1014,6 @@
   <div class="full-bleed" style="margin-top:32px">
     <img src="assets/35_ai_node_graph_full.png" alt="AI node graph for mask generation" loading="lazy">
   </div>
-  <p class="muted small" style="margin-top:16px;text-align:center">Original card art on the left, mask outputs on the right. Each connection is one card processed.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -932,12 +1041,12 @@
   <div class="stats">
     <div class="stat"><div class="n">¥9,000</div><div class="l">Initial Alipay attempt — buyer account didn't exist</div></div>
     <div class="stat"><div class="n">¥11,200</div><div class="l">Retry — flagged for security (yw1128). Filed appeal.</div></div>
-    <div class="stat"><div class="n gold">$2,000</div><div class="l">Final via Apple Pay → Cainiao International Store (~¥11,536)</div></div>
+    <div class="stat"><div class="n gold">$2,000</div><div class="l">Total cost + 定金 rounds up to $2,000</div></div>
   </div>
   <div class="grid-3" style="margin-top:24px">
-    <figure><img src="assets/32_pay_error.jpg" alt="pay error" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>"Buyer Alipay account does not exist"</figcaption></figure>
-    <figure><img src="assets/26_pay_failed.jpg" alt="pay failed" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>Payment failed (security flag)</figcaption></figure>
-    <figure><img src="assets/30_pay_apple.jpg" alt="apple pay confirm" loading="lazy" class="img-card" style="max-height:55vh;width:auto;margin:0 auto"><figcaption>Final: Apple Pay went through</figcaption></figure>
+    <figure><img src="assets/32_pay_error.jpg" alt="pay error" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
+    <figure><img src="assets/26_pay_failed.jpg" alt="pay failed" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
+    <figure><img src="assets/30_pay_apple.jpg" alt="apple pay confirm" loading="lazy" class="img-card" style="width:auto;margin:0 auto"></figure>
   </div>
 </section>
 
@@ -947,25 +1056,18 @@
 <section id="s10">
   <div class="section-num">10 · ON THE FLOOR</div>
   <h2>And then they pressed print.</h2>
-  <div class="grid-2">
-    <figure>
+  <p class="lead">From "let's try this" to "the bag has been printed" took about three weeks of nightly WeChat back-and-forth. The factory sent photo and video proofs at every milestone — I was checking my phone at 3am for messages from Guangdong.</p>
+  <div class="floor-row">
+    <figure class="floor-item">
       <img src="assets/11_print_bed.jpg" alt="print bed" loading="lazy" class="img-card">
       <figcaption>The full uncut sheet on the factory print bed in Dongguan. Every card, foil intact, ready to die-cut. <em>This is the photo I will remember most.</em></figcaption>
     </figure>
-    <div class="stack">
-      <p>From "let's try this" to "the bag has been printed" took about three weeks of nightly WeChat back-and-forth. The factory sent photo and video proofs at every milestone.</p>
-      <p>I was checking my phone at 3am for messages from Guangdong.</p>
-      <div class="grid-3" style="grid-template-columns:1fr 1fr;margin-top:16px">
-        <figure class="img-card" style="padding:2px">
-          <video src="assets/factory_clip_b.mov" autoplay muted loop playsinline style="width:100%;display:block;max-height:38vh;object-fit:cover"></video>
-          <figcaption>Sheet inspection on the line</figcaption>
-        </figure>
-        <figure class="img-card" style="padding:2px">
-          <video src="assets/factory_clip_c.mov" autoplay muted loop playsinline style="width:100%;display:block;max-height:38vh;object-fit:cover"></video>
-          <figcaption>Assembly &amp; sealing</figcaption>
-        </figure>
-      </div>
-    </div>
+    <figure class="floor-item img-card" style="padding:2px;margin:0">
+      <video src="assets/factory_clip_c.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
+    </figure>
+    <figure class="floor-item img-card" style="padding:2px;margin:0">
+      <video src="assets/factory_clip_b.mov" autoplay muted loop playsinline style="width:100%;display:block;object-fit:contain"></video>
+    </figure>
   </div>
 </section>
 
@@ -1000,23 +1102,25 @@
 <!-- ============================================================ -->
 <section id="s13" class="closing">
   <div class="section-num">13 · CLOSING</div>
-  <h2>And then we sorted 1,500 collab cards by hand.</h2>
-  <figure style="margin:18px auto 0;max-width:780px">
-    <img src="assets/06_bulk_stacks.jpg" alt="Hand-sorted collab card stacks on the office table" loading="lazy" class="img-card" style="max-height:48vh;width:auto;margin:0 auto">
-    <figcaption style="text-align:center">Rubber-banded by character, on the desk where it ended.</figcaption>
-  </figure>
-  <p class="lead" style="margin:24px auto 0;text-align:center">Of the 4,500 cards, 1,500 were never put in packs — those were the collab cards meant to go to partner-game studios. They came loose. We sorted them by name. <em class="muted">At least it was mapped, so that was a little better.</em></p>
+  <div class="closing-grid">
+    <div class="closing-text">
+      <h2>And then we sorted 1,500 collab cards by hand.</h2>
+      <p class="lead">We ordered 5,000 cards. The factory shipped us more than that. 1,500 of them were collab cards we'd done with other games at USC — those came loose, not in packs, so we had to sort them by hand.</p>
 
-  <div class="hr" style="margin:48px auto"></div>
+      <div class="hr"></div>
 
-  <p class="lead" style="margin:0 auto;text-align:center;max-width:54ch">
-    <em class="gold">The Pleasures of Book Collecting</em> argues that what makes an object collectible is the care that went into making it sit on a shelf. Anthony's cards already had the art and the system. What I did was give them the foil, the bag, the print bed in Dongguan, and the box on the desk.
-  </p>
-  <p class="lead" style="margin:24px auto 0;text-align:center;max-width:54ch">
-    <em class="gold">That's the response.</em>
-  </p>
+      <p class="lead">
+        <em class="gold">The Pleasures of Book Collecting</em> argues that what makes an object collectible is the care that went into making it sit on a shelf. Anthony's cards already had the art and the system. What I did was give them the foil, the bag, the print bed in Dongguan, and the box on the desk.
+      </p>
+      <p class="lead closing-coda">
+        <em class="gold">That's the response.</em>
+      </p>
+    </div>
+    <figure class="closing-figure">
+      <img src="assets/06_bulk_stacks.jpg" alt="Hand-sorted collab card stacks on the office table" loading="lazy" class="img-card">
+    </figure>
+  </div>
 
-  <div class="credit">XIAO · CLASS 544 · MAY 2026 · MASTERWORKS OF HORROR © ANTHONY ALVAREZ</div>
 </section>
 
 <!-- ============================================================ -->
