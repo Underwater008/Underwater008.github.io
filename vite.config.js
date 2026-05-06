@@ -31,6 +31,18 @@ const copyUncreditedAssets = {
   },
 };
 
+const copyMohPresentationsAssets = {
+  name: 'copy-moh-presentations-assets',
+  apply: 'build',
+  closeBundle() {
+    const src = resolve(__dirname, 'moh-presentations');
+    const dst = resolve(__dirname, 'dist/moh-presentations');
+    if (existsSync(src)) {
+      cpSync(src, dst, { recursive: true });
+    }
+  },
+};
+
 module.exports = {
     build: {
       rollupOptions: {
@@ -54,5 +66,6 @@ module.exports = {
       vitePluginString(),
       copyFuPresentationAssets,
       copyUncreditedAssets,
+      copyMohPresentationsAssets,
     ]
   };
